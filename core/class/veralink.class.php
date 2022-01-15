@@ -103,7 +103,41 @@ class veralink extends eqLogic {
 
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
     public function postSave() {
-        
+       // VERA IP Addr
+       $vera_ip = $this->getCmd(null,'veraip');
+       if (!is_object($vera_ip)) {
+         $vera_ip = new veralinkCmd();
+         $vera_ip->setName(__('Vera IP',__FILE__));
+       }
+       $vera_ip->setLogicalId('veraip');
+       $vera_ip->setEqLogic_id( $this->getId() );
+       $vera_ip->setType('info');
+       $vera_ip->setSubType('string');
+       $vera_ip->save();
+
+      // VERA Data information
+      $info = $this->getCmd(null, 'data');
+      if (!is_object($info)) {
+        $info = new veralinkCmd();
+        $info->setName(__('Data', __FILE__));
+      }
+      $info->setLogicalId('data');
+      $info->setEqLogic_id($this->getId());
+      $info->setType('info');
+      $info->setSubType('string');
+      $info->save();   
+
+      // Refresh Action
+      $refresh = $this->getCmd(null, 'refresh');
+      if (!is_object($refresh)) {
+        $refresh = new veralinkCmd();
+        $refresh->setName(__('Rafraichir', __FILE__));
+      }
+      $refresh->setEqLogic_id($this->getId());
+      $refresh->setLogicalId('refresh');
+      $refresh->setType('action');
+      $refresh->setSubType('other');
+      $refresh->save();
     }
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
