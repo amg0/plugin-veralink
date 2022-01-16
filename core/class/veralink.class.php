@@ -127,7 +127,7 @@ class veralink extends eqLogic {
       $info->setEqLogic_id($this->getId());
       $info->setType('info');
       $info->setSubType('string');
-      $info->setTemplate('dashboard','tile');   //template pour le dashboard
+      $info->setTemplate('dashboard','default');   //template pour le dashboard
       $info->save();   
 
       // Refresh Action
