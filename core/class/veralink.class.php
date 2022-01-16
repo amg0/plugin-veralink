@@ -99,7 +99,7 @@ class veralink extends eqLogic {
  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
     public function preSave() {
       $this->setDisplay("width","800px");                   // widget display width
-      $this->setConfiguration('ipaddr','192.168.0.7');      // VERA IP Addr
+      //$this->setConfiguration('ipaddr','192.168.0.17');      // VERA IP Addr
     }
 
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
@@ -173,7 +173,8 @@ class veralink extends eqLogic {
     }
      */
     public function getData() {
-      $url="http://192.168.0.17/port_3480/data_request?id=status";
+      $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $devices = $obj->devices[0];
