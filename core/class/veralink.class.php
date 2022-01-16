@@ -130,14 +130,16 @@ class veralink extends eqLogic {
       $refresh->save();
 
       // a Cmd for each scenes
+      log::add('veralink','info','before');
       $scenes = json_decode($this->getScenes());
+      log::add('veralink','info','after '.json_encode($scenes));
       foreach ($scenes as $idx => $scene) {
-         $cmd = $this->getCmd(null, $scene->id);
+         $cmd = $this->getCmd(null, 'V'.$scene->id);
          if (!is_object($refresh)) {
             $cmd = new veraSceneCmd($scene->id, $scene->name);
          }
          $cmd->setName($scene->name);
-         $cmd->setLogicalId($scene->id);
+         $cmd->setLogicalId('V'.$scene->id);
          $cmd->setEqLogic_id($this->getId());
          $cmd->setType('action');
          $cmd->setSubType('other');
