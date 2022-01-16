@@ -235,19 +235,19 @@ class veralinkCmd extends cmd {
     /*     * **********************Getteur Setteur*************************** */
 }
 
-// class veraSceneCmd extends cmd {
-//    private $name;
-//    private $id;
+class veraSceneCmd extends cmd {
+   private $name;
+   private $id;
 
-//    public function init($id,$name) {
-//       $this->id = $id;
-//       $this->name = $name;
-//    }
+   public function init($id,$name) {
+      $this->id = $id;
+      $this->name = $name;
+   }
 
-//    // Exécution d'une commande  
-//    public function execute($_options = array()) {
-//       log::add('veralink','info','execute '.$this->name);
-//    }
-// }
+   // Exécution d'une commande  
+   public function execute($_options = array()) {
+      log::add('veralink','info','execute '.$this->name);
+   }
+}
 
 
