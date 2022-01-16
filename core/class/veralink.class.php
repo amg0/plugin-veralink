@@ -160,10 +160,9 @@ class veralink extends eqLogic {
     }
      */
     public function getData() {
-      log::add('veralink','info','this is a test from veralink');
       $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
-      //log::add('veralink','Info','refresh de la vera ip:' . $ipaddr);
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
+      log::add('veralink','info','getting data from '.$url);
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $devices = $obj->devices[0];
