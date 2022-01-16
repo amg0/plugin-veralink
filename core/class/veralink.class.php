@@ -141,7 +141,7 @@ class veralink extends eqLogic {
          $cmd->setType('action');
          $cmd->setSubType('other');
 
-         $info->save();   
+         $cmd->save();   
       }
     }
 
@@ -194,7 +194,7 @@ class veralink extends eqLogic {
       $scenes = array_map(function ($elem) {
          return array("name"=>$elem->name, "id"=>$elem->id);
       }, $obj->scenes);
-      
+
       return $scenes;
     }
 
