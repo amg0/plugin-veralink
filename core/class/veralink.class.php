@@ -169,6 +169,13 @@ class veralink extends eqLogic {
     public static function preConfig_<Variable>() {
     }
      */
+    public function getData() {
+      $url="http://192.168.0.17/port_3480/data_request?id=status";
+      $json = file_get_contents($url);
+      $obj = json_decode($json);
+      $devices = $obj->devices[0];
+      return json_encode($devices);
+    }
 
     /*     * **********************Getteur Setteur*************************** */
 }
@@ -194,7 +201,13 @@ class veralinkCmd extends cmd {
 
   // Exécution d'une commande  
      public function execute($_options = array()) {
-        
+      switch ($this->getLogicalId()) {
+         case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
+            $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
+            $devices_json = $eqlogic->getData() ; //Lance la fonction et stocke le résultat dans la variable $info
+            $eqlogic->checkAndUpdateCmd('data', $devices_json);
+            break;
+      }
      }
 
     /*     * **********************Getteur Setteur*************************** */
