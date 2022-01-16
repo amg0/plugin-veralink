@@ -134,7 +134,7 @@ class veralink extends eqLogic {
       foreach ($scenes as $idx => $scene) {
          $cmd = $this->getCmd(null, $scene->id);
          if (!is_object($refresh)) {
-            $cmd = new veraSceneCmd($scene->id, $scene->name)
+            $cmd = new veraSceneCmd($scene->id, $scene->name);
          }
          $cmd->setName($scene->name);
          $cmd->setLogicalId($scene->id);
