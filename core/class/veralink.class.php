@@ -238,6 +238,11 @@ class veralinkCmd extends cmd {
 class veraSceneCmd extends cmd {
    private $verascenename;
    private $verasceneid;
+
+   public function init($id,$name) {
+      $this->verasceneid = $id;
+      $this->verascenename = $name;
+   }
    
    public function execute($_options = array()) {
       log::add('veralink','info','execute');
