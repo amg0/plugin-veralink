@@ -160,6 +160,7 @@ class veralink extends eqLogic {
     }
      */
     public function getData() {
+       log::add('veralink','error','this is a test from veralink');
       $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
       //log::add('veralink','Info','refresh de la vera ip:' . $ipaddr);
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
