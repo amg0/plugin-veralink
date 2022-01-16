@@ -98,12 +98,14 @@ class veralink extends eqLogic {
 
  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
     public function preSave() {
-        
+      $this->setDisplay("width","800px");                   // widget display width
+      $this->setConfiguration('ipaddr','192.168.0.7');      // VERA IP Addr
     }
 
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
     public function postSave() {
-      // VERA IP Addr
+      // VERA IP Addr : cf preSave()
+
       // $vera_ip = $this->getCmd(null,'veraip');
       // if (!is_object($vera_ip)) {
       //    $vera_ip = new veralinkCmd();
@@ -125,6 +127,7 @@ class veralink extends eqLogic {
       $info->setEqLogic_id($this->getId());
       $info->setType('info');
       $info->setSubType('string');
+      $info->setTemplate('dashboard','tile');   //template pour le dashboard
       $info->save();   
 
       // Refresh Action

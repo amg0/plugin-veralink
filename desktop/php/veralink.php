@@ -125,11 +125,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<legend><i class="fas fa-cogs"></i> {{Paramètres spécifiques}}</legend>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Nom du paramètre n°1}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le paramètre n°1 de l'équipement}}"></i></sup>
+								<label class="col-sm-3 control-label">{{Adresse IP}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Adresse IP de la vera}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="param1" placeholder="{{Paramètre n°1}}"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="ipaddr" placeholder="{{Adresse IP}}"/>
 								</div>
 							</div>
 							<div class="form-group">
