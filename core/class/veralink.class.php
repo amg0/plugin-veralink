@@ -196,7 +196,7 @@ class veralink extends eqLogic {
          return array("name"=>$elem->name, "id"=>$elem->id);
       }, $obj->scenes);
 
-      return $scenes;
+      return json_encode($scenes);
     }
 
     /*     * **********************Getteur Setteur*************************** */
@@ -226,7 +226,7 @@ class veralinkCmd extends cmd {
       switch ($this->getLogicalId()) {
          case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
             $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
-            $devices_json = $eqlogic->getData() ; //Lance la fonction et stocke le résultat dans la variable $info
+            $devices_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
             $eqlogic->checkAndUpdateCmd('data', $devices_json);
             break;
       }
