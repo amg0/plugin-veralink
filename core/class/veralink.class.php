@@ -235,9 +235,9 @@ class veralinkCmd extends cmd {
     /*     * **********************Getteur Setteur*************************** */
 }
 
-class veraSceneCmd {
+class veraSceneCmd extends cmd {
    public function execute($_options = array()) {
-      
+      log::add('veralink','info','execute');
    }
 }
 
