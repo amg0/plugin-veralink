@@ -184,20 +184,20 @@ class veralink extends eqLogic {
       return json_encode($devices);
     }
 
-    public function getScenes() {
-      $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
-      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
-      log::add('veralink','info','getting scenes from '.$url);
+   //  public function getScenes() {
+   //    $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+   //    $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
+   //    log::add('veralink','info','getting scenes from '.$url);
 
-      $json = file_get_contents($url);
-      $obj = json_decode($json);
+   //    $json = file_get_contents($url);
+   //    $obj = json_decode($json);
 
-      $scenes = array_map(function ($elem) {
-         return array("name"=>$elem->name, "id"=>$elem->id);
-      }, $obj->scenes);
+   //    $scenes = array_map(function ($elem) {
+   //       return array("name"=>$elem->name, "id"=>$elem->id);
+   //    }, $obj->scenes);
 
-      return $scenes;
-    }
+   //    return $scenes;
+   //  }
 
     /*     * **********************Getteur Setteur*************************** */
 }
@@ -235,19 +235,19 @@ class veralinkCmd extends cmd {
     /*     * **********************Getteur Setteur*************************** */
 }
 
-class veraSceneCmd extends cmd {
-   private $name;
-   private $id;
+// class veraSceneCmd extends cmd {
+//    private $name;
+//    private $id;
 
-   public function init($id,$name) {
-      $this->id = $id;
-      $this->name = $name;
-   }
+//    public function init($id,$name) {
+//       $this->id = $id;
+//       $this->name = $name;
+//    }
 
-   // Exécution d'une commande  
-   public function execute($_options = array()) {
-      log::add('veralink','info','execute '.$this->name);
-   }
-}
+//    // Exécution d'une commande  
+//    public function execute($_options = array()) {
+//       log::add('veralink','info','execute '.$this->name);
+//    }
+// }
 
 
