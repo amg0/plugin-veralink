@@ -127,21 +127,17 @@ class veralink extends eqLogic {
       $refresh->setLogicalId('refresh');
       $refresh->setType('action');
       $refresh->setSubType('other');
-      // $refresh->setChanged('data');       // TODO: confirm how to do a Info command liaison
       $refresh->save();
 
       // a Cmd for each scenes
       // $scenes = $this->getScenes();
       // foreach ($scenes as $idx => $scene) {
-      //    $cmd = new veraSceneCmd()
-      //    $cmd->init($scene->id, $scene->name );
-
+      //    $cmd = new veraSceneCmd($scene->id, $scene->name)
       //    $cmd->setName($scene->name);
       //    $cmd->setLogicalId($scene->id);
       //    $cmd->setEqLogic_id($this->getId());
       //    $cmd->setType('action');
       //    $cmd->setSubType('other');
-
       //    $cmd->save();   
       // }
     }
@@ -239,31 +235,15 @@ class veraSceneCmd extends cmd {
    private $verascenename;
    private $verasceneid;
 
-   public function init($id,$name) {
+   public function __construct($id,$name) {
+      parent::__construct();
       $this->verasceneid = $id;
       $this->verascenename = $name;
    }
-   
+
    public function execute($_options = array()) {
       log::add('veralink','info','execute');
    }
 }
-
-/* 
-class veraSceneCmd extends cmd {
-   private $name;
-   private $id;
-
-   public function init($id,$name) {
-      $this->id = $id;
-      $this->name = $name;
-   }
-
-   // Exécution d'une commande  
-   public function execute($_options = array()) {
-      log::add('veralink','info','execute '.$this->name);
-   }
-} 
-*/
 
 
