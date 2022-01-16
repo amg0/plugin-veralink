@@ -130,16 +130,19 @@ class veralink extends eqLogic {
       $refresh->save();
 
       // a Cmd for each scenes
-      // $scenes = $this->getScenes();
-      // foreach ($scenes as $idx => $scene) {
-      //    $cmd = new veraSceneCmd($scene->id, $scene->name)
-      //    $cmd->setName($scene->name);
-      //    $cmd->setLogicalId($scene->id);
-      //    $cmd->setEqLogic_id($this->getId());
-      //    $cmd->setType('action');
-      //    $cmd->setSubType('other');
-      //    $cmd->save();   
-      // }
+      $scenes = json_decode($this->getScenes());
+      foreach ($scenes as $idx => $scene) {
+         $cmd = $this->getCmd(null, $scene->id);
+         if (!is_object($refresh)) {
+            $cmd = new veraSceneCmd($scene->id, $scene->name)
+         }
+         $cmd->setName($scene->name);
+         $cmd->setLogicalId($scene->id);
+         $cmd->setEqLogic_id($this->getId());
+         $cmd->setType('action');
+         $cmd->setSubType('other');
+         $cmd->save();   
+      }
     }
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
