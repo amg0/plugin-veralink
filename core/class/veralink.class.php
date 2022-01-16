@@ -235,6 +235,12 @@ class veralinkCmd extends cmd {
     /*     * **********************Getteur Setteur*************************** */
 }
 
+class veraSceneCmd {
+   public function execute($_options = array()) {
+      
+   }
+}
+
 /* 
 class veraSceneCmd extends cmd {
    private $name;
