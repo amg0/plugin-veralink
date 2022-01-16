@@ -129,6 +129,20 @@ class veralink extends eqLogic {
       $refresh->setSubType('other');
       // $refresh->setChanged('data');       // TODO: confirm how to do a Info command liaison
       $refresh->save();
+
+      // a Cmd for each scenes
+      $scenes = $this->getScenes();
+      foreach ($scenes as $idx => $scene) {
+         $cmd = new veraSceneCmd( $scene->id, $scene->name );
+
+         $cmd->setName($scene->name);
+         $cmd->setLogicalId($scene->id);
+         $cmd->setEqLogic_id($this->getId());
+         $cmd->setType('action');
+         $cmd->setSubType('other');
+
+         $info->save();   
+      }
     }
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
@@ -169,6 +183,21 @@ class veralink extends eqLogic {
       return json_encode($devices);
     }
 
+    public function getScenes() {
+      $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
+      log::add('veralink','info','getting scenes from '.$url);
+
+      $json = file_get_contents($url);
+      $obj = json_decode($json);
+
+      $scenes = array_map(function ($elem) {
+         return array("name"=>$elem->name, "id"=>$elem->id);
+      }, $obj->scenes);
+      
+      return $scenes;
+    }
+
     /*     * **********************Getteur Setteur*************************** */
 }
 
@@ -203,6 +232,21 @@ class veralinkCmd extends cmd {
      }
 
     /*     * **********************Getteur Setteur*************************** */
+}
+
+class veraSceneCmd extends cmd {
+   private $name;
+   private $id;
+
+   public function __construct($id,$name) {
+      $this->id = $id;
+      $this->name = $name;
+   }
+
+   // Exécution d'une commande  
+   public function execute($_options = array()) {
+      log::add('veralink','info','execute '.$this->name);
+   }
 }
 
 
