@@ -131,13 +131,12 @@ class veralink extends eqLogic {
 
       // a Cmd for each scenes
       log::add('veralink','info','before get Scenes');
-      $scenes = json_decode($this->getScenes());
-      log::add('veralink','info','after '.json_encode($scenes));
+      $scenes = $this->getScenes();
       foreach ($scenes as $idx => $scene) {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, 'V'.$scene->id);
          if (!is_object($cmd)) {
-            log::add('veralink','info','creating New Cmd for '.$scene->id);
+            log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
             $cmd = new veraSceneCmd();
             $cmd->init($scene->id, $scene->name);
          }
@@ -189,7 +188,11 @@ class veralink extends eqLogic {
     }
 
     public function getScenes() {
-      $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+      $ipaddr = $this->getConfiguration('ipaddr');
+      if (is_null($ipaddr)) {
+         log::add('veralink','info','null IP addr');
+         return [];
+      }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
       log::add('veralink','info','getting scenes from '.$url);
 
@@ -200,7 +203,7 @@ class veralink extends eqLogic {
          return array("name"=>$elem->name, "id"=>$elem->id);
       }, $obj->scenes);
 
-      return json_encode($scenes);
+      return $scenes;
     }
 
     /*     * **********************Getteur Setteur*************************** */
