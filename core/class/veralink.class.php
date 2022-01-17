@@ -106,12 +106,12 @@ class veralink extends eqLogic {
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
     public function postSave() {
       // VERA Data information
-      $info = $this->getCmd(null, 'data');
+      $info = $this->getCmd(null, 'scenes');
       if (!is_object($info)) {
         $info = new veralinkCmd();
-        $info->setName(__('Data', __FILE__));
+        $info->setName(__('Scenes', __FILE__));
       }
-      $info->setLogicalId('data');
+      $info->setLogicalId('scenes');
       $info->setEqLogic_id($this->getId());
       $info->setType('info');
       $info->setSubType('string');
@@ -178,8 +178,12 @@ class veralink extends eqLogic {
     public static function preConfig_<Variable>() {
     }
      */
-    public function getData() {
+    public function getDevices() {
       $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+      if (is_null($ipaddr)) {
+         log::add('veralink','info','null IP addr');
+         return json_encode([]);
+      }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
       log::add('veralink','info','getting data from '.$url);
       $json = file_get_contents($url);
@@ -192,14 +196,12 @@ class veralink extends eqLogic {
       $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
-         return [];
+         return json_encode([]);
       }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
       log::add('veralink','info','getting scenes from '.$url);
-
       $json = file_get_contents($url);
       $obj = json_decode($json);
-
       $scenes = array_map(function ($elem) {
          return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id);
       }, $obj->scenes);
@@ -208,7 +210,6 @@ class veralink extends eqLogic {
     }
 
     public function runScene($id) {
-      //http://ip_address:3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=<SceneNum>
       $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
@@ -247,8 +248,8 @@ class veralinkCmd extends cmd {
          $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
          switch ($this->getLogicalId()) {
             case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
-               $devices_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
-               $eqlogic->checkAndUpdateCmd('data', $devices_json);
+               $scenes_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
+               $eqlogic->checkAndUpdateCmd('scenes', $scenes_json);
                break;
                
             default:
