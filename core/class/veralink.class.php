@@ -131,7 +131,7 @@ class veralink extends eqLogic {
 
       // a Cmd for each scenes
       log::add('veralink','info','before get Scenes');
-      $scenes = $this->getScenes();
+      $scenes = json_decode($this->getScenes());
       foreach ($scenes as $idx => $scene) {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, 'V'.$scene->id);
@@ -188,7 +188,7 @@ class veralink extends eqLogic {
     }
 
     public function getScenes() {
-      $ipaddr = $this->getConfiguration('ipaddr');
+      $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
          return [];
@@ -203,7 +203,7 @@ class veralink extends eqLogic {
          return array("name"=>$elem->name, "id"=>$elem->id);
       }, $obj->scenes);
 
-      return $scenes;
+      return json_encode($scenes);
     }
 
     /*     * **********************Getteur Setteur*************************** */
