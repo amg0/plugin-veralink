@@ -116,6 +116,7 @@ class veralink extends eqLogic {
       $info->setType('info');
       $info->setSubType('string');
       $info->setTemplate('dashboard','default');   //template pour le dashboard
+      $info->setIsVisible(  false );
       $info->save();   
       
 
@@ -129,6 +130,7 @@ class veralink extends eqLogic {
       $refresh->setLogicalId('refresh');
       $refresh->setType('action');
       $refresh->setSubType('other');
+      $refresh->setIsVisible(  false );
       $refresh->save();
 
       // a Cmd for each scenes
