@@ -130,7 +130,7 @@ class veralink extends eqLogic {
       $refresh->save();
 
       // a Cmd for each scenes
-      log::add('veralink','info','before');
+      log::add('veralink','info','before get Scenes');
       $scenes = json_decode($this->getScenes());
       log::add('veralink','info','after '.json_encode($scenes));
       foreach ($scenes as $idx => $scene) {
