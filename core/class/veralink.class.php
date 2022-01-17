@@ -200,7 +200,7 @@ class veralink extends eqLogic {
       $obj = json_decode($json);
 
       $scenes = array_map(function ($elem) {
-         return array("name"=>$elem->name, "id"=>$elem->id);
+         return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id);
       }, $obj->scenes);
 
       return json_encode($scenes);
