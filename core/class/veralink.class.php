@@ -254,7 +254,7 @@ class veralinkCmd extends cmd {
             default:
                if (substr($this->getLogicalId(), 0, strlen(SCENECMD))==SCENECMD) {
                   $id = substr($this->getLogicalId(),strlen(SCENECMD));
-                  log::add('veralink','info','execute SCENE '. $id));   
+                  log::add('veralink','info','execute SCENE '. $id);   
                   $xml = $eqlogic->runScene($id);
                }
          }
