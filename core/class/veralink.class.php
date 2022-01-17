@@ -19,6 +19,8 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
+const SCENECMD = 'Scene';
+
 class veralink extends eqLogic {
     /*     * *************************Attributs****************************** */
     
@@ -134,14 +136,13 @@ class veralink extends eqLogic {
       $scenes = json_decode($this->getScenes());
       foreach ($scenes as $idx => $scene) {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
-         $cmd = $this->getCmd(null, 'V'.$scene->id);
+         $cmd = $this->getCmd(null, SCENECMD.$scene->id);
          if (!is_object($cmd)) {
             log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
-            $cmd = new veraSceneCmd();
-            $cmd->init($scene->id, $scene->name);
+            $cmd = new veralinkCmd();
          }
          $cmd->setName($scene->name);
-         $cmd->setLogicalId('V'.$scene->id);
+         $cmd->setLogicalId(SCENECMD.$scene->id);
          $cmd->setEqLogic_id($this->getId());
          $cmd->setType('action');
          $cmd->setSubType('other');
@@ -236,11 +237,18 @@ class veralinkCmd extends cmd {
             $devices_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
             $eqlogic->checkAndUpdateCmd('data', $devices_json);
             break;
+            
+         default:
+            if (substr($this->getLogicalId(), 0, strlen(SCENECMD))==SCENECMD) {
+               log::add('veralink','info','execute SCENE '. substr($this->getLogicalId(),strlen(SCENECMD)));   
+            }
       }
      }
 
     /*     * **********************Getteur Setteur*************************** */
 }
+/* TOKNOW:  THIS does not work, the original idea would be that execute is an abstract method of an abstract class Cmd but it is not the case
+<PluginID>Cmd is a important naming convention. cf https://community.jeedom.com/t/plusieurs-classes-de-commandes-cmd/76608/2
 
 class veraSceneCmd extends cmd {
    private $verascenename;
@@ -254,6 +262,6 @@ class veraSceneCmd extends cmd {
    public function execute($_options = array()) {
       log::add('veralink','info','execute');
    }
-}
+} */
 
 
