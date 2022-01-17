@@ -133,10 +133,10 @@ class veralink extends eqLogic {
       log::add('veralink','info','before get Scenes');
       $scenes = json_decode($this->getScenes());
       log::add('veralink','info','after '.json_encode($scenes));
-      // foreach ($scenes as $idx => $scene) {
-         $scene = $scenes[0];
+      foreach ($scenes as $idx => $scene) {
+         log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, 'V'.$scene->id);
-         if (!is_object($refresh)) {
+         if (!is_object($cmd)) {
             $cmd = new veraSceneCmd($scene->id, $scene->name);
          }
          $cmd->setName($scene->name);
@@ -145,7 +145,7 @@ class veralink extends eqLogic {
          $cmd->setType('action');
          $cmd->setSubType('other');
          $cmd->save();   
-      // }
+      }
     }
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
