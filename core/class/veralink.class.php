@@ -207,6 +207,25 @@ class veralink extends eqLogic {
       return json_encode($scenes);
     }
 
+    public function runScene($id) {
+      //http://ip_address:3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=<SceneNum>
+      $ipaddr = $this->getConfiguration('ipaddr',null);
+      if (is_null($ipaddr)) {
+         log::add('veralink','info','null IP addr');
+         return null;
+      }
+      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum='.$id;
+      $xml = file_get_contents($url);
+      log::add('veralink','debug','runscene returned '.$xml);
+/*    Positive response example   
+      <?xml version="1.0"?>
+      <u:RunSceneResponse xmlns:u="urn:schemas-micasaverde-com:service:UnknownService:1">
+      <OK>OK</OK>
+      </u:RunSceneResponse>
+ */
+      return $xml;
+    }
+
     /*     * **********************Getteur Setteur*************************** */
 }
 
@@ -230,19 +249,21 @@ class veralinkCmd extends cmd {
      */
 
   // Exécution d'une commande  
-     public function execute($_options = array()) {
-      switch ($this->getLogicalId()) {
-         case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
-            $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
-            $devices_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
-            $eqlogic->checkAndUpdateCmd('data', $devices_json);
-            break;
-            
-         default:
-            if (substr($this->getLogicalId(), 0, strlen(SCENECMD))==SCENECMD) {
-               log::add('veralink','info','execute SCENE '. substr($this->getLogicalId(),strlen(SCENECMD)));   
-            }
-      }
+      public function execute($_options = array()) {
+         $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
+         switch ($this->getLogicalId()) {
+            case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
+               $devices_json = $eqlogic->getScenes() ; //Lance la fonction et stocke le résultat dans la variable $info
+               $eqlogic->checkAndUpdateCmd('data', $devices_json);
+               break;
+               
+            default:
+               if (substr($this->getLogicalId(), 0, strlen(SCENECMD))==SCENECMD) {
+                  $id = substr($this->getLogicalId(),strlen(SCENECMD));
+                  log::add('veralink','info','execute SCENE '. $id));   
+                  $xml = $eqlogic->runScene($id);
+               }
+         }
      }
 
     /*     * **********************Getteur Setteur*************************** */
