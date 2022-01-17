@@ -217,12 +217,6 @@ class veralink extends eqLogic {
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum='.$id;
       $xml = file_get_contents($url);
       log::add('veralink','debug','runscene returned '.$xml);
-/*    Positive response example   
-      <?xml version="1.0"?>
-      <u:RunSceneResponse xmlns:u="urn:schemas-micasaverde-com:service:UnknownService:1">
-      <OK>OK</OK>
-      </u:RunSceneResponse>
- */
       return $xml;
     }
 
