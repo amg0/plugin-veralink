@@ -137,7 +137,9 @@ class veralink extends eqLogic {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, 'V'.$scene->id);
          if (!is_object($cmd)) {
-            $cmd = new veraSceneCmd($scene->id, $scene->name);
+            log::add('veralink','info','creating New Cmd for '.$scene->id);
+            $cmd = new veraSceneCmd();
+            $cmd->init($scene->id, $scene->name);
          }
          $cmd->setName($scene->name);
          $cmd->setLogicalId('V'.$scene->id);
@@ -241,8 +243,7 @@ class veraSceneCmd extends cmd {
    private $verascenename;
    private $verasceneid;
 
-   public function __construct($id,$name) {
-      parent::__construct();
+   public function init($id,$name) {
       $this->verasceneid = $id;
       $this->verascenename = $name;
    }
