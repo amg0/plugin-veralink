@@ -145,6 +145,7 @@ class veralink extends eqLogic {
          }
          $cmd->setName($scene->name);
          $cmd->setLogicalId(SCENECMD.$scene->id);
+         $cmd->setConfiguration('room',$scene->room);
          $cmd->setEqLogic_id($this->getId());
          $cmd->setType('action');
          $cmd->setSubType('other');
@@ -205,7 +206,7 @@ class veralink extends eqLogic {
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $scenes = array_map(function ($elem) {
-         return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id);
+         return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id ,"room"=>$elem->room);
       }, $obj->scenes);
 
       return json_encode($scenes);
