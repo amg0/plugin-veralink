@@ -118,7 +118,6 @@ class veralink extends eqLogic {
       $info->setTemplate('dashboard','default');   //template pour le dashboard
       $info->setIsVisible(0);
       $info->save();   
-      
 
       // Refresh Action
       $refresh = $this->getCmd(null, 'refresh');
@@ -213,12 +212,12 @@ class veralink extends eqLogic {
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key='.$objects;
       log::add('veralink','info','getting scenes from '.$url);
       $json = file_get_contents($url);
-      $obj = json_decode($json);
-      $scenes = array_map(function ($elem) {
-         return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id ,"room"=>$elem->room);
-      }, $obj->scenes);
-
-      return json_encode($scenes);
+      // $obj = json_decode($json);
+      // $scenes = array_map(function ($elem) {
+      //    return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id ,"room"=>$elem->room);
+      // }, $obj->scenes);
+      //return json_encode($scenes);
+      return $json;
     }
 
     public function runScene($id) {
