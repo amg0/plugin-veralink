@@ -136,7 +136,7 @@ class veralink extends eqLogic {
 
       $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
-         log::add('veralink','info','EQ configuration type is '.$configtype.' logical Id:'.$this->getLogicalId());
+         log::add('veralink','debug','EQ configuration type is '.$configtype.' logical Id:'.$this->getLogicalId());
       } else {
          $objects = json_decode($this->getVeraObjects('rooms,scenes'));
          if (isset($objects)) {
@@ -144,7 +144,7 @@ class veralink extends eqLogic {
                // if and only if the EQ for the room does not exist, create it
                $eqLogic = self::byLogicalId('R_'.$room->id, 'veralink');
                if ( ! is_object($eqLogic) ) {
-                  log::add('veralink','info','create another EQ for room #'.$room->id);
+                  log::add('veralink','debug','create another EQ for room #'.$room->id);
                   $eqLogic = new veralink();
                   $eqLogic->setEqType_name('veralink');
                   $eqLogic->setConfiguration('type','room');
@@ -221,7 +221,7 @@ class veralink extends eqLogic {
          return null;
       }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
-      log::add('veralink','info','getting data from '.$url);
+      log::add('veralink','debug','getting data from '.$url);
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $devices = $obj->devices[0];
@@ -235,7 +235,7 @@ class veralink extends eqLogic {
          return null;
       }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key='.$objects;
-      log::add('veralink','info','getting scenes from '.$url);
+      log::add('veralink','debug','getting scenes from '.$url);
       $json = file_get_contents($url);
       // $obj = json_decode($json);
       // $scenes = array_map(function ($elem) {
