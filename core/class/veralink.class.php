@@ -134,7 +134,7 @@ class veralink extends eqLogic {
       // $refresh->setIsVisible(0);
       // $refresh->save();
 
-      $configtype = $this->getConfiguration('type');
+      $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
          log::add('veralink','info','configuration type is '.$configtype);      
       } else {
