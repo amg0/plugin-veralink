@@ -80,33 +80,33 @@ class veralink extends eqLogic {
     
  // Fonction exécutée automatiquement avant la création de l'équipement 
     public function preInsert() {
-      log::add('veralink','info','preInsert()');
+      log::add('veralink','debug',__METHOD__);
     }
 
  // Fonction exécutée automatiquement après la création de l'équipement 
     public function postInsert() {
-      log::add('veralink','info','postInsert()');
+      log::add('veralink','debug',__METHOD__);
     }
 
  // Fonction exécutée automatiquement avant la mise à jour de l'équipement 
     public function preUpdate() {
-      log::add('veralink','info','preUpdate()');
+      log::add('veralink','debug',__METHOD__);
     }
 
  // Fonction exécutée automatiquement après la mise à jour de l'équipement 
     public function postUpdate() {
-      log::add('veralink','info','postUpdate()');
+      log::add('veralink','debug',__METHOD__);
     }
 
  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
     public function preSave() {
-      log::add('veralink','info','preSave()');
+      log::add('veralink','debug',__METHOD__);
       //$this->setDisplay("width","800px");                   // widget display width
     }
 
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
     public function postSave() {
-      log::add('veralink','info','postSave()');
+      log::add('veralink','debug',__METHOD__);
       // VERA Data information
       // $info = $this->getCmd(null, 'scenes');
       // if (!is_object($info)) {
@@ -136,20 +136,21 @@ class veralink extends eqLogic {
 
       $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
-         log::add('veralink','info','EQ configuration type is '.$configtype);      
+         log::add('veralink','info','EQ configuration type is '.$configtype.' logical Id:'.$this->getLogicalId());
       } else {
          $objects = json_decode($this->getVeraObjects('rooms,scenes'));
          if (isset($objects)) {
-            $room0 = $objects->rooms[0];
-            log::add('veralink','info','create another EQ for room #'.$room0->id);
-            $eqLogic = new veralink();
-            $eqLogic->setEqType_name('veralink');
-            $eqLogic->setLogicalId('R_'.$room0->id);
-            $eqLogic->setName($room0->name);
-            $eqLogic->setConfiguration('type','room');
-            $eqLogic->setIsEnable(1);
-            $eqLogic->setIsVisible(1);
-            $eqLogic->save();
+            foreach ($objects->rooms as $room) {
+               log::add('veralink','info','create another EQ for room #'.$room->id);
+               $eqLogic = new veralink();
+               $eqLogic->setEqType_name('veralink');
+               $eqLogic->setLogicalId('R_'.$room->id);
+               $eqLogic->setName($room->name);
+               $eqLogic->setConfiguration('type','room');
+               $eqLogic->setIsEnable(1);
+               $eqLogic->setIsVisible(1);
+               $eqLogic->save();     
+            }
          }
       }  
 
@@ -181,12 +182,12 @@ class veralink extends eqLogic {
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
     public function preRemove() {
-        
+      log::add('veralink','debug',__METHOD__);
     }
 
  // Fonction exécutée automatiquement après la suppression de l'équipement 
     public function postRemove() {
-        
+      log::add('veralink','debug',__METHOD__);
     }
 
     /*
