@@ -136,21 +136,22 @@ class veralink extends eqLogic {
 
       $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
-         log::add('veralink','info','configuration type is '.$configtype);      
+         log::add('veralink','info','EQ configuration type is '.$configtype);      
       } else {
          $objects = json_decode($this->getVeraObjects('rooms,scenes'));
-         $room0 = $objects->rooms[0];
-         log::add('veralink','info','create another EQ for '.$room0->id);
-         $eqLogic = new veralink();
-         $eqLogic->setEqType_name('veralink');
-         $eqLogic->setLogicalId('R_'.$room0->id);
-         $eqLogic->setName($room0->name);
-         $eqLogic->setConfiguration('type','room');
-         $eqLogic->setIsEnable(1);
-         $eqLogic->setIsVisible(1);
-         $eqLogic->save();
+         if (isset($objects)) {
+            $room0 = $objects->rooms[0];
+            log::add('veralink','info','create another EQ for room #'.$room0->id);
+            $eqLogic = new veralink();
+            $eqLogic->setEqType_name('veralink');
+            $eqLogic->setLogicalId('R_'.$room0->id);
+            $eqLogic->setName($room0->name);
+            $eqLogic->setConfiguration('type','room');
+            $eqLogic->setIsEnable(1);
+            $eqLogic->setIsVisible(1);
+            $eqLogic->save();
+         }
       }  
-
 
       // foreach ($objects->rooms as $room) {
       //    log::add('veralink','info','creating EQ for room '.$room->name);   
@@ -210,7 +211,7 @@ class veralink extends eqLogic {
       $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
-         return json_encode([]);
+         return null;
       }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=status';
       log::add('veralink','info','getting data from '.$url);
@@ -224,7 +225,7 @@ class veralink extends eqLogic {
       $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
-         return json_encode([]);
+         return null;
       }
       $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key='.$objects;
       log::add('veralink','info','getting scenes from '.$url);
