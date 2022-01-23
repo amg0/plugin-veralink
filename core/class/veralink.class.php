@@ -134,7 +134,7 @@ class veralink extends eqLogic {
 
       // a Cmd for each scenes
       log::add('veralink','info','before get Scenes');
-      $objects = $this->getVeraObjects('rooms,scenes');
+      $objects = json_decode($this->getVeraObjects('rooms,scenes'));
       foreach ($objects->rooms as $room) {
          log::add('veralink','info','creating EQ for room '.$room->name);   
          foreach ($objects->scenes as $scene) {
