@@ -135,8 +135,17 @@ class veralink extends eqLogic {
 
       // a Cmd for each scenes
       log::add('veralink','info','before get Scenes');
-      $scenes = json_decode($this->getScenes());
-      foreach ($scenes as $idx => $scene) {
+      $objects = $this->getVeraObjects('rooms,scenes');
+      foreach ($objects->rooms as $room) {
+         log::add('veralink','info','creating EQ for room '.$room->name);   
+         foreach ($objects->scenes as $scene) {
+            if ($scene->room == $room->id) {
+               log::add('veralink','info','creating Cmd for scene '.$scene->id);  
+            }
+         }
+      }
+
+      foreach ($objects->$scenes as $idx => $scene) {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, SCENECMD.$scene->id);
          if (!is_object($cmd)) {
@@ -195,13 +204,13 @@ class veralink extends eqLogic {
       return json_encode($devices);
     }
 
-    public function getScenes() {
+    public function getVeraObjects($objects) {
       $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
          return json_encode([]);
       }
-      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key=scenes';
+      $url = 'http://'.$ipaddr.'/port_3480/data_request?id=objectget&key='.$objects;
       log::add('veralink','info','getting scenes from '.$url);
       $json = file_get_contents($url);
       $obj = json_decode($json);
