@@ -80,31 +80,33 @@ class veralink extends eqLogic {
     
  // Fonction exécutée automatiquement avant la création de l'équipement 
     public function preInsert() {
-        
+      log::add('veralink','info','preInsert()');
     }
 
  // Fonction exécutée automatiquement après la création de l'équipement 
     public function postInsert() {
-        
+      log::add('veralink','info','postInsert()');
     }
 
  // Fonction exécutée automatiquement avant la mise à jour de l'équipement 
     public function preUpdate() {
-        
+      log::add('veralink','info','preUpdate()');
     }
 
  // Fonction exécutée automatiquement après la mise à jour de l'équipement 
     public function postUpdate() {
-        
+      log::add('veralink','info','postUpdate()');
     }
 
  // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
     public function preSave() {
+      log::add('veralink','info','preSave()');
       //$this->setDisplay("width","800px");                   // widget display width
     }
 
  // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
     public function postSave() {
+      log::add('veralink','info','postSave()');
       // VERA Data information
       $info = $this->getCmd(null, 'scenes');
       if (!is_object($info)) {
@@ -144,7 +146,7 @@ class veralink extends eqLogic {
          }
       }
 
-      foreach ($objects->$scenes as $idx => $scene) {
+      foreach ($objects->scenes as $idx => $scene) {
          log::add('veralink','info','creating Cmd for scene '.$scene->id);
          $cmd = $this->getCmd(null, SCENECMD.$scene->id);
          if (!is_object($cmd)) {
