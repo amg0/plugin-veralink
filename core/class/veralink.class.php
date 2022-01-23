@@ -141,15 +141,20 @@ class veralink extends eqLogic {
          $objects = json_decode($this->getVeraObjects('rooms,scenes'));
          if (isset($objects)) {
             foreach ($objects->rooms as $room) {
-               log::add('veralink','info','create another EQ for room #'.$room->id);
-               $eqLogic = new veralink();
-               $eqLogic->setEqType_name('veralink');
-               $eqLogic->setLogicalId('R_'.$room->id);
-               $eqLogic->setName($room->name);
-               $eqLogic->setConfiguration('type','room');
-               $eqLogic->setIsEnable(0);
-               $eqLogic->setIsVisible(0);
+               // if and only if the EQ for the room does not exist, create it
+               $eqLogic = self::byLogicalId('R_'.$room->id, 'veralink');
+               if ( ! is_object($eqLogic) ) {
+                  log::add('veralink','info','create another EQ for room #'.$room->id);
+                  $eqLogic = new veralink();
+                  $eqLogic->setEqType_name('veralink');
+                  $eqLogic->setConfiguration('type','room');
+                  $eqLogic->setLogicalId('R_'.$room->id);
+                  $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+                  $eqLogic->setIsEnable(0);
+                  $eqLogic->setIsVisible(0);
+               }
                $eqLogic->setObject_id( $this->getObject_id() );
+               $eqLogic->setName($room->name);
                $eqLogic->save();     
             }
          }
