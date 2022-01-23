@@ -23,7 +23,7 @@ const SCENECMD = 'Scene';
 
 class veralink extends eqLogic {
     /*     * *************************Attributs****************************** */
-    
+   
   /*
    * Permet de définir les possibilités de personnalisation du widget (en cas d'utilisation de la fonction 'toHtml' par exemple)
    * Tableau multidimensionnel - exemple: array('custom' => true, 'custom::layout' => false)
@@ -108,59 +108,74 @@ class veralink extends eqLogic {
     public function postSave() {
       log::add('veralink','info','postSave()');
       // VERA Data information
-      $info = $this->getCmd(null, 'scenes');
-      if (!is_object($info)) {
-        $info = new veralinkCmd();
-        $info->setName(__('Scenes', __FILE__));
-      }
-      $info->setLogicalId('scenes');
-      $info->setEqLogic_id($this->getId());
-      $info->setType('info');
-      $info->setSubType('string');
-      $info->setTemplate('dashboard','default');   //template pour le dashboard
-      $info->setIsVisible(0);
-      $info->save();   
+      // $info = $this->getCmd(null, 'scenes');
+      // if (!is_object($info)) {
+      //   $info = new veralinkCmd();
+      //   $info->setName(__('Scenes', __FILE__));
+      // }
+      // $info->setLogicalId('scenes');
+      // $info->setEqLogic_id($this->getId());
+      // $info->setType('info');
+      // $info->setSubType('string');
+      // $info->setTemplate('dashboard','default');   //template pour le dashboard
+      // $info->setIsVisible(0);
+      // $info->save();   
 
       // Refresh Action
-      $refresh = $this->getCmd(null, 'refresh');
-      if (!is_object($refresh)) {
-        $refresh = new veralinkCmd();
-        $refresh->setName(__('Rafraichir', __FILE__));
-      }
-      $refresh->setEqLogic_id($this->getId());
-      $refresh->setLogicalId('refresh');
-      $refresh->setType('action');
-      $refresh->setSubType('other');
-      $refresh->setIsVisible(0);
-      $refresh->save();
+      // $refresh = $this->getCmd(null, 'refresh');
+      // if (!is_object($refresh)) {
+      //   $refresh = new veralinkCmd();
+      //   $refresh->setName(__('Rafraichir', __FILE__));
+      // }
+      // $refresh->setEqLogic_id($this->getId());
+      // $refresh->setLogicalId('refresh');
+      // $refresh->setType('action');
+      // $refresh->setSubType('other');
+      // $refresh->setIsVisible(0);
+      // $refresh->save();
 
-      // a Cmd for each scenes
-      log::add('veralink','info','before get Scenes');
-      $objects = json_decode($this->getVeraObjects('rooms,scenes'));
-      foreach ($objects->rooms as $room) {
-         log::add('veralink','info','creating EQ for room '.$room->name);   
-         foreach ($objects->scenes as $scene) {
-            if ($scene->room == $room->id) {
-               log::add('veralink','info','creating Cmd for scene '.$scene->id);  
-            }
-         }
-      }
+      $configtype = $this->getConfiguration('type');
+      if (isset($configtype)) {
+         log::add('veralink','info','configuration type is '.$configtype);      
+      } else {
+         $objects = json_decode($this->getVeraObjects('rooms,scenes'));
+         $room0 = $objects->rooms[0];
+         log::add('veralink','info','create another EQ for '.$room0->id);
+         $eqLogic = new veralink();
+         $eqLogic->setEqType_name('veralink');
+         $eqLogic->setLogicalId('R_'.$room0->id);
+         $eqLogic->setName($room0->name);
+         $eqLogic->setConfiguration('type','room');
+         $eqLogic->setIsEnable(1);
+         $eqLogic->setIsVisible(1);
+         $eqLogic->save();
+      }  
 
-      foreach ($objects->scenes as $idx => $scene) {
-         log::add('veralink','info','creating Cmd for scene '.$scene->id);
-         $cmd = $this->getCmd(null, SCENECMD.$scene->id);
-         if (!is_object($cmd)) {
-            log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
-            $cmd = new veralinkCmd();
-         }
-         $cmd->setName($scene->name.' ('.$scene->id.')');
-         $cmd->setLogicalId(SCENECMD.$scene->id);
-         $cmd->setConfiguration('room',$scene->room);
-         $cmd->setEqLogic_id($this->getId());
-         $cmd->setType('action');
-         $cmd->setSubType('other');
-         $cmd->save();   
-      }
+
+      // foreach ($objects->rooms as $room) {
+      //    log::add('veralink','info','creating EQ for room '.$room->name);   
+      //    foreach ($objects->scenes as $scene) {
+      //       if ($scene->room == $room->id) {
+      //          log::add('veralink','info','creating Cmd for scene '.$scene->id);  
+      //       }
+      //    }
+      // }
+
+      // foreach ($objects->scenes as $idx => $scene) {
+      //    log::add('veralink','info','creating sceneCmd for scene '.$scene->id);
+      //    $cmd = $this->getCmd(null, SCENECMD.$scene->id);
+      //    if (!is_object($cmd)) {
+      //       log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
+      //       $cmd = new veralinkCmd();
+      //    }
+      //    $cmd->setName($scene->name.' ('.$scene->id.')');
+      //    $cmd->setLogicalId(SCENECMD.$scene->id);
+      //    $cmd->setConfiguration('room',$scene->room);
+      //    $cmd->setEqLogic_id($this->getId());
+      //    $cmd->setType('action');
+      //    $cmd->setSubType('other');
+      //    $cmd->save();   
+      // }
     }
 
  // Fonction exécutée automatiquement avant la suppression de l'équipement 
@@ -192,7 +207,7 @@ class veralink extends eqLogic {
     }
      */
     public function getDevices() {
-      $ipaddr = $this->getConfiguration('ipaddr','unknown ip');
+      $ipaddr = $this->getConfiguration('ipaddr',null);
       if (is_null($ipaddr)) {
          log::add('veralink','info','null IP addr');
          return json_encode([]);
