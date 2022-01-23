@@ -153,7 +153,7 @@ class veralink extends eqLogic {
             log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
             $cmd = new veralinkCmd();
          }
-         $cmd->setName($scene->name);
+         $cmd->setName($scene->name.' ('.$scene->id.')');
          $cmd->setLogicalId(SCENECMD.$scene->id);
          $cmd->setConfiguration('room',$scene->room);
          $cmd->setEqLogic_id($this->getId());
