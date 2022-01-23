@@ -147,8 +147,9 @@ class veralink extends eqLogic {
                $eqLogic->setLogicalId('R_'.$room->id);
                $eqLogic->setName($room->name);
                $eqLogic->setConfiguration('type','room');
-               $eqLogic->setIsEnable(1);
-               $eqLogic->setIsVisible(1);
+               $eqLogic->setIsEnable(0);
+               $eqLogic->setIsVisible(0);
+               $eqLogic->setObject_id( $this->getObject_id() );
                $eqLogic->save();     
             }
          }
