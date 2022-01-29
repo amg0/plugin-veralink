@@ -135,6 +135,12 @@ class veralink extends eqLogic
          // This is a room EQLOGIC
          //
          log::add('veralink', 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+         $idroot = $this->getConfiguration('rootid');
+         $idroom = substr( $this->getLogicalId(), 2 );
+         $root_eqlogic = eqLogic::byId($idroot);
+         $scenes = $root_eqlogic->getScenesOfRoom($idroom);
+         log::add('veralink', 'debug', 'scenes of room '.$idroom.' are '.json_encode($scenes));
+
       } else {
          //
          // this is the root EQLOGIC.  so create the Data command if needed
@@ -155,7 +161,7 @@ class veralink extends eqLogic
          //
          // Refresh the Data command if needed
          //
-         $objects = $this->getVeraObjects('rooms,scenes');
+         $objects = $this->getVeraData();
          $this->checkAndUpdateCmd('data', $objects);
 
          $objects = json_decode($objects);
@@ -172,6 +178,7 @@ class veralink extends eqLogic
                   $eqLogic->setConfiguration('type', 'room');
                   $eqLogic->setLogicalId('R_' . $room->id);
                   $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+                  $eqLogic->setConfiguration('rootid', $this->getId());
                   $eqLogic->setIsEnable(0);
                   $eqLogic->setIsVisible(0);
                }
@@ -253,14 +260,14 @@ class veralink extends eqLogic
       return json_encode($devices);
    }
 
-   public function getVeraObjects($objects)
+   public function getVeraData()
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add('veralink', 'info', 'null IP addr');
          return null;
       }
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=objectget&key=' . $objects;
+      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
       log::add('veralink', 'debug', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
       // $obj = json_decode($json);
@@ -269,6 +276,11 @@ class veralink extends eqLogic
       // }, $obj->scenes);
       //return json_encode($scenes);
       return $json;
+   }
+
+   public function getScenesOfRoom($idroom)
+   {
+      return "test";
    }
 
    public function runScene($id)
