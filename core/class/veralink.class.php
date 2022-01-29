@@ -114,19 +114,7 @@ class veralink extends eqLogic
    public function postSave()
    {
       log::add('veralink', 'debug', __METHOD__);
-      // VERA Data information
-      // $info = $this->getCmd(null, 'scenes');
-      // if (!is_object($info)) {
-      //   $info = new veralinkCmd();
-      //   $info->setName(__('Scenes', __FILE__));
-      // }
-      // $info->setLogicalId('scenes');
-      // $info->setEqLogic_id($this->getId());
-      // $info->setType('info');
-      // $info->setSubType('string');
-      // $info->setTemplate('dashboard','default');   //template pour le dashboard
-      // $info->setIsVisible(0);
-      // $info->save();   
+
 
       // Refresh Action
       // $refresh = $this->getCmd(null, 'refresh');
@@ -143,12 +131,39 @@ class veralink extends eqLogic
 
       $configtype = $this->getConfiguration('type', null);
       if (isset($configtype)) {
+         //
+         // This is a room EQLOGIC
+         //
          log::add('veralink', 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       } else {
-         $objects = json_decode($this->getVeraObjects('rooms,scenes'));
+         //
+         // this is the root EQLOGIC.  so create the Data command if needed
+         //
+         $data = $this->getCmd(null, 'data');
+         if (!is_object($data)) {
+           $data = new veralinkCmd();
+           $data->setName(__('Data', __FILE__));
+         }
+         $data->setLogicalId('data');
+         $data->setEqLogic_id($this->getId());
+         $data->setType('info');
+         $data->setSubType('string');
+         $data->setTemplate('dashboard','default');   //template pour le dashboard
+         $data->setIsVisible(0);
+         $data->save();   
+
+         //
+         // Refresh the Data command if needed
+         //
+         $objects = $this->getVeraObjects('rooms,scenes');
+         $this->checkAndUpdateCmd('data', $objects);
+
+         $objects = json_decode($objects);
          if (isset($objects)) {
             foreach ($objects->rooms as $room) {
-               // if and only if the EQ for the room does not exist, create it
+               //
+               // for each room , if and only if the EQ for the room does not exist, create it
+               //
                $eqLogic = self::byLogicalId('R_' . $room->id, 'veralink');
                if (!is_object($eqLogic)) {
                   log::add('veralink', 'debug', 'create another EQ for room #' . $room->id);
@@ -298,7 +313,7 @@ class veralinkCmd extends cmd
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
       switch ($this->getLogicalId()) {
          case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
-            $scenes_json = $eqlogic->getScenes(); //Lance la fonction et stocke le résultat dans la variable $info
+            $scenes_json = $eqlogic->getScenes(); //Lance la fonction et stocke le résultat dans la variable $data
             $eqlogic->checkAndUpdateCmd('scenes', $scenes_json);
             break;
 
