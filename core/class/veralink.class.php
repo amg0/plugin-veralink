@@ -117,19 +117,6 @@ class veralink extends eqLogic
    {
       log::add('veralink', 'debug', __METHOD__);
 
-      // Refresh Action
-      // $refresh = $this->getCmd(null, 'refresh');
-      // if (!is_object($refresh)) {
-      //   $refresh = new veralinkCmd();
-      //   $refresh->setName(__('Rafraichir', __FILE__));
-      // }
-      // $refresh->setEqLogic_id($this->getId());
-      // $refresh->setLogicalId('refresh');
-      // $refresh->setType('action');
-      // $refresh->setSubType('other');
-      // $refresh->setIsVisible(0);
-      // $refresh->save();
-
       $configtype = $this->getConfiguration('type', null);
       if (isset($configtype)) {
          //
@@ -352,10 +339,6 @@ class veralinkCmd extends cmd
    {
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
       switch ($this->getLogicalId()) {
-         case 'refresh': //LogicalId de la commande rafraîchir que l’on a créé dans la méthode Postsave 
-            $scenes_json = $eqlogic->getScenes(); //Lance la fonction et stocke le résultat dans la variable $data
-            $eqlogic->checkAndUpdateCmd('scenes', $scenes_json);
-            break;
 
          default:
             if (substr($this->getLogicalId(), 0, strlen(SCENECMD)) == SCENECMD) {
