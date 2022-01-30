@@ -20,6 +20,7 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 const SCENECMD = 'S_';
+const ROOMEQ = 'R_';
 
 class veralink extends eqLogic
 {
@@ -115,7 +116,6 @@ class veralink extends eqLogic
    {
       log::add('veralink', 'debug', __METHOD__);
 
-
       // Refresh Action
       // $refresh = $this->getCmd(null, 'refresh');
       // if (!is_object($refresh)) {
@@ -135,26 +135,29 @@ class veralink extends eqLogic
          // This is a room EQLOGIC
          //
          log::add('veralink', 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+
          $idroot = $this->getConfiguration('rootid');
-         $idroom = substr( $this->getLogicalId(), 2 );
          $root_eqlogic = eqLogic::byId($idroot);
+
+         $idroom = substr( $this->getLogicalId(), strlen(ROOMEQ) );
          $scenes = $root_eqlogic->getScenesOfRoom($idroom);
-         log::add('veralink', 'debug', '# scenes of room '.$idroom.' are '.count($scenes));
+
          foreach($scenes as $scene) {
-            $logicalid = SCENECMD.$scene->id;
             log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
-            // $cmd = $this->getCmd(null, $logicalid);
-            // if (!is_object($cmd)) {
-            //    $cmd = new veralinkCmd();
-            //    $cmd->setIsVisible(1);
-            //  }
-            //  $cmd->setName($scene->name);
-            //  $cmd->setLogicalId($logicalid);
-            //  $cmd->setEqLogic_id($this->getId());
-            //  $cmd->setType('action');
-            //  $cmd->setSubType('other');
-            //  $cmd->setTemplate('dashboard','default');   //template pour le dashboard
-            //  $cmd->save();   
+            $logicalid = SCENECMD.$scene->id;
+
+            $cmd = $this->getCmd(null, $logicalid);
+            if (!is_object($cmd)) {
+               $cmd = new veralinkCmd();
+               $cmd->setIsVisible(1);
+             }
+             $cmd->setName($scene->name);
+             $cmd->setLogicalId($logicalid);
+             $cmd->setEqLogic_id($this->getId());
+             $cmd->setType('action');
+             $cmd->setSubType('other');
+             $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+             $cmd->save();   
          }
       } else {
          //
@@ -178,64 +181,40 @@ class veralink extends eqLogic
          //
          $objects = $this->getVeraData();
          $this->checkAndUpdateCmd('data', $objects);
-
          $objects = json_decode($objects);
+
          if (isset($objects)) {
             foreach ($objects->rooms as $room) {
                //
                // for each room , if and only if the EQ for the room does not exist, create it
                //
-               $eqLogic = self::byLogicalId('R_' . $room->id, 'veralink');
+               $eqLogic = self::byLogicalId(ROOMEQ . $room->id, 'veralink');
                if (!is_object($eqLogic)) {
                   log::add('veralink', 'debug', 'create another EQ for room #' . $room->id);
                   $eqLogic = new veralink();
                   $eqLogic->setEqType_name('veralink');
                   $eqLogic->setConfiguration('type', 'room');
-                  $eqLogic->setLogicalId('R_' . $room->id);
+                  $eqLogic->setLogicalId(ROOMEQ . $room->id);
                   $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
                   $eqLogic->setConfiguration('rootid', $this->getId());
                   $eqLogic->setIsEnable(0);
                   $eqLogic->setIsVisible(0);
                }
-               $eqLogic->setObject_id($this->getObject_id());
+               $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
                $eqLogic->setName($room->name);
                $eqLogic->save();
             }
          }
       }
-
-      // foreach ($objects->rooms as $room) {
-      //    log::add('veralink','info','creating EQ for room '.$room->name);   
-      //    foreach ($objects->scenes as $scene) {
-      //       if ($scene->room == $room->id) {
-      //          log::add('veralink','info','creating Cmd for scene '.$scene->id);  
-      //       }
-      //    }
-      // }
-
-      // foreach ($objects->scenes as $idx => $scene) {
-      //    log::add('veralink','info','creating sceneCmd for scene '.$scene->id);
-      //    $cmd = $this->getCmd(null, SCENECMD.$scene->id);
-      //    if (!is_object($cmd)) {
-      //       log::add('veralink','info','creating New Cmd for id '.$scene->id.' name '.$scene->name);
-      //       $cmd = new veralinkCmd();
-      //    }
-      //    $cmd->setName($scene->name.' ('.$scene->id.')');
-      //    $cmd->setLogicalId(SCENECMD.$scene->id);
-      //    $cmd->setConfiguration('room',$scene->room);
-      //    $cmd->setEqLogic_id($this->getId());
-      //    $cmd->setType('action');
-      //    $cmd->setSubType('other');
-      //    $cmd->save();   
-      // }
    }
 
    // Fonction exécutée automatiquement avant la suppression de l'équipement 
    public function preRemove()
    {
       log::add('veralink', 'debug', __METHOD__);
+
+      // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);
-      // only do this if this is a root eqLogic equipment ( a vera ) 
       if (!isset($configtype)) {
          $cart = array();
          foreach (self::byType('veralink') as $eqLogic) {
@@ -279,11 +258,11 @@ class veralink extends eqLogic
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add('veralink', 'info', 'null IP addr');
+         log::add('veralink', 'info', 'null IP addr, no action taken');
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=status';
-      log::add('veralink', 'debug', 'getting data from ' . $url);
+      log::add('veralink', 'info', 'getting data from ' . $url);
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $devices = $obj->devices[0];
@@ -298,7 +277,7 @@ class veralink extends eqLogic
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
-      log::add('veralink', 'debug', 'getting '.$objects.' from ' . $url);
+      log::add('veralink', 'info', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
       return $json;
    }
@@ -307,15 +286,15 @@ class veralink extends eqLogic
    {
       log::add('veralink', 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
-      log::add('veralink', 'debug', 'search for:'.$searchfor);
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
+
+      // pass the searchfor into the scope of the anonymous function using the use keyword
+      // only keep scenes from the same room and which are not pure notification scenes
       $scenes = array_filter( $data->scenes, function($elem) use ($searchfor) {
-         // only keep scenes from the same room and which are not pure notification scenes
-         log::add('veralink', 'debug', 'search for:'.$searchfor.' elem room:'.$elem->room.' notif only:'.$elem->notification_only);
-         return (strval($elem->room) == $searchfor) ; //&& (isset($elem->notification_only)==false);
+         return (strval($elem->room) == $searchfor) && (isset($elem->notification_only)==false);
       });
-      log::add('veralink', 'debug', __METHOD__.' scenes are:'.json_encode($scenes));
+
       return $scenes;
    }
 
@@ -323,7 +302,7 @@ class veralink extends eqLogic
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add('veralink', 'info', 'null IP addr');
+         log::add('veralink', 'warning', 'null IP addr, no action taken');
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=' . $id;
