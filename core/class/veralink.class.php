@@ -298,12 +298,12 @@ class veralink extends eqLogic
    public function getScenesOfRoom($idroom)
    {
       log::add('veralink', 'debug', __METHOD__.' idroom:'.$idroom);
-      $idroom = (string) $idroom;
+      $searchfor = (string) $idroom;
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
       $scenes = array_filter( $data->scenes, function($elem) {
          // only keep scenes from the same room and which are not pure notification scenes
-         log::add('veralink', 'debug', 'search for:'.$idroom.' elem room:'.$elem->room.' notif only:'.$elem->notification_only);
+         log::add('veralink', 'debug', 'search for:'.$searchfor.' elem room:'.$elem->room.' notif only:'.$elem->notification_only);
          return ((string)$elem->room == $idroom) ; //&& (isset($elem->notification_only)==false);
       });
       log::add('veralink', 'debug', __METHOD__.' scenes are:'.json_encode($scenes));
