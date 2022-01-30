@@ -307,12 +307,13 @@ class veralink extends eqLogic
    {
       log::add('veralink', 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
+      log::add('veralink', 'debug', 'search for:'.$searchfor);
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
-      $scenes = array_filter( $data->scenes, function($elem) {
+      $scenes = array_filter( $data->scenes, function($elem) use ($searchfor) {
          // only keep scenes from the same room and which are not pure notification scenes
          log::add('veralink', 'debug', 'search for:'.$searchfor.' elem room:'.$elem->room.' notif only:'.$elem->notification_only);
-         return ((string)$elem->room == $searchfor) ; //&& (isset($elem->notification_only)==false);
+         return (strval($elem->room) == $searchfor) ; //&& (isset($elem->notification_only)==false);
       });
       log::add('veralink', 'debug', __METHOD__.' scenes are:'.json_encode($scenes));
       return $scenes;
