@@ -143,11 +143,10 @@ class veralink extends eqLogic
          $scenes = $root_eqlogic->getScenesOfRoom($idroom);
 
          foreach($scenes as $scene) {
-            log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
             $logicalid = SCENECMD.$scene->id;
-
             $cmd = $this->getCmd(null, $logicalid);
             if (!is_object($cmd)) {
+               log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
                $cmd = new veralinkCmd();
                $cmd->setIsVisible(1);
              }
@@ -201,7 +200,7 @@ class veralink extends eqLogic
                   $eqLogic->setIsVisible(0);
                }
                $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-               $eqLogic->setName($room->name);
+               $eqLogic->setName($this->getName().' '.$room->name);
                $eqLogic->save();
             }
          }
