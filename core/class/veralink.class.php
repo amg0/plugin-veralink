@@ -219,6 +219,13 @@ class veralink extends eqLogic
    public function preRemove()
    {
       log::add('veralink', 'debug', __METHOD__);
+      foreach (self::byType('veralink') as $eqLogic) {
+         $eqtype = $eqLogic->getConfiguration('type');
+         if ($eqtype == 'room') {
+            log::add('veralink', 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
+            $eqLogic->remove();
+         }
+		}
    }
 
    // Fonction exécutée automatiquement après la suppression de l'équipement 
@@ -281,7 +288,15 @@ class veralink extends eqLogic
    public function getScenesOfRoom($idroom)
    {
       log::add('veralink', 'debug', __METHOD__);
-      return "test";
+      $datacmd = $this->byLogicalId('data','info');      // get Cmd data of type info
+      $data = json_decode( $datacmd -> getValue() );
+      $scenes = array_filter( $data->scenes, function($elem) {
+         return $elem->room == $idroom;
+      });
+      foreach( $scenes  as $scene) {
+         log::add('veralink', 'debug', 'il existe une scene '.$scene->name.' pour la room');
+      }
+      return count($scenes);
    }
 
    public function runScene($id)
@@ -341,19 +356,11 @@ class veralinkCmd extends cmd
    }
    /*     * **********************Getteur Setteur*************************** */
 }
-/* TOKNOW:  THIS does not work, the original idea would be that execute is an abstract method of an abstract class Cmd but it is not the case
+
+/* 
+TOKNOW:  THIS does not work, the original idea would be that execute is an abstract method of an abstract class Cmd but it is not the case
 <PluginID>Cmd is a important naming convention. cf https://community.jeedom.com/t/plusieurs-classes-de-commandes-cmd/76608/2
 
 class veraSceneCmd extends cmd {
-   private $verascenename;
-   private $verasceneid;
-
-   public function init($id,$name) {
-      $this->verasceneid = $id;
-      $this->verascenename = $name;
-   }
-
-   public function execute($_options = array()) {
-      log::add('veralink','info','execute');
-   }
-} */
+} 
+*/
