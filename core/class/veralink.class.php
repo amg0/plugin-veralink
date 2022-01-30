@@ -280,6 +280,7 @@ class veralink extends eqLogic
 
    public function getScenesOfRoom($idroom)
    {
+      log::add('veralink', 'debug', __METHOD__);
       return "test";
    }
 
