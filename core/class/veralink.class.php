@@ -302,8 +302,9 @@ class veralink extends eqLogic
       $data = json_decode( $datacmd -> execCmd() );
       $scenes = array_filter( $data->scenes, function($elem) {
          // only keep scenes from the same room and which are not pure notification scenes
-         return ($elem->room == $idroom) && (isset($elem->notification_only)===false);
+         return ((int)$elem->room == (int)$idroom) && (isset($elem->notification_only)==false);
       });
+      log::add('veralink', 'debug', __METHOD__.' scenes are:'.json_encode($scenes));
       return $scenes;
    }
 
