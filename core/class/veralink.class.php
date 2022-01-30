@@ -22,6 +22,7 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 const SCENECMD = 'S_';
 const ROOMEQ = 'R_';
 
+
 class veralink extends eqLogic
 {
    /*     * *************************Attributs****************************** */
