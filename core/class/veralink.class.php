@@ -150,14 +150,17 @@ class veralink extends eqLogic
                log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
                $cmd = new veralinkCmd();
                $cmd->setIsVisible(1);
-             }
-             $cmd->setName($scene->name);
-             $cmd->setLogicalId($logicalid);
-             $cmd->setEqLogic_id($this->getId());
-             $cmd->setType('action');
-             $cmd->setSubType('other');
-             $cmd->setTemplate('dashboard','default');   //template pour le dashboard
-             $cmd->save();   
+            }
+            $cmd->setName($scene->name);
+            $cmd->setLogicalId($logicalid);
+            $cmd->setEqLogic_id($this->getId());
+            $cmd->setType('action');
+            $cmd->setSubType('other');
+            $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+            $cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+            $cmd->setdisplay('showIconAndNamedashboard', 1);
+            $cmd->setdisplay('showIconAndNamemobile', 1);
+            $cmd->save();   
          }
       } else {
          //
