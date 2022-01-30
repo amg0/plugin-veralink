@@ -184,25 +184,11 @@ class veralink extends eqLogic
          $objects = json_decode($objects);
 
          if (isset($objects)) {
+            // create eqlogic for oom 0 for scenes not assigned to a room
+            $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Global', __FILE__)) );   // cast to object to enable -> access
+            // create a eqLogic per room
             foreach ($objects->rooms as $room) {
-               //
-               // for each room , if and only if the EQ for the room does not exist, create it
-               //
-               $eqLogic = self::byLogicalId(ROOMEQ . $room->id, 'veralink');
-               if (!is_object($eqLogic)) {
-                  log::add('veralink', 'debug', 'create another EQ for room #' . $room->id);
-                  $eqLogic = new veralink();
-                  $eqLogic->setEqType_name('veralink');
-                  $eqLogic->setConfiguration('type', 'room');
-                  $eqLogic->setLogicalId(ROOMEQ . $room->id);
-                  $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
-                  $eqLogic->setConfiguration('rootid', $this->getId());
-                  $eqLogic->setIsEnable(0);
-                  $eqLogic->setIsVisible(0);
-               }
-               $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-               $eqLogic->setName($this->getName().' '.$room->name);
-               $eqLogic->save();
+                  $this->createRoomEqLogic( $room );
             }
          }
       }
@@ -254,6 +240,30 @@ class veralink extends eqLogic
     public static function preConfig_<Variable>() {
     }
      */
+
+
+   public function createRoomEqLogic($room) 
+   {
+      //
+      // for each room , if and only if the EQ for the room does not exist, create it
+      //
+      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, 'veralink');
+      if (!is_object($eqLogic)) {
+         log::add('veralink', 'debug', 'create another EQ for room #' . $room->id);
+         $eqLogic = new veralink();
+         $eqLogic->setEqType_name('veralink');
+         $eqLogic->setConfiguration('type', 'room');
+         $eqLogic->setLogicalId(ROOMEQ . $room->id);
+         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+         $eqLogic->setConfiguration('rootid', $this->getId());
+         $eqLogic->setIsEnable(0);
+         $eqLogic->setIsVisible(0);
+      }
+      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      $eqLogic->setName($this->getName().' '.$room->name);
+      $eqLogic->save();
+   }
+
    public function getDevices()
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
