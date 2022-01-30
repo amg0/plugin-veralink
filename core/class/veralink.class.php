@@ -142,18 +142,19 @@ class veralink extends eqLogic
          log::add('veralink', 'debug', '# scenes of room '.$idroom.' are '.count($scenes));
          foreach($scenes as $scene) {
             $logicalid = SCENECMD.$scene->id;
-            $cmd = $this->getCmd(null, $logicalid);
-            if (!is_object($cmd)) {
-               $cmd = new veralinkCmd();
-               $cmd->setIsVisible(1);
-             }
-             $cmd->setName($scene->name);
-             $cmd->setLogicalId($logicalid);
-             $cmd->setEqLogic_id($this->getId());
-             $cmd->setType('action');
-             $cmd->setSubType('other');
-             $cmd->setTemplate('dashboard','default');   //template pour le dashboard
-             $cmd->save();   
+            log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
+            // $cmd = $this->getCmd(null, $logicalid);
+            // if (!is_object($cmd)) {
+            //    $cmd = new veralinkCmd();
+            //    $cmd->setIsVisible(1);
+            //  }
+            //  $cmd->setName($scene->name);
+            //  $cmd->setLogicalId($logicalid);
+            //  $cmd->setEqLogic_id($this->getId());
+            //  $cmd->setType('action');
+            //  $cmd->setSubType('other');
+            //  $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+            //  $cmd->save();   
          }
       } else {
          //
@@ -296,7 +297,7 @@ class veralink extends eqLogic
 
    public function getScenesOfRoom($idroom)
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add('veralink', 'debug', __METHOD__.' idroom:'.$idroom);
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
       $scenes = array_filter( $data->scenes, function($elem) {
