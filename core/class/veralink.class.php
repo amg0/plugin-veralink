@@ -234,13 +234,21 @@ class veralink extends eqLogic
    public function preRemove()
    {
       log::add('veralink', 'debug', __METHOD__);
-      foreach (self::byType('veralink') as $eqLogic) {
-         $eqtype = $eqLogic->getConfiguration('type');
-         if ($eqtype == 'room') {
-            log::add('veralink', 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
-            $eqLogic->remove();
+      $configtype = $this->getConfiguration('type', null);
+      // only do this if this is a root eqLogic equipment ( a vera ) 
+      if (!isset($configtype)) {
+         $cart = array();
+         foreach (self::byType('veralink') as $eqLogic) {
+            $eqtype = $eqLogic->getConfiguration('type');
+            if ($eqtype == 'room') {
+               log::add('veralink', 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
+               $cart[] = $eqLogic;
+            }
          }
-		}
+         foreach($cart as $eqLogic) {
+            $eqLogic->Remove();
+         }
+      }
    }
 
    // Fonction exécutée automatiquement après la suppression de l'équipement 
