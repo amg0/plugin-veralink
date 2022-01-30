@@ -19,7 +19,7 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
-const SCENECMD = 'Scene';
+const SCENECMD = 'S_';
 
 class veralink extends eqLogic
 {
@@ -139,8 +139,22 @@ class veralink extends eqLogic
          $idroom = substr( $this->getLogicalId(), 2 );
          $root_eqlogic = eqLogic::byId($idroot);
          $scenes = $root_eqlogic->getScenesOfRoom($idroom);
-         log::add('veralink', 'debug', 'scenes of room '.$idroom.' are '.json_encode($scenes));
-
+         log::add('veralink', 'debug', '# scenes of room '.$idroom.' are '.count($scenes));
+         foreach($scenes as $scene) {
+            $logicalid = SCENECMD.$scene->id;
+            $cmd = $this->getCmd(null, $logicalid);
+            if (!is_object($cmd)) {
+               $cmd = new veralinkCmd();
+               $cmd->setIsVisible(1);
+             }
+             $cmd->setName($scene->name);
+             $cmd->setLogicalId($logicalid);
+             $cmd->setEqLogic_id($this->getId());
+             $cmd->setType('action');
+             $cmd->setSubType('other');
+             $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+             $cmd->save();   
+         }
       } else {
          //
          // this is the root EQLOGIC.  so create the Data command if needed
@@ -277,11 +291,6 @@ class veralink extends eqLogic
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
       log::add('veralink', 'debug', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
-      // $obj = json_decode($json);
-      // $scenes = array_map(function ($elem) {
-      //    return array("name"=>$elem->name.'('.$elem->id.')', "id"=>$elem->id ,"room"=>$elem->room);
-      // }, $obj->scenes);
-      //return json_encode($scenes);
       return $json;
    }
 
@@ -291,12 +300,10 @@ class veralink extends eqLogic
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
       $scenes = array_filter( $data->scenes, function($elem) {
-         return $elem->room == $idroom;
+         // only keep scenes from the same room and which are not pure notification scenes
+         return ($elem->room == $idroom) && (isset($elem->notification_only)===false);
       });
-      foreach( $scenes  as $scene) {
-         log::add('veralink', 'debug', 'il existe une scene '.$scene->name.' pour la room');
-      }
-      return count($scenes);
+      return $scenes;
    }
 
    public function runScene($id)
