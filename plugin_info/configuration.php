@@ -25,11 +25,11 @@ if (!isConnect()) {
 <form class="form-horizontal">
   <fieldset>
     <div class="form-group">
-      <label class="col-md-4 control-label">{{Fréquence de refresh en secnodes}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de refresh en secnodes}}"></i></sup>
+      <label class="col-md-4 control-label">{{Fréquence de refresh en secondes}}
+        <sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de refresh en secondes 5-100}}"></i></sup>
       </label>
       <div class="col-md-4">
-        <input class="configKey form-control" data-l1key="refresh_freq"/>
+        <input type="number" min="5" max="100" class="configKey form-control" data-l1key="refresh_freq"/>
       </div>
     </div>
   </fieldset>

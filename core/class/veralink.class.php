@@ -37,7 +37,7 @@ class veralink extends eqLogic
    /*     * ***********************Methode static*************************** */
 	public static function daemon() {
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
-      $seconds = config::byKey('refresh_freq', VERALINK, 15, true);
+      $seconds = config::byKey('refresh_freq', VERALINK, 60, true);
       usleep($seconds * 1000000); // 15s
       log::add(VERALINK, 'debug', __METHOD__ . ' running: end');
 	}
