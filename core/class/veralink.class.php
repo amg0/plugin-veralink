@@ -41,7 +41,7 @@ class veralink extends eqLogic
 	}
 
 	public static function deamon_info() {
-      log::add('veralink', 'debug', __METHOD__);
+      //log::add('veralink', 'debug', __METHOD__);
 		$return = array();
 		$return['log'] = '';
 		$return['state'] = 'nok';

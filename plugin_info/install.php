@@ -31,6 +31,7 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
     //
     $cron = cron::byClassAndFunction('veralink', 'daemon');
     if (!is_object($cron)) {
+      log::add('veralink', 'info', 'Create Cron');
       $cron = new cron();
       $cron->setClass('veralink');
       $cron->setFunction('daemon');
@@ -51,6 +52,7 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
     //
     $cron = cron::byClassAndFunction('veralink', 'daemon');
     if (is_object($cron)) {
+        log::add('veralink', 'info', 'Stopping and removing Cron');
         $cron->halt();
         $cron->remove();
     }
