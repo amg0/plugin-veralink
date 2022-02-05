@@ -36,6 +36,7 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
       $cron->setTimeout(1440);
       $cron->setSchedule('* * * * *');
       $cron->save();
+      $cron->start();
     }
   }
 
@@ -46,7 +47,6 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
-    $cron->start();
   }
 
 // Fonction exécutée automatiquement après la suppression du plugin

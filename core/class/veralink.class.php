@@ -19,8 +19,9 @@
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
-const SCENECMD = 'S_';
-const ROOMEQ = 'R_';
+const VERALINK = 'veralink';     // plugin logical name
+const SCENECMD = 'S_';           // prefix for scenes
+const ROOMEQ = 'R_';             // prefix for rooms
 
 
 class veralink extends eqLogic
@@ -35,17 +36,18 @@ class veralink extends eqLogic
 
    /*     * ***********************Methode static*************************** */
 	public static function daemon() {
-      log::add('veralink', 'debug', __METHOD__ . ' running: start');
-      usleep(15 * 1000000); // 15s
-      log::add('veralink', 'debug', __METHOD__ . ' running: end');
+      log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
+      $seconds = config::byKey('refresh_freq', VERALINK, 15, true);
+      usleep($seconds * 1000000); // 15s
+      log::add(VERALINK, 'debug', __METHOD__ . ' running: end');
 	}
 
 	public static function deamon_info() {
-      //log::add('veralink', 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
 		$return = array();
 		$return['log'] = '';
 		$return['state'] = 'nok';
-		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (is_object($cron) && $cron->running()) {
 			$return['state'] = 'ok';
 		}
@@ -54,13 +56,13 @@ class veralink extends eqLogic
 	}
 
 	public static function deamon_start($_debug = false) {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
 		self::deamon_stop();
 		$deamon_info = self::deamon_info();
 		if ($deamon_info['launchable'] != 'ok') {
 			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
 		}
-		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
@@ -68,8 +70,8 @@ class veralink extends eqLogic
 	}
 
 	public static function deamon_stop() {
-      log::add('veralink', 'debug', __METHOD__);
-		$cron = cron::byClassAndFunction('veralink', 'daemon');
+      log::add(VERALINK, 'debug', __METHOD__);
+		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
@@ -77,8 +79,8 @@ class veralink extends eqLogic
 	}
 
 	public static function deamon_changeAutoMode($_mode) {
-      log::add('veralink', 'debug', __METHOD__);
-		$cron = cron::byClassAndFunction('veralink', 'daemon');
+      log::add(VERALINK, 'debug', __METHOD__);
+		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
@@ -133,45 +135,45 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la création de l'équipement 
    public function preInsert()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement après la création de l'équipement 
    public function postInsert()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement avant la mise à jour de l'équipement 
    public function preUpdate()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement après la mise à jour de l'équipement 
    public function postUpdate()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
    public function preSave()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
       //$this->setDisplay("width","800px");                   // widget display width
    }
 
    // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
    public function postSave()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
 
       $configtype = $this->getConfiguration('type', null);
       if (isset($configtype)) {
          //
          // This is a room EQLOGIC
          //
-         log::add('veralink', 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+         log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
 
          $idroot = $this->getConfiguration('rootid');
          $root_eqlogic = eqLogic::byId($idroot);
@@ -183,7 +185,7 @@ class veralink extends eqLogic
             $logicalid = SCENECMD.$scene->id;
             $cmd = $this->getCmd(null, $logicalid);
             if (!is_object($cmd)) {
-               log::add('veralink', 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
+               log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
                $cmd = new veralinkCmd();
                $cmd->setIsVisible(1);
             }
@@ -236,16 +238,16 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la suppression de l'équipement 
    public function preRemove()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
 
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);
       if (!isset($configtype)) {
          $cart = array();
-         foreach (self::byType('veralink') as $eqLogic) {
+         foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type');
             if ($eqtype == 'room') {
-               log::add('veralink', 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
+               log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
                $cart[] = $eqLogic;
             }
          }
@@ -258,7 +260,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement après la suppression de l'équipement 
    public function postRemove()
    {
-      log::add('veralink', 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__);
    }
 
    /*
@@ -286,11 +288,11 @@ class veralink extends eqLogic
       //
       // for each room , if and only if the EQ for the room does not exist, create it
       //
-      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, 'veralink');
+      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, VERALINK);
       if (!is_object($eqLogic)) {
-         log::add('veralink', 'debug', 'create another EQ for room #' . $room->id);
+         log::add(VERALINK, 'debug', 'create another EQ for room #' . $room->id);
          $eqLogic = new veralink();
-         $eqLogic->setEqType_name('veralink');
+         $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', 'room');
          $eqLogic->setLogicalId(ROOMEQ . $room->id);
          $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
@@ -307,11 +309,11 @@ class veralink extends eqLogic
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add('veralink', 'info', 'null IP addr, no action taken');
+         log::add(VERALINK, 'info', 'null IP addr, no action taken');
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=status';
-      log::add('veralink', 'info', 'getting data from ' . $url);
+      log::add(VERALINK, 'info', 'getting data from ' . $url);
       $json = file_get_contents($url);
       $obj = json_decode($json);
       $devices = $obj->devices[0];
@@ -322,18 +324,18 @@ class veralink extends eqLogic
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add('veralink', 'info', 'null IP addr');
+         log::add(VERALINK, 'info', 'null IP addr');
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
-      log::add('veralink', 'info', 'getting '.$objects.' from ' . $url);
+      log::add(VERALINK, 'info', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
       return $json;
    }
 
    public function getScenesOfRoom($idroom)
    {
-      log::add('veralink', 'debug', __METHOD__.' idroom:'.$idroom);
+      log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
       $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
@@ -351,12 +353,12 @@ class veralink extends eqLogic
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add('veralink', 'warning', 'null IP addr, no action taken');
+         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=' . $id;
       $xml = file_get_contents($url);
-      log::add('veralink', 'debug', 'runscene returned ' . $xml);
+      log::add(VERALINK, 'debug', 'runscene returned ' . $xml);
       return $xml;
    }
 
@@ -392,7 +394,7 @@ class veralinkCmd extends cmd
          default:
             if (substr($this->getLogicalId(), 0, strlen(SCENECMD)) == SCENECMD) {
                $id = substr($this->getLogicalId(), strlen(SCENECMD));
-               log::add('veralink', 'info', 'execute SCENE ' . $id);
+               log::add(VERALINK, 'info', 'execute SCENE ' . $id);
                $xml = $eqlogic->runScene($id);
             }
       }
