@@ -6,7 +6,7 @@
 	},
 	"licence" : "AGPL",
 	"author" : "amg0",
-	"require" : "4.1.28",
+	"require" : "4.2.8",
 	"category" : "home automation protocol",
 	"hasDependency" : false,
 	"hasOwnDeamon" : true,
