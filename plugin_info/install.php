@@ -21,7 +21,7 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 // Fonction exécutée automatiquement après l'installation du plugin
   function veralink_install() {
     log::add('veralink', 'debug', __METHOD__);
-    
+
     //
     // Create & start the deamon
     //
@@ -42,7 +42,6 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 // Fonction exécutée automatiquement après la mise à jour du plugin
   function veralink_update() {
     log::add('veralink', 'debug', __METHOD__);
-
   }
 
 // Fonction exécutée automatiquement après la suppression du plugin
