@@ -29,7 +29,7 @@ if (!isConnect()) {
         <sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de refresh en secondes 5-100}}"></i></sup>
       </label>
       <div class="col-md-4">
-        <input type="number" min="5" max="100" class="configKey form-control" data-l1key="refresh_freq"/>
+        <input type="number" inputmode="numeric" pattern="[0-9]*" min="5" max="100" class="configKey form-control" data-l1key="refresh_freq"/>
       </div>
     </div>
   </fieldset>
