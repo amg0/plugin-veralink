@@ -34,6 +34,57 @@ class veralink extends eqLogic
    */
 
    /*     * ***********************Methode static*************************** */
+	public static function daemon() {
+      log::add('veralink', 'debug', __METHOD__ . ' start');
+      usleep(15 * 1000000); // 15s
+      log::add('veralink', 'debug', __METHOD__ . ' end');
+	}
+
+	public static function deamon_info() {
+      log::add('veralink', 'debug', __METHOD__);
+		$return = array();
+		$return['log'] = '';
+		$return['state'] = 'nok';
+		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		if (is_object($cron) && $cron->running()) {
+			$return['state'] = 'ok';
+		}
+		$return['launchable'] = 'ok';
+		return $return;
+	}
+
+	public static function deamon_start($_debug = false) {
+      log::add('veralink', 'debug', __METHOD__);
+		self::deamon_stop();
+		$deamon_info = self::deamon_info();
+		if ($deamon_info['launchable'] != 'ok') {
+			throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
+		}
+		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		if (!is_object($cron)) {
+			throw new Exception(__('Tâche cron introuvable', __FILE__));
+		}
+		$cron->run();
+	}
+
+	public static function deamon_stop() {
+      log::add('veralink', 'debug', __METHOD__);
+		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		if (!is_object($cron)) {
+			throw new Exception(__('Tâche cron introuvable', __FILE__));
+		}
+		$cron->halt();
+	}
+
+	public static function deamon_changeAutoMode($_mode) {
+      log::add('veralink', 'debug', __METHOD__);
+		$cron = cron::byClassAndFunction('veralink', 'daemon');
+		if (!is_object($cron)) {
+			throw new Exception(__('Tâche cron introuvable', __FILE__));
+		}
+		$cron->setEnable($_mode);
+		$cron->save();
+	}
 
    /*
      * Fonction exécutée automatiquement toutes les minutes par Jeedom
@@ -181,6 +232,22 @@ class veralink extends eqLogic
                   $this->createRoomEqLogic( $room );
             }
          }
+
+         //
+         // Create & start the deamon
+         //
+         $cron = cron::byClassAndFunction('veralink', 'daemon');
+         if (!is_object($cron)) {
+            $cron = new cron();
+            $cron->setClass('veralink');
+            $cron->setFunction('daemon');
+            $cron->setEnable(1);
+            $cron->setDeamon(1);
+            $cron->setTimeout(1440);
+            $cron->setSchedule('* * * * *');
+            $cron->save();
+         }
+         $cron->start();
       }
    }
 
@@ -188,6 +255,15 @@ class veralink extends eqLogic
    public function preRemove()
    {
       log::add('veralink', 'debug', __METHOD__);
+
+      //
+      // Stop the deamon
+      //
+      $cron = cron::byClassAndFunction('veralink', 'daemon');
+      if (is_object($cron)) {
+         $cron->halt();
+         $cron->remove();
+      }
 
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);

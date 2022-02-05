@@ -9,7 +9,7 @@
 	"require" : "4.1.28",
 	"category" : "home automation protocol",
 	"hasDependency" : false,
-	"hasOwnDeamon" : false,
+	"hasOwnDeamon" : true,
 	"maxDependancyInstallTime" : 0,
 	"changelog" : "https://amg0.github.io/plugin-veralink/#language#/changelog",
 	"documentation" : "https://amg0.github.io/plugin-veralink/#language#/",
