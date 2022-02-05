@@ -42,6 +42,11 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 // Fonction exécutée automatiquement après la mise à jour du plugin
   function veralink_update() {
     log::add('veralink', 'debug', __METHOD__);
+    $cron = cron::byClassAndFunction('veralink', 'daemon');
+		if (!is_object($cron)) {
+			throw new Exception(__('Tâche cron introuvable', __FILE__));
+		}
+    $cron->start();
   }
 
 // Fonction exécutée automatiquement après la suppression du plugin
