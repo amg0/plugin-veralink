@@ -35,9 +35,9 @@ class veralink extends eqLogic
 
    /*     * ***********************Methode static*************************** */
 	public static function daemon() {
-      log::add('veralink', 'debug', __METHOD__ . ' start');
+      log::add('veralink', 'debug', __METHOD__ . ' running: start');
       usleep(15 * 1000000); // 15s
-      log::add('veralink', 'debug', __METHOD__ . ' end');
+      log::add('veralink', 'debug', __METHOD__ . ' running: end');
 	}
 
 	public static function deamon_info() {
@@ -127,8 +127,6 @@ class veralink extends eqLogic
       public static function cronDaily() {
       }
      */
-
-
 
    /*     * *********************Méthodes d'instance************************* */
 
@@ -232,22 +230,6 @@ class veralink extends eqLogic
                   $this->createRoomEqLogic( $room );
             }
          }
-
-         //
-         // Create & start the deamon
-         //
-         $cron = cron::byClassAndFunction('veralink', 'daemon');
-         if (!is_object($cron)) {
-            $cron = new cron();
-            $cron->setClass('veralink');
-            $cron->setFunction('daemon');
-            $cron->setEnable(1);
-            $cron->setDeamon(1);
-            $cron->setTimeout(1440);
-            $cron->setSchedule('* * * * *');
-            $cron->save();
-         }
-         $cron->start();
       }
    }
 
@@ -255,15 +237,6 @@ class veralink extends eqLogic
    public function preRemove()
    {
       log::add('veralink', 'debug', __METHOD__);
-
-      //
-      // Stop the deamon
-      //
-      $cron = cron::byClassAndFunction('veralink', 'daemon');
-      if (is_object($cron)) {
-         $cron->halt();
-         $cron->remove();
-      }
 
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);

@@ -20,17 +20,40 @@ require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
   function veralink_install() {
-
+    log::add('veralink', 'debug', __METHOD__);
   }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
   function veralink_update() {
-
+    log::add('veralink', 'debug', __METHOD__);
+    //
+    // Create & start the deamon
+    //
+    $cron = cron::byClassAndFunction('veralink', 'daemon');
+    if (!is_object($cron)) {
+      $cron = new cron();
+      $cron->setClass('veralink');
+      $cron->setFunction('daemon');
+      $cron->setEnable(1);
+      $cron->setDeamon(1);
+      $cron->setTimeout(1440);
+      $cron->setSchedule('* * * * *');
+      $cron->save();
+    }
+    $cron->start();
   }
 
 // Fonction exécutée automatiquement après la suppression du plugin
   function veralink_remove() {
-
+    log::add('veralink', 'debug', __METHOD__);
+    //
+    // Stop the deamon
+    //
+    $cron = cron::byClassAndFunction('veralink', 'daemon');
+    if (is_object($cron)) {
+        $cron->halt();
+        $cron->remove();
+    }
   }
 
 ?>
