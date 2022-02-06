@@ -4,7 +4,7 @@
 $("input[data-l1key='refresh_freq']").on('change',function() {
     var val = $(this).value();
     if ( (val=='') || isNaN(val) ) {
-      alert('Merci de rentrer un nombre pour ce parametre');
+      alert('{{Merci de rentrer un nombre pour ce parametre}}');
     }
   });
 
