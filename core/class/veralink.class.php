@@ -240,9 +240,9 @@ class veralink extends eqLogic
 
       $configtype = $this->getConfiguration('type', null);
       if (isset($configtype)) {
-         postSaveRoom($configtype);
+         $this->postSaveRoom($configtype);
       } else {
-         postSaveRoot();
+         $this->postSaveRoot();
       }
    }
 
