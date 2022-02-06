@@ -22,7 +22,8 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 const VERALINK = 'veralink';     // plugin logical name
 const SCENECMD = 'S_';           // prefix for scenes
 const ROOMEQ = 'R_';             // prefix for rooms
-
+const MIN_REFRESH = 5;           // min sec for vera refresh
+const MAX_REFRESH = 120;         // max sec for vera refresh
 
 class veralink extends eqLogic
 {
@@ -55,7 +56,7 @@ class veralink extends eqLogic
 		return $return;
 	}
 
-	public static function deamon_start($_debug = false) {
+	public static function deamon_start($debug = false) {
       log::add(VERALINK, 'debug', __METHOD__);
 		self::deamon_stop();
 		$deamon_info = self::deamon_info();
@@ -78,13 +79,13 @@ class veralink extends eqLogic
 		$cron->halt();
 	}
 
-	public static function deamon_changeAutoMode($_mode) {
-      log::add(VERALINK, 'debug', __METHOD__);
+	public static function deamon_changeAutoMode($mode) {
+      log::add(VERALINK, 'debug', __METHOD__.'('.$mode.')');
 		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
-		$cron->setEnable($_mode);
+		$cron->setEnable($mode);
 		$cron->save();
 	}
 
@@ -274,14 +275,15 @@ class veralink extends eqLogic
      * Non obligatoire : permet de déclencher une action après modification de variable de configuration
     public static function postConfig_<Variable>() {
     }
-     */
+    */
 
-   /*
-     * Non obligatoire : permet de déclencher une action avant modification de variable de configuration
-    public static function preConfig_<Variable>() {
+    //  Non obligatoire : permet de déclencher une action avant modification de variable de configuration
+    public static function preConfig_refresh_freq( $value ) {
+      log::add(VERALINK, 'debug', __METHOD__); 
+      $value = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
+      log::add(VERALINK, 'debug', 'modified value '.$value);
+      return $value;
     }
-     */
-
 
    public function createRoomEqLogic($room) 
    {

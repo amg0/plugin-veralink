@@ -26,7 +26,7 @@ if (!isConnect()) {
   <fieldset>
     <div class="form-group">
       <label class="col-md-4 control-label">{{Fréquence de refresh en secondes}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de refresh en secondes 5-100}}"></i></sup>
+        <sup><i class="fas fa-question-circle tooltips" title="{{entre 5 et 120 secondes}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input type="number" class="configKey form-control" data-l1key="refresh_freq"/>
@@ -34,3 +34,5 @@ if (!isConnect()) {
     </div>
   </fieldset>
 </form>
+
+<script type="text/javascript" src="/plugins/veralink/plugin_info/configuration.js"> </script>
