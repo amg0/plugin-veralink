@@ -1,9 +1,9 @@
-//#	 sourceURL=configuration.js
+//#	sourceURL=configuration.js
 // "use strict";
 
 $("input[data-l1key='refresh_freq']").off('change').on('change',function() {
     var val = $(this).value();
-    if (Number.isInteger(val)==false) {
+    if (isNaN(val)){
       alert('Merci de rentrer un nombre pour ce parametre');
     }
   });
