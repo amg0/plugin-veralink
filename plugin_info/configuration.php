@@ -26,7 +26,7 @@ if (!isConnect()) {
   <fieldset>
     <div class="form-group">
       <label class="col-md-4 control-label">{{Fréquence de refresh en secondes}}
-        <sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de refreshexxxxxxxx en secondes 5-100}}"></i></sup>
+        <sup><i class="fas fa-question-circle tooltips" title="{{en secondes entre 5 et 100}}"></i></sup>
       </label>
       <div class="col-md-4">
         <input type="number" class="configKey form-control" data-l1key="refresh_freq"/>

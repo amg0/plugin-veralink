@@ -55,7 +55,7 @@ class veralink extends eqLogic
 		return $return;
 	}
 
-	public static function deamon_start($_debug = false) {
+	public static function deamon_start($debug = false) {
       log::add(VERALINK, 'debug', __METHOD__);
 		self::deamon_stop();
 		$deamon_info = self::deamon_info();
@@ -78,13 +78,13 @@ class veralink extends eqLogic
 		$cron->halt();
 	}
 
-	public static function deamon_changeAutoMode($_mode) {
-      log::add(VERALINK, 'debug', __METHOD__);
+	public static function deamon_changeAutoMode($mode) {
+      log::add(VERALINK, 'debug', __METHOD__.'('.$mode.')');
 		$cron = cron::byClassAndFunction(VERALINK, 'daemon');
 		if (!is_object($cron)) {
 			throw new Exception(__('Tâche cron introuvable', __FILE__));
 		}
-		$cron->setEnable($_mode);
+		$cron->setEnable($mode);
 		$cron->save();
 	}
 
