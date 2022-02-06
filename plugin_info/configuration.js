@@ -3,7 +3,7 @@
 
 $("input[data-l1key='refresh_freq']").off('change').on('change',function() {
     var val = $(this).value();
-    if (isNaN(val)){
+    if ( (val=='') || isNaN(val) ) {
       alert('Merci de rentrer un nombre pour ce parametre');
     }
   });
