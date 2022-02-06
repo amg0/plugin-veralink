@@ -1,3 +1,4 @@
+//#	 sourceURL=configuration.php
 <?php
 /* This file is part of Jeedom.
 *
@@ -43,7 +44,7 @@ if (!isConnect()) {
     }
   });
 
-  /*  in case we want to trigger some actions from JS after the save of the config
+  //  in case we want to trigger some actions from JS after the save of the config
   function veralink_postSaveConfiguration() {};
-  */
+  
 </script>
