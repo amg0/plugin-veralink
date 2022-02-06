@@ -280,9 +280,11 @@ class veralink extends eqLogic
     //  Non obligatoire : permet de déclencher une action avant modification de variable de configuration
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
-      $value = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
-      log::add(VERALINK, 'debug', 'modified value '.$value);
-      return $value;
+      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
+      if ($value != $resvalue) {
+         log::add(VERALINK, 'debug', 'modified value '.$resvalue);
+      }
+      return $resvalue;
     }
 
    public function createRoomEqLogic($room) 
