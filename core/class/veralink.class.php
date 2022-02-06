@@ -22,7 +22,8 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 const VERALINK = 'veralink';     // plugin logical name
 const SCENECMD = 'S_';           // prefix for scenes
 const ROOMEQ = 'R_';             // prefix for rooms
-
+const MIN_REFRESH = 5;           // min sec for vera refresh
+const MAX_REFRESH = 120;         // max sec for vera refresh
 
 class veralink extends eqLogic
 {
@@ -279,12 +280,10 @@ class veralink extends eqLogic
     //  Non obligatoire : permet de déclencher une action avant modification de variable de configuration
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
-      $value = config::checkValueBetween($value, 10, 120);
+      $value = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
       log::add(VERALINK, 'debug', 'modified value '.$value);
       return $value;
     }
-
-
 
    public function createRoomEqLogic($room) 
    {

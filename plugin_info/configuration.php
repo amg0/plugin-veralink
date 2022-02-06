@@ -34,3 +34,14 @@ if (!isConnect()) {
     </div>
   </fieldset>
 </form>
+
+<script type="text/javascript">
+  $('input[data-l1key=refresh_freq]').off('change').on('change',function() {
+    alert('on change input');
+  });
+
+  function veralink_postSaveConfiguration() {
+    alert('test: POST');
+  };
+  
+</script>
