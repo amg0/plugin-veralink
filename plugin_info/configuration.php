@@ -35,4 +35,4 @@ if (!isConnect()) {
   </fieldset>
 </form>
 
-<script type="text/javascript" src="configuration.js"> </script>
+<script type="text/javascript" src="/plugins/veralink/plugin_info/configuration.js"> </script>
