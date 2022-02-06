@@ -35,4 +35,4 @@ if (!isConnect()) {
   </fieldset>
 </form>
 
-<script type="text/javascript"> src="<?=dirname(__FILE__).'/configuration.js'?>" </script>
+<script type="text/javascript" src="<?=dirname(__FILE__).'/configuration.js'?>"> </script>
