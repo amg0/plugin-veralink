@@ -35,4 +35,5 @@ if (!isConnect()) {
   </fieldset>
 </form>
 
+<!-- Inclusion du fichier javascript du plugin (dossier, nom_du_fichier, extension_du_fichier, id_du_plugin) -->
 <script type="text/javascript" src="/plugins/veralink/plugin_info/configuration.js"> </script>

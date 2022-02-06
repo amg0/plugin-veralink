@@ -165,74 +165,106 @@ class veralink extends eqLogic
    }
 
    // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
+   public function postSaveRoot()
+   {
+      //
+      // this is the root EQLOGIC.  so create the Data command if needed
+      //
+      $data = $this->getCmd(null, 'data');
+      if (!is_object($data)) {
+         $data = new veralinkCmd();
+         $data->setName(__('Data', __FILE__));
+      }
+      $data->setLogicalId('data');
+      $data->setEqLogic_id($this->getId());
+      $data->setType('info');
+      $data->setSubType('string');
+      $data->setTemplate('dashboard','default');   //template pour le dashboard
+      $data->setIsVisible(0);
+      $data->save();   
+
+      //
+      // Refresh the Data command if needed
+      //
+      $objects = $this->getVeraData();
+      $this->checkAndUpdateCmd('data', $objects);
+      $objects = json_decode($objects);
+
+      if (isset($objects)) {
+         // create eqlogic for room 0 for scenes not assigned to a room
+         $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
+         // create a eqLogic per room
+         foreach ($objects->rooms as $room) {
+               $this->createRoomEqLogic( $room );
+         }
+      }
+   }
+
+   public function createRoomEqLogic($room) 
+   {
+      //
+      // for each room , if and only if the EQ for the room does not exist, create it
+      //
+      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, VERALINK);
+      if (!is_object($eqLogic)) {
+         log::add(VERALINK, 'debug', 'create another EQ for room #' . $room->id);
+         $eqLogic = new veralink();
+         $eqLogic->setEqType_name(VERALINK);
+         $eqLogic->setConfiguration('type', 'room');
+         $eqLogic->setLogicalId(ROOMEQ . $room->id);
+         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+         $eqLogic->setConfiguration('rootid', $this->getId());
+         $eqLogic->setIsEnable(0);
+         $eqLogic->setIsVisible(0);
+      }
+      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      $eqLogic->setName($this->getName().' '.$room->name);
+      $eqLogic->save();
+   }
+   
+   public function postSaveRoom($configtype)
+   {
+      //
+      // This is a room EQLOGIC
+      //
+      log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+
+      $idroot = $this->getConfiguration('rootid');
+      $root_eqlogic = eqLogic::byId($idroot);
+
+      $idroom = substr( $this->getLogicalId(), strlen(ROOMEQ) );
+      $scenes = $root_eqlogic->getScenesOfRoom($idroom);
+
+      foreach($scenes as $scene) {
+         $logicalid = SCENECMD.$scene->id;
+         $cmd = $this->getCmd(null, $logicalid);
+         if (!is_object($cmd)) {
+            log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
+            $cmd = new veralinkCmd();
+            $cmd->setIsVisible(1);
+         }
+         $cmd->setName($scene->name);
+         $cmd->setLogicalId($logicalid);
+         $cmd->setEqLogic_id($this->getId());
+         $cmd->setType('action');
+         $cmd->setSubType('other');
+         $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+         $cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+         $cmd->setdisplay('showIconAndNamedashboard', 1);
+         $cmd->setdisplay('showIconAndNamemobile', 1);
+         $cmd->save();   
+      }
+   }
+   
    public function postSave()
    {
       log::add(VERALINK, 'debug', __METHOD__);
 
       $configtype = $this->getConfiguration('type', null);
       if (isset($configtype)) {
-         //
-         // This is a room EQLOGIC
-         //
-         log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
-
-         $idroot = $this->getConfiguration('rootid');
-         $root_eqlogic = eqLogic::byId($idroot);
-
-         $idroom = substr( $this->getLogicalId(), strlen(ROOMEQ) );
-         $scenes = $root_eqlogic->getScenesOfRoom($idroom);
-
-         foreach($scenes as $scene) {
-            $logicalid = SCENECMD.$scene->id;
-            $cmd = $this->getCmd(null, $logicalid);
-            if (!is_object($cmd)) {
-               log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
-               $cmd = new veralinkCmd();
-               $cmd->setIsVisible(1);
-            }
-            $cmd->setName($scene->name);
-            $cmd->setLogicalId($logicalid);
-            $cmd->setEqLogic_id($this->getId());
-            $cmd->setType('action');
-            $cmd->setSubType('other');
-            $cmd->setTemplate('dashboard','default');   //template pour le dashboard
-            $cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
-            $cmd->setdisplay('showIconAndNamedashboard', 1);
-            $cmd->setdisplay('showIconAndNamemobile', 1);
-            $cmd->save();   
-         }
+         $this->postSaveRoom($configtype);
       } else {
-         //
-         // this is the root EQLOGIC.  so create the Data command if needed
-         //
-         $data = $this->getCmd(null, 'data');
-         if (!is_object($data)) {
-           $data = new veralinkCmd();
-           $data->setName(__('Data', __FILE__));
-         }
-         $data->setLogicalId('data');
-         $data->setEqLogic_id($this->getId());
-         $data->setType('info');
-         $data->setSubType('string');
-         $data->setTemplate('dashboard','default');   //template pour le dashboard
-         $data->setIsVisible(0);
-         $data->save();   
-
-         //
-         // Refresh the Data command if needed
-         //
-         $objects = $this->getVeraData();
-         $this->checkAndUpdateCmd('data', $objects);
-         $objects = json_decode($objects);
-
-         if (isset($objects)) {
-            // create eqlogic for oom 0 for scenes not assigned to a room
-            $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Global', __FILE__)) );   // cast to object to enable -> access
-            // create a eqLogic per room
-            foreach ($objects->rooms as $room) {
-                  $this->createRoomEqLogic( $room );
-            }
-         }
+         $this->postSaveRoot();
       }
    }
 
@@ -280,33 +312,14 @@ class veralink extends eqLogic
     //  Non obligatoire : permet de déclencher une action avant modification de variable de configuration
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
-      $value = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
-      log::add(VERALINK, 'debug', 'modified value '.$value);
-      return $value;
-    }
-
-   public function createRoomEqLogic($room) 
-   {
-      //
-      // for each room , if and only if the EQ for the room does not exist, create it
-      //
-      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, VERALINK);
-      if (!is_object($eqLogic)) {
-         log::add(VERALINK, 'debug', 'create another EQ for room #' . $room->id);
-         $eqLogic = new veralink();
-         $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', 'room');
-         $eqLogic->setLogicalId(ROOMEQ . $room->id);
-         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
-         $eqLogic->setConfiguration('rootid', $this->getId());
-         $eqLogic->setIsEnable(0);
-         $eqLogic->setIsVisible(0);
+      // verity it is numeric and within range
+      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
+      if ($value != $resvalue) {
+         log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
-      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      $eqLogic->setName($this->getName().' '.$room->name);
-      $eqLogic->save();
-   }
-
+      return $resvalue;
+    }
+/* 
    public function getDevices()
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
@@ -320,7 +333,7 @@ class veralink extends eqLogic
       $obj = json_decode($json);
       $devices = $obj->devices[0];
       return json_encode($devices);
-   }
+   } */
 
    public function getVeraData()
    {
@@ -394,6 +407,7 @@ class veralinkCmd extends cmd
       switch ($this->getLogicalId()) {
 
          default:
+            // this is a scene command
             if (substr($this->getLogicalId(), 0, strlen(SCENECMD)) == SCENECMD) {
                $id = substr($this->getLogicalId(), strlen(SCENECMD));
                log::add(VERALINK, 'info', 'execute SCENE ' . $id);
