@@ -282,7 +282,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__); 
       $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
       if ($value != $resvalue) {
-         log::add(VERALINK, 'debug', 'modified value '.$resvalue);
+         log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
       return $resvalue;
     }
