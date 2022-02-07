@@ -351,7 +351,10 @@ class veralink extends eqLogic
          $user_data = json_decode($json,false);
          $timestamp = $user_data->DataVersion;
          $this->setConfiguration('dataversion', $timestamp);
+         $this->save();
          log::add(VERALINK, 'debug', 'DataVersion:'.$timestamp);
+      } else {
+         log::add(VERALINK, 'debug', 'No change with :'.$json);
       }
       return $json;
    }
