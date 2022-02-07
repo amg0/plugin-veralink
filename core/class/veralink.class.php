@@ -335,19 +335,24 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
+      $timestamp = $this->getConfiguration('dataversion', 1);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
          return null;
       }
-      $date = new DateTime();
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$date->getTimestamp();
-      log::add(VERALINK, 'info', 'getting '.$objects.' from ' . $url);
+      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$timestamp;
+      log::add(VERALINK, 'info', 'getting user_data from ' . $url);
       $json = file_get_contents($url);
       if ($json===false) {
 			throw new Exception(__('Vera ne répond pas', __FILE__));
 		}
-      
-      $this->checkAndUpdateCmd('data', $json);
+      if (($json != 'NO_CHANGES') && ($json != 'Exiting')) {
+         $this->checkAndUpdateCmd('data', $json);
+         $user_data = json_decode($json,false);
+         $timestamp = $user_data->DataVersion;
+         $this->setConfiguration('dataversion', $timestamp);
+         log::add(VERALINK, 'debug', 'DataVersion:'.$timestamp);
+      }
       return $json;
    }
 
