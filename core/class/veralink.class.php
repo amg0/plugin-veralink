@@ -23,7 +23,7 @@ const VERALINK = 'veralink';     // plugin logical name
 const SCENECMD = 'S_';           // prefix for scenes
 const ROOMEQ = 'R_';             // prefix for rooms
 const MIN_REFRESH = 5;           // min sec for vera refresh
-const MAX_REFRESH = 120;         // max sec for vera refresh
+const MAX_REFRESH = 240;         // max sec for vera refresh
 
 class veralink extends eqLogic
 {
@@ -179,17 +179,28 @@ class veralink extends eqLogic
       $data->setEqLogic_id($this->getId());
       $data->setType('info');
       $data->setSubType('string');
-      $data->setTemplate('dashboard','default');   //template pour le dashboard
+      //$data->setTemplate('dashboard','default');   //template pour le dashboard
       $data->setIsVisible(0);
       $data->save();   
 
       //
+      // refresh data command
+      //
+      $refresh = $this->getCmd(null, 'refresh');
+		if (!is_object($refresh)) {
+			$refresh = new vdmCmd();
+			$refresh->setName(__('Rafraichir', __FILE__));
+		}
+		$refresh->setEqLogic_id($this->getId());
+		$refresh->setLogicalId('refresh');
+		$refresh->setType('action');
+		$refresh->setSubType('other');
+      $refresh->save();  
+
+      //
       // Refresh the Data command if needed
       //
-      $objects = $this->getVeraData();
-      $this->checkAndUpdateCmd('data', $objects);
-      $objects = json_decode($objects);
-
+      $objects = json_decode($this->refreshData());
       if (isset($objects)) {
          // create eqlogic for room 0 for scenes not assigned to a room
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
@@ -334,9 +345,10 @@ class veralink extends eqLogic
       $devices = $obj->devices[0];
       return json_encode($devices);
    } */
-
-   public function getVeraData()
+   
+   public function refreshData()
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
@@ -345,6 +357,7 @@ class veralink extends eqLogic
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
       log::add(VERALINK, 'info', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
+      $this->checkAndUpdateCmd('data', $json);
       return $json;
    }
 
@@ -406,6 +419,10 @@ class veralinkCmd extends cmd
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
       switch ($this->getLogicalId()) {
 
+         case 'refresh':
+            $eqLogic->refreshData();
+            break;
+
          default:
             // this is a scene command
             if (substr($this->getLogicalId(), 0, strlen(SCENECMD)) == SCENECMD) {
@@ -414,7 +431,6 @@ class veralinkCmd extends cmd
                $xml = $eqlogic->runScene($id);
             }
       }
-   
    }
    /*     * **********************Getteur Setteur*************************** */
 }
