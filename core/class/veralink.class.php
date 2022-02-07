@@ -161,6 +161,7 @@ class veralink extends eqLogic
    public function preSave()
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $this->setConfiguration('dataversion', 1);
       //$this->setDisplay("width","800px");                   // widget display width
    }
 
@@ -340,9 +341,11 @@ class veralink extends eqLogic
          log::add(VERALINK, 'info', 'null IP addr');
          return null;
       }
+
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$timestamp;
       log::add(VERALINK, 'info', 'getting user_data from ' . $url);
       $json = file_get_contents($url);
+
       if ($json===false) {
 			throw new Exception(__('Vera ne répond pas', __FILE__));
 		}
