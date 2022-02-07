@@ -420,7 +420,7 @@ class veralinkCmd extends cmd
       switch ($this->getLogicalId()) {
 
          case 'refresh':
-            $eqLogic->refreshData();
+            $eqlogic->refreshData();
             break;
 
          default:
