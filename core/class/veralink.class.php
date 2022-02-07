@@ -329,22 +329,7 @@ class veralink extends eqLogic
          log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
       return $resvalue;
-    }
-/* 
-   public function getDevices()
-   {
-      $ipaddr = $this->getConfiguration('ipaddr', null);
-      if (is_null($ipaddr)) {
-         log::add(VERALINK, 'info', 'null IP addr, no action taken');
-         return null;
-      }
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=status';
-      log::add(VERALINK, 'info', 'getting data from ' . $url);
-      $json = file_get_contents($url);
-      $obj = json_decode($json);
-      $devices = $obj->devices[0];
-      return json_encode($devices);
-   } */
+   }
    
    public function refreshData()
    {
@@ -354,9 +339,14 @@ class veralink extends eqLogic
          log::add(VERALINK, 'info', 'null IP addr');
          return null;
       }
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data';
+      $date = new DateTime();
+      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$date->getTimestamp();
       log::add(VERALINK, 'info', 'getting '.$objects.' from ' . $url);
       $json = file_get_contents($url);
+      if ($json===false) {
+			throw new Exception(__('Vera ne répond pas', __FILE__));
+		}
+      
       $this->checkAndUpdateCmd('data', $json);
       return $json;
    }
