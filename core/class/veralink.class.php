@@ -161,7 +161,6 @@ class veralink extends eqLogic
    public function preSave()
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $this->setConfiguration('dataversion', 1);
       //$this->setDisplay("width","800px");                   // widget display width
    }
 
