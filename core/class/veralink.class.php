@@ -210,9 +210,6 @@ class veralink extends eqLogic
                $this->createRoomEqLogic( $room );
          }
       }
-
-      // reset data configuration 
-      $this->getConfiguration('dataversion', 1);
    }
 
    public function createRoomEqLogic($room) 
@@ -339,28 +336,33 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
-      $timestamp = $this->getConfiguration('dataversion', 1);
+      //$timestamp = $this->getConfiguration('dataversion', 1);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
          return null;
       }
 
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$timestamp;
-      log::add(VERALINK, 'info', 'getting user_data from ' . $url);
-      $json = file_get_contents($url);
+      $json =  $this->getCmd('info','data') -> execCmd();
+      log::add(VERALINK, 'info', 'previous user_data json:' . $json);
 
-      if ($json===false) {
-			throw new Exception(__('Vera ne répond pas', __FILE__));
-		}
-      if (($json != 'NO_CHANGES') && ($json != 'Exiting')) {
-         $this->checkAndUpdateCmd('data', $json);
-         $user_data = json_decode($json,false);
-         $timestamp = $user_data->DataVersion;
-         $this->setConfiguration('dataversion', $timestamp);
-         $this->save();
-         log::add(VERALINK, 'debug', 'DataVersion:'.$timestamp);
-      } else {
-         log::add(VERALINK, 'debug', 'No change with :'.$json);
+      if ($json=="") 
+      {
+         $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion=1';
+         log::add(VERALINK, 'info', 'getting user_data from ' . $url);
+         $json = file_get_contents($url);
+         if ($json===false) {
+            throw new Exception(__('Vera ne répond pas', __FILE__));
+         }
+         if (($json != 'NO_CHANGES') && ($json != 'Exiting')) {
+            //$this->checkAndUpdateCmd('data', $json);
+            //$user_data = json_decode($json,false);
+            // $timestamp = $user_data->DataVersion;
+            // $this->setConfiguration('dataversion', $timestamp);
+            // $this->save();
+            log::add(VERALINK, 'debug', 'received :'.$json);
+         } else {
+            log::add(VERALINK, 'debug', 'No change with :'.$json);
+         }
       }
       return $json;
    }
