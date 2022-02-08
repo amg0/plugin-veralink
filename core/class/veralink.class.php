@@ -408,6 +408,8 @@ class veralink extends eqLogic
       $json = $this->getUserData($ipaddr,$initial);
       sleep(5);
       $json = $this->getLuStatus($ipaddr);
+      sleep(5);
+      $json = $this->getLuStatus($ipaddr);
       return $json;
    }
 
