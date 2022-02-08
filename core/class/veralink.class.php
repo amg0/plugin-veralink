@@ -201,7 +201,7 @@ class veralink extends eqLogic
       //
       // Refresh the Data command if needed
       //
-      $objects = json_decode($this->refreshData());
+      $objects = json_decode($this->refreshData(1));
       if (isset($objects)) {
          // create eqlogic for room 0 for scenes not assigned to a room
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
@@ -332,7 +332,71 @@ class veralink extends eqLogic
       return $resvalue;
    }
    
-   public function refreshData()
+   public function getUserData($ipaddr,$initial=null)
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      $user_dataversion = ( isset($initial) ? $initial : $this->getConfiguration('user_dataversion', 1) );
+      log::add(VERALINK, 'debug', 'initial dataversion:'. $user_dataversion);
+
+      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$user_dataversion;
+      log::add(VERALINK, 'info', 'getting user_data from ' . $url);
+      $json = file_get_contents($url);
+      if ($json===false) {
+         throw new Exception(__('Vera ne répond pas', __FILE__));
+      }
+      log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
+
+      if (($json == 'NO_CHANGES') || ($json != 'Exiting')) {
+         log::add(VERALINK, 'debug', 'No change with :'.$json);
+         $json="";
+      } else {
+         $this->checkAndUpdateCmd('data', $json);
+         $user_data = json_decode($json,false);
+         $user_dataversion = $user_data->DataVersion;
+         $this->setConfiguration('user_dataversion', $user_dataversion);
+         log::add(VERALINK, 'debug', 'received dataversion:'. $user_dataversion);
+         // $this->save();
+      }
+      return $json;
+   }
+
+   public function getLuStatus($ipaddr, $statusdataversion)
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+
+      $statusdataversion = $this->getConfiguration('statusdataversion', 1);
+      $lastloadtime = $this->getConfiguration('lastloadtime', 0);
+      $userdatadataversion = $this->getConfiguration('user_dataversion', 1);
+
+      log::add(VERALINK, 'debug', sprintf('OLD statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
+
+      $url = sprintf('http://%s/port_3480/data_request?id=lu_status2&output_format=json&DataVersion=%s&LoadTime=%s&Timeout=%s&MinimumDelay=%s',
+         $ipaddr,$statusdataversion,$lastloadtime,60,1500);
+      log::add(VERALINK, 'info', 'getting lu_status from ' . $url);
+      $json = file_get_contents($url);
+      if ($json===false) {
+         throw new Exception(__('Vera ne répond pas', __FILE__));
+      }
+      log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
+
+      if (($json == 'NO_CHANGES') || ($json != 'Exiting')) {
+         log::add(VERALINK, 'debug', 'No change with :'.$json);
+         $json="";
+      } else {
+         $lu_data = json_decode($json);
+         $statusdataversion = $lu_data->DataVersion;
+         $lastloadtime = $lu_data->LoadTime;
+         $userdatadataversion = $lu_data->UserData_DataVersion;   
+         $this->setConfiguration('statusdataversion', $statusdataversion);
+         $this->setConfiguration('lastloadtime', $lastloadtime);
+         
+         log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
+         // todo check if it has changed
+      }
+      return $json;
+   }
+
+   public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
@@ -341,26 +405,9 @@ class veralink extends eqLogic
          return null;
       }
 
-      $timestamp = $this->getConfiguration('dataversion', 1);
-      log::add(VERALINK, 'debug', 'initial dataversion:'. $timestamp);
-
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion=1';
-      log::add(VERALINK, 'info', 'getting user_data from ' . $url);
-      $json = file_get_contents($url);
-      if ($json===false) {
-         throw new Exception(__('Vera ne répond pas', __FILE__));
-      }
-      if (($json != 'NO_CHANGES') && ($json != 'Exiting')) {
-         log::add(VERALINK, 'debug', 'received :'.substr($json,0,30));
-         $this->checkAndUpdateCmd('data', $json);
-         $user_data = json_decode($json,false);
-         $timestamp = $user_data->DataVersion;
-         $this->setConfiguration('dataversion', $timestamp);
-         log::add(VERALINK, 'debug', 'received dataversion:'. $timestamp);
-         // $this->save();
-      } else {
-         log::add(VERALINK, 'debug', 'No change with :'.$json);
-      }
+      $json = getUserData($ipaddr,$initial);
+      sleep(5);
+      $json = getLuStatus($ipaddr);
       return $json;
    }
 
