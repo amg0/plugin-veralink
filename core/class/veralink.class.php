@@ -210,6 +210,9 @@ class veralink extends eqLogic
                $this->createRoomEqLogic( $room );
          }
       }
+
+      // reset data configuration 
+      $this->getConfiguration('dataversion', 1);
    }
 
    public function createRoomEqLogic($room) 
