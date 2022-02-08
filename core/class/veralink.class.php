@@ -346,8 +346,8 @@ class veralink extends eqLogic
       }
       log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
 
-      if (($json == 'NO_CHANGES') || ($json != 'Exiting')) {
-         log::add(VERALINK, 'debug', 'No change with :'.$json);
+      if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
+         log::add(VERALINK, 'debug', 'No change with result:'.$json);
          $json="";
       } else {
          $this->checkAndUpdateCmd('data', $json);
@@ -360,7 +360,7 @@ class veralink extends eqLogic
       return $json;
    }
 
-   public function getLuStatus($ipaddr, $statusdataversion)
+   public function getLuStatus($ipaddr)
    {
       log::add(VERALINK, 'debug', __METHOD__);
 
@@ -379,8 +379,8 @@ class veralink extends eqLogic
       }
       log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
 
-      if (($json == 'NO_CHANGES') || ($json != 'Exiting')) {
-         log::add(VERALINK, 'debug', 'No change with :'.$json);
+      if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
+         log::add(VERALINK, 'debug', 'No change with result:'.$json);
          $json="";
       } else {
          $lu_data = json_decode($json);
