@@ -178,7 +178,6 @@ class veralink extends eqLogic
       //
       // this is the root EQLOGIC.  so create the Data command if needed
       //
-
       $data = $this->getCmd(null, 'data');
       if (!is_object($data)) {
          $data = new veralinkCmd();
@@ -362,8 +361,8 @@ class veralink extends eqLogic
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
          $this->setConfiguration('user_dataversion', $user_dataversion);
+         $this->save();
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
-         // $this->save();
       }
       return $json;
    }
@@ -396,6 +395,7 @@ class veralink extends eqLogic
          $lastloadtime = $lu_data->LoadTime;
          $this->setConfiguration('statusdataversion', $statusdataversion);
          $this->setConfiguration('lastloadtime', $lastloadtime);
+         $this->save();
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
          if ($userdatadataversion != $lu_data->UserData_DataVersion) 
