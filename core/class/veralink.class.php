@@ -38,8 +38,16 @@ class veralink extends eqLogic
    /*     * ***********************Methode static*************************** */
 	public static function daemon() {
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
+      $starttime = microtime (true);   // current time in sec as a float
+      //
+      // do the work
+      //
       $seconds = config::byKey('refresh_freq', VERALINK, 60, true);
-      usleep($seconds * 1000000); // 15s
+      $endtime = microtime (true);     // current time in sec as a float
+      if ( $endtime - $starttime < $seconds )
+      {
+         usleep(floor(($seconds - ($endtime - $starttime))*1000000));
+      }
       log::add(VERALINK, 'debug', __METHOD__ . ' running: end');
 	}
 
@@ -369,9 +377,9 @@ class veralink extends eqLogic
       $userdatadataversion = $this->getConfiguration('user_dataversion', 1);
 
       log::add(VERALINK, 'debug', sprintf('OLD statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
-
       $url = sprintf('http://%s/port_3480/data_request?id=lu_status2&output_format=json&DataVersion=%s&LoadTime=%s&Timeout=%s&MinimumDelay=%s',
          $ipaddr,$statusdataversion,$lastloadtime,60,1500);
+
       log::add(VERALINK, 'info', 'getting lu_status from ' . $url);
       $json = file_get_contents($url);
       if ($json===false) {
@@ -386,12 +394,15 @@ class veralink extends eqLogic
          $lu_data = json_decode($json);
          $statusdataversion = $lu_data->DataVersion;
          $lastloadtime = $lu_data->LoadTime;
-         $userdatadataversion = $lu_data->UserData_DataVersion;   
          $this->setConfiguration('statusdataversion', $statusdataversion);
          $this->setConfiguration('lastloadtime', $lastloadtime);
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
-         // todo check if it has changed
+         if ($userdatadataversion != $lu_data->UserData_DataVersion) 
+         {
+            log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
+            return $this->getUserData($ipaddr,$lu_data->UserData_DataVersion);
+         }
       }
       return $json;
    }
@@ -405,11 +416,12 @@ class veralink extends eqLogic
          return null;
       }
 
-      $json = $this->getUserData($ipaddr,$initial);
-      sleep(5);
-      $json = $this->getLuStatus($ipaddr);
-      sleep(5);
-      $json = $this->getLuStatus($ipaddr);
+      if ($initial==1) {
+         $json = $this->getUserData($ipaddr,$initial);         
+      }
+      else {
+         $json = $this->getLuStatus($ipaddr);         
+      }
       return $json;
    }
 
