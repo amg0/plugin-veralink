@@ -361,7 +361,7 @@ class veralink extends eqLogic
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
          $this->setConfiguration('user_dataversion', $user_dataversion);
-         $this->save();
+         //$this->save();
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
       }
       return $json;
@@ -395,7 +395,7 @@ class veralink extends eqLogic
          $lastloadtime = $lu_data->LoadTime;
          $this->setConfiguration('statusdataversion', $statusdataversion);
          $this->setConfiguration('lastloadtime', $lastloadtime);
-         $this->save();
+         //$this->save();
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$userdatadataversion));
          if ($userdatadataversion != $lu_data->UserData_DataVersion) 
