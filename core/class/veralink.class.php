@@ -363,9 +363,7 @@ class veralink extends eqLogic
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
-         if (!isset($initial)) {
-            $this->save();
-         }
+         $this->save(true);
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
       }
       return $json;
@@ -399,7 +397,7 @@ class veralink extends eqLogic
          $lastloadtime = $lu_data->LoadTime;
          $this->setConfiguration('statusdataversion', $statusdataversion);
          $this->setConfiguration('lastloadtime', $lastloadtime);
-         $this->save();
+         $this->save(true);
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$lu_data->UserData_DataVersion));
          if ($userdatadataversion != $lu_data->UserData_DataVersion) 
