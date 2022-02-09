@@ -344,7 +344,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $user_dataversion = ( isset($initial) ? $initial : $this->getConfiguration('user_dataversion', 1) );
-      log::add(VERALINK, 'debug', 'initial dataversion:'. $user_dataversion);
+      log::add(VERALINK, 'debug', 'initial userdataversion:'. $user_dataversion);
 
       $url = 'http://' . $ipaddr . '/port_3480/data_request?id=user_data&DataVersion='.$user_dataversion;
       log::add(VERALINK, 'info', 'getting user_data from ' . $url);
@@ -362,7 +362,7 @@ class veralink extends eqLogic
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
          $this->setConfiguration('user_dataversion', $user_dataversion);
-         log::add(VERALINK, 'debug', 'received dataversion:'. $user_dataversion);
+         log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
          // $this->save();
       }
       return $json;
