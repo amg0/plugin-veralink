@@ -371,6 +371,7 @@ class veralink extends eqLogic
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
+         log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
       }
       return $json;
@@ -418,10 +419,10 @@ class veralink extends eqLogic
             foreach( $lu_data->devices as $dev ) {
                foreach($old->devices as $olddev ) {
                   if ($olddev->id == $dev->id) {
-                     log::add(VERALINK, 'debug', 'update dev '.$dev->id);
                      foreach($dev->states as $state) {
                         foreach($olddev->states as $oldstate) {
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
+                              log::add(VERALINK, 'debug', 'update dev '.$dev->id);
                               log::add(VERALINK, 'debug', sprintf('%s %s=>%s (%s)',$state->variable, $oldstate->value, $state->value, $state->service));
                               $oldstate->value = $state->value;
                            }
@@ -430,10 +431,10 @@ class veralink extends eqLogic
                   }
                }
             }
+            log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
-
          }
       }
       return $json;
