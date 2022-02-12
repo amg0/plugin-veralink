@@ -40,8 +40,15 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
       $starttime = microtime (true);   // current time in sec as a float
       //
-      // do the work
+      // do the work for all eqlogic of type root
+      // !isset($this->getConfiguration('type', null))
       //
+      foreach (self::byType(VERALINK) as $eqLogic) {
+         $config = $eqLogic->getConfiguration('type',null);
+			if ($config===null) {
+				$eqLogic->refreshData();
+			}
+		}
       $seconds = config::byKey('refresh_freq', VERALINK, 60, true);
       $endtime = microtime (true);     // current time in sec as a float
       if ( $endtime - $starttime < $seconds )
@@ -364,6 +371,7 @@ class veralink extends eqLogic
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
+         //log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
       }
       return $json;
@@ -407,11 +415,25 @@ class veralink extends eqLogic
          } else {
             $cmd = $this->getCmd(null, 'data');
             $old = json_decode($cmd->execCmd());
-            $old->devices = $lu_data->devices;
+            // il faut ecraser $old.devices etc... with $lu_datas
+            foreach( $lu_data->devices as $dev ) {
+               foreach($old->devices as $olddev ) {
+                  if ($olddev->id == $dev->id) {
+                     foreach($dev->states as $state) {
+                        foreach($olddev->states as $oldstate) {
+                           if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
+                              log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$dev->name,$state->variable, $oldstate->value, $state->value, $state->service));
+                              $oldstate->value = $state->value;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+            //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
-            // il faut ecraser $old.devices etc... with $lu_datas
          }
       }
       return $json;
@@ -419,7 +441,7 @@ class veralink extends eqLogic
 
    public function refreshData( $initial=null )
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
