@@ -426,8 +426,8 @@ class veralink extends eqLogic
             }
             log::add(VERALINK, 'debug','merged devices :'.json_encode($devices));
             $old->devices = array();
-            foreach($devices as $dev) {
-               $old->devices[] = array( 'id'=>$dev->id , 'states'=>$dev->states );
+            foreach($devices as $key => $value) {
+               $old->devices[] = array( 'id'=>$key , 'states'=>$value );
             }
             log::add(VERALINK, 'debug','new devices :'.json_encode($old->devices));
             $json = json_encode($old);
