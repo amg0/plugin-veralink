@@ -44,7 +44,7 @@ class veralink extends eqLogic
       // !isset($this->getConfiguration('type', null))
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
-         $config = $eqLogic->getConfiguration('type');
+         $config = $eqLogic->getConfiguration('type',null);
          log::add(VERALINK, 'debug', __METHOD__ . ' config:'.json_encode($config));
 			if ($config===null) {
 				$eqLogic->refreshData();
