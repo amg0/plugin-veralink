@@ -45,7 +45,6 @@ class veralink extends eqLogic
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
          $config = $eqLogic->getConfiguration('type',null);
-         log::add(VERALINK, 'debug', __METHOD__ . ' config:'.json_encode($config));
 			if ($config===null) {
 				$eqLogic->refreshData();
 			}
@@ -415,11 +414,14 @@ class veralink extends eqLogic
          } else {
             $cmd = $this->getCmd(null, 'data');
             $old = json_decode($cmd->execCmd());
+            // il faut ecraser $old.devices etc... with $lu_datas
+            log::add(VERALINK, 'debug','old devices :'.json_encode($old->devices));
             $old->devices = $lu_data->devices;
+            log::add(VERALINK, 'debug','new devices :'.json_encode($old->devices));
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
-            // il faut ecraser $old.devices etc... with $lu_datas
+
          }
       }
       return $json;
