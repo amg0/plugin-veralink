@@ -371,7 +371,7 @@ class veralink extends eqLogic
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
-         log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
+         //log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
       }
       return $json;
@@ -431,7 +431,7 @@ class veralink extends eqLogic
                   }
                }
             }
-            log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
+            //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
