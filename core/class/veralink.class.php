@@ -45,7 +45,8 @@ class veralink extends eqLogic
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
          $config = $eqLogic->getConfiguration('type');
-			if (!isset($config)) {
+         log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
+			if ($config===null) {
 				$eqLogic->refreshData();
 			}
 		}
@@ -426,7 +427,7 @@ class veralink extends eqLogic
 
    public function refreshData( $initial=null )
    {
-      log::add(VERALINK, 'debug', __METHOD__ . 'Initial:'.json_encode($initial));
+      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
