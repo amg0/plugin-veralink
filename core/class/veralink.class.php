@@ -415,21 +415,13 @@ class veralink extends eqLogic
             $cmd = $this->getCmd(null, 'data');
             $old = json_decode($cmd->execCmd());
             // il faut ecraser $old.devices etc... with $lu_datas
-            log::add(VERALINK, 'debug','old devices :'.json_encode($old->devices));
-            $devices = array();
-            foreach( $old->devices as $dev ) {
-               $devices[$dev->id] = $dev->states;   
-            }
-            log::add(VERALINK, 'debug','initial list devices :'.json_encode($devices));
             foreach( $lu_data->devices as $dev ) {
-               $devices[$dev->id] = $dev->states;  
+               foreach($old->devices as $olddev ) {
+                  if ($olddev->id == $dev->id) {
+                     log::add(VERALINK, 'debug', 'update dev '.$dev->id);
+                  }
+               }
             }
-            log::add(VERALINK, 'debug','merged devices :'.json_encode($devices));
-            $old->devices = array();
-            foreach($devices as $key => $value) {
-               $old->devices[] = array( 'id'=>$key , 'states'=>$value );
-            }
-            log::add(VERALINK, 'debug','new devices :'.json_encode($old->devices));
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
