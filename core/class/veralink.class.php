@@ -421,8 +421,9 @@ class veralink extends eqLogic
                      log::add(VERALINK, 'debug', 'update dev '.$dev->id);
                      foreach($dev->states as $state) {
                         foreach($olddev->states as $oldstate) {
-                           if ($oldstate->id == $state->id) {
-                              log::add(VERALINK, 'debug', 'update state '.$state->id);
+                           if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable)){
+                              log::add(VERALINK, 'debug', 'update state '.json_encode($oldstate));
+                              log::add(VERALINK, 'debug', 'with state '.json_encode($state));
                            }
                         }
                      }
