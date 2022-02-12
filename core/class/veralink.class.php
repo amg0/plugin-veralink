@@ -420,9 +420,11 @@ class veralink extends eqLogic
             foreach( $old->devices as $dev ) {
                $devices[$dev->id] = $dev->states;   
             }
+            log::add(VERALINK, 'debug','initial list devices :'.json_encode($devices));
             foreach( $lu_data->devices as $dev ) {
                $devices[$dev->id] = $dev->states;  
             }
+            log::add(VERALINK, 'debug','merged devices :'.json_encode($devices));
             $old->devices = array();
             foreach($devices as $dev) {
                $old->devices[] = array( 'id'=>$dev->id , 'states'=>$dev->states );
