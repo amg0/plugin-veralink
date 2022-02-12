@@ -403,7 +403,15 @@ class veralink extends eqLogic
          if ($userdatadataversion != $lu_data->UserData_DataVersion) 
          {
             log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
-            return $this->getUserData($ipaddr,$lu_data->UserData_DataVersion);
+            $json = $this->getUserData($ipaddr,$userdatadataversion);
+         } else {
+            $cmd = $this->getCmd(null, 'data');
+            $old = json_decode($cmd->execCmd());
+            $old->devices = $lu_data->devices;
+            $json = json_encode($old);
+            $this->checkAndUpdateCmd('data', $json);
+            $this->save(true);
+            // il faut ecraser $old.devices etc... with $lu_datas
          }
       }
       return $json;
