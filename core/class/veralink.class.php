@@ -40,8 +40,15 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
       $starttime = microtime (true);   // current time in sec as a float
       //
-      // do the work
+      // do the work for all eqlogic of type root
+      // !isset($this->getConfiguration('type', null))
       //
+      foreach (self::byType(VERALINK) as $eqLogic) {
+         $config = $eqLogic->getConfiguration('type');
+			if (!isset($config)) {
+				$eqLogic->refreshData();
+			}
+		}
       $seconds = config::byKey('refresh_freq', VERALINK, 60, true);
       $endtime = microtime (true);     // current time in sec as a float
       if ( $endtime - $starttime < $seconds )
@@ -419,7 +426,7 @@ class veralink extends eqLogic
 
    public function refreshData( $initial=null )
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__ . 'Initial:'.json_encode($initial));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'info', 'null IP addr');
