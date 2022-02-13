@@ -190,21 +190,28 @@ class veralink extends eqLogic
    public function postSaveRoot()
    {
       //
-      // this is the root EQLOGIC.  so create the Data command if needed
+      // this is the root EQLOGIC.  so create the scenes and devices command if needed
       //
-      $data = $this->getCmd(null, 'data');
-      if (!is_object($data)) {
-         $data = new veralinkCmd();
-         $data->setName(__('Data', __FILE__));
+      $cmds = array(
+         (object)array('cmd'=>'scenes', 'name'=>__('Scènes', __FILE__)),
+         (object)array('cmd'=>'devices', 'name'=>__('Devices', __FILE__)),
+      );
+      foreach( $cmds as $cmd) {
+         $data = $this->getCmd(null, $cmd->cmd);
+         if (!is_object($data)) {
+            $data = new veralinkCmd();
+            $data->setName($cmd->name);
+         }
+         $data->setLogicalId($cmd->cmd);
+         $data->setEqLogic_id($this->getId());
+         $data->setType('info');
+         $data->setSubType('string');
+         //$data->setTemplate('dashboard','default');   //template pour le dashboard
+         $data->setIsVisible(0);
+         $data->save();   
       }
-      $data->setLogicalId('data');
-      $data->setEqLogic_id($this->getId());
-      $data->setType('info');
-      $data->setSubType('string');
-      //$data->setTemplate('dashboard','default');   //template pour le dashboard
-      $data->setIsVisible(0);
-      $data->save();   
 
+   
       //
       // refresh data command
       //
@@ -465,14 +472,16 @@ class veralink extends eqLogic
          // result already prepared
 
       } else {
-         $this->checkAndUpdateCmd('data', $json);
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
+
+         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($user_data->scenes)));
+         $this->checkAndUpdateCmd('devices', base64_encode(json_encode($user_data->devices)));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
-         //log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
+
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
          $result->json = $json;
          $result->obj = $user_data;
@@ -517,11 +526,11 @@ class veralink extends eqLogic
             $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
-            $cmd = $this->getCmd(null, 'data');
-            $old = json_decode($cmd->execCmd());
+            $cmd = $this->getCmd(null, 'devices');
+            $olddevices = json_decode( base64_decode( $cmd->execCmd()) );
 
             foreach( $lu_data->devices as $dev ) {
-               foreach($old->devices as $olddev ) {
+               foreach($olddevices as $olddev ) {
                   if ($olddev->id == $dev->id) {
                      foreach($dev->states as $state) {
                         foreach($olddev->states as $oldstate) {
@@ -537,8 +546,8 @@ class veralink extends eqLogic
                }
             }
             //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
-            $json = json_encode($old);
-            $this->checkAndUpdateCmd('data', $json);
+            $json = json_encode($olddevices);
+            $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
             $result->json = $json;
             $result->obj = $old;
@@ -550,9 +559,9 @@ class veralink extends eqLogic
    public function updateInfoCommands() 
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $cmd = $this->getCmd(null, 'data');
-      $data = json_decode($cmd->execCmd());
-      $devices = array_filter( $data->devices, function ($device) {
+      $cmd = $this->getCmd(null, 'devices');
+      $data = json_decode( base64_decode( $cmd->execCmd()) );
+      $devices = array_filter( $data, function ($device) {
          return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
       });
 
@@ -573,8 +582,6 @@ class veralink extends eqLogic
                            $state->value
                         ));
                         $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-                        //public function checkAndUpdateCmd($_logicalId, $_value, $_updateTime = null) {
-                        //$cmd->event($state->value); //, $_datetime = null, $_loop = 1
                         break;   
                      }
                   }
@@ -616,12 +623,12 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
-      $datacmd = $this->getCmd('info','data');      // get Cmd data of type info
-      $data = json_decode( $datacmd -> execCmd() );
+      $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
+      $data = json_decode( base64_decode( $datacmd -> execCmd() ) );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
       // only keep scenes from the same room and which are not pure notification scenes
-      $scenes = array_filter( $data->scenes, function($elem) use ($searchfor) {
+      $scenes = array_filter( $data, function($elem) use ($searchfor) {
          return (strval($elem->room) == $searchfor) && (isset($elem->notification_only)==false);
       });
 
