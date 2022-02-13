@@ -20,13 +20,20 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 const VERALINK = 'veralink';     // plugin logical name
-const SCENECMD = 'S_';           // prefix for scenes
-const ROOMEQ = 'R_';             // prefix for rooms
-const MIN_REFRESH = 5;           // min sec for vera refresh
-const MAX_REFRESH = 240;         // max sec for vera refresh
 
 class veralink extends eqLogic
-{
+{   
+   const PREFIX_ROOM = 'R_';        // prefix for rooms
+   const PREFIX_BINLIGHT = 'B_';    // prefix for Bin Lights
+   const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
+   const CMD_BLON = 'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
+   const CMD_BLOFF = 'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
+   const CMD_BLETAT = 'BLETAT';       // prefix for Bin Light State info
+   const CONFIGTYPE_ROOM = 'room';           // config type for Room
+   const CONFIGTYPE_BINLIGHT = 'binlight';   // config type for BinLight
+   const MIN_REFRESH = 5;           // min sec for vera refresh
+   const MAX_REFRESH = 240;         // max sec for vera refresh
+
    /*     * *************************Attributs****************************** */
 
    /*
@@ -40,12 +47,11 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
       $starttime = microtime (true);   // current time in sec as a float
       //
-      // do the work for all eqlogic of type root
-      // !isset($this->getConfiguration('type', null))
+      // do the work for all eqlogic of type root and isEnable is one
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
          $config = $eqLogic->getConfiguration('type',null);
-			if ($config===null) {
+			if ( ($config===null) && ($eqLogic->getIsEnable() == 1) ) {
 				$eqLogic->refreshData();
 			}
 		}
@@ -53,9 +59,10 @@ class veralink extends eqLogic
       $endtime = microtime (true);     // current time in sec as a float
       if ( $endtime - $starttime < $seconds )
       {
-         usleep(floor(($seconds - ($endtime - $starttime))*1000000));
+         $ms = floor(($seconds - ($endtime - $starttime))*1000000);
+         log::add(VERALINK, 'info', __METHOD__ . ' sleeping microsec:'.$ms);
+         usleep($ms);
       }
-      log::add(VERALINK, 'debug', __METHOD__ . ' running: end');
 	}
 
 	public static function deamon_info() {
@@ -151,31 +158,31 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la création de l'équipement 
    public function preInsert()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement après la création de l'équipement 
    public function postInsert()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement avant la mise à jour de l'équipement 
    public function preUpdate()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement après la mise à jour de l'équipement 
    public function postUpdate()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    // Fonction exécutée automatiquement avant la sauvegarde (création ou mise à jour) de l'équipement 
    public function preSave()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
       //$this->setDisplay("width","800px");                   // widget display width
    }
 
@@ -213,63 +220,145 @@ class veralink extends eqLogic
       $refresh->save();  
 
       //
-      // Refresh the Data command if needed
+      // Get the VERA data for the first time and create the rooms and binary lights
       //
-      $objects = json_decode($this->refreshData(1));
+      $results = $this->refreshData(1);
+      $objects = $results->obj;
       if (isset($objects)) {
-         // create eqlogic for room 0 for scenes not assigned to a room
+         //
+         // Create Room Equipment objects
+         //
+
+         // create a special eqlogic for room 0 (scenes not assigned to a room)
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
+
          // create a eqLogic per room
          foreach ($objects->rooms as $room) {
-               $this->createRoomEqLogic( $room );
+            $this->createRoomEqLogic( $room );
+         }
+
+         //
+         // Create PowerBinary Equipment objects
+         //
+         foreach( $objects->devices as $device ) {
+            if ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1') {
+               $this->createBinaryLightEqLogic( $device );
+            }
          }
       }
    }
 
-   public function createRoomEqLogic($room) 
+   public function getRoot()
    {
-      //
-      // for each room , if and only if the EQ for the room does not exist, create it
-      //
-      $eqLogic = self::byLogicalId(ROOMEQ . $room->id, VERALINK);
+      log::add(VERALINK, 'debug', __METHOD__);
+      $idroot = $this->getConfiguration('rootid',null);
+      return ( $idroot==null) ? $this : eqLogic::byId($idroot);
+   }
+
+   public function createBinaryLightEqLogic($device) {
+      log::add(VERALINK, 'debug', __METHOD__);
+      $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
       if (!is_object($eqLogic)) {
-         log::add(VERALINK, 'debug', 'create another EQ for room #' . $room->id);
+         log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', 'room');
-         $eqLogic->setLogicalId(ROOMEQ . $room->id);
+         $eqLogic->setConfiguration('type', self::CONFIGTYPE_BINLIGHT);
+         $eqLogic->setLogicalId(self::PREFIX_BINLIGHT . $device->id);
          $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      $eqLogic->setName($this->getName().' '.$room->name);
+      $eqLogic->setName($device->name);
       $eqLogic->save();
    }
-   
+
+   public function createRoomEqLogic($room) 
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      //
+      // for each room , if and only if the EQ for the room does not exist, create it
+      //
+      $eqLogic = self::byLogicalId(self::PREFIX_ROOM . $room->id, VERALINK);
+      if (!is_object($eqLogic)) {
+         log::add(VERALINK, 'info', __METHOD__.sprintf(' for room:#%s %s',$room->id,$room->name));
+         $eqLogic = new veralink();
+         $eqLogic->setEqType_name(VERALINK);
+         $eqLogic->setConfiguration('type', self::CONFIGTYPE_ROOM);
+         $eqLogic->setLogicalId(self::PREFIX_ROOM . $room->id);
+         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+         $eqLogic->setConfiguration('rootid', $this->getId());
+         $eqLogic->setIsEnable(0);
+         $eqLogic->setIsVisible(0);
+      }
+      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      $eqLogic->setName($this->getName().' '.__('Pièce', __FILE__).' '.$room->name);
+      $eqLogic->save();
+   }
+
+   public function postSaveBinLight($configtype) 
+   {
+      //
+      // This is a BinLight EQLOGIC
+      //
+      log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+      $idroot = $this->getConfiguration('rootid');
+      $root_eqlogic = eqLogic::byId($idroot);
+
+      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
+
+      $array = array(
+         (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veradevid,    'name'=>'On',  'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veradevid,   'name'=>'Off', 'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veradevid,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise'],
+      );
+
+      foreach( $array as $item) {
+         $cmd = $this->getCmd(null, $item->logicalid);
+         if (!is_object($cmd)) {
+            log::add(VERALINK, 'info', 'About to create Cmd '.$item->name.' for dev '.$veradevid );
+            $cmd = new veralinkCmd();
+            $cmd->setLogicalId($item->logicalid);
+            $cmd->setEqLogic_id($this->getId());
+            $cmd->setName(  $item->name );
+
+            $split = explode('|',$item->type);
+            $cmd->setType( $split[0] );
+            $cmd->setSubType( $split[1] );
+
+            $cmd->setIsVisible(1);
+            $cmd->setTemplate('dashboard',(isset($item->template))?$item->template:'default');    //template pour le dashboard
+            $cmd->setTemplate('mobile',(isset($item->template))?$item->template:'default');       //template pour le mobile
+            //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+            $cmd->setdisplay('showIconAndNamedashboard', 1);
+            $cmd->setdisplay('showIconAndNamemobile', 1);
+            $cmd->save();   
+         }
+      }
+   }
+
    public function postSaveRoom($configtype)
    {
       //
       // This is a room EQLOGIC
       //
       log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
-
       $idroot = $this->getConfiguration('rootid');
       $root_eqlogic = eqLogic::byId($idroot);
 
-      $idroom = substr( $this->getLogicalId(), strlen(ROOMEQ) );
+      $idroom = substr( $this->getLogicalId(), strlen(self::PREFIX_ROOM) );
       $scenes = $root_eqlogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = SCENECMD.$scene->id;
+         $logicalid = self::CMD_SCENE.'-'.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
             $cmd = new veralinkCmd();
             $cmd->setIsVisible(1);
          }
-         $cmd->setName($scene->name);
+         $cmd->setName(__('Scène', __FILE__).' '.$scene->name);
          $cmd->setLogicalId($logicalid);
          $cmd->setEqLogic_id($this->getId());
          $cmd->setType('action');
@@ -287,10 +376,15 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__);
 
       $configtype = $this->getConfiguration('type', null);
-      if (isset($configtype)) {
-         $this->postSaveRoom($configtype);
-      } else {
-         $this->postSaveRoot();
+      switch( $configtype ) {
+         case self::CONFIGTYPE_ROOM:
+            $this->postSaveRoom($configtype);
+            break;
+         case self::CONFIGTYPE_BINLIGHT:
+            $this->postSaveBinLight($configtype);
+            break;
+         default:
+            $this->postSaveRoot();
       }
    }
 
@@ -302,12 +396,16 @@ class veralink extends eqLogic
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);
       if (!isset($configtype)) {
+         self::deamon_stop();
          $cart = array();
          foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type');
-            if ($eqtype == 'room') {
-               log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
-               $cart[] = $eqLogic;
+            switch($eqtype) {
+               case self::CONFIGTYPE_ROOM:
+               case self::CONFIGTYPE_BINLIGHT: 
+                  log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
+                  $cart[] = $eqLogic;
+                  break;
             }
          }
          foreach($cart as $eqLogic) {
@@ -319,7 +417,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement après la suppression de l'équipement 
    public function postRemove()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    /*
@@ -339,7 +437,7 @@ class veralink extends eqLogic
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
       // verity it is numeric and within range
-      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
+      $resvalue = config::checkValueBetween($value, self::MIN_REFRESH, self::MAX_REFRESH);
       if ($value != $resvalue) {
          log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
@@ -349,6 +447,8 @@ class veralink extends eqLogic
    public function getUserData($ipaddr,$initial=null)
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $result = (object)['json'=>'', 'obj'=>null];
+
       $user_dataversion = ( isset($initial) ? $initial : $this->getConfiguration('user_dataversion', 1) );
       log::add(VERALINK, 'debug', 'initial userdataversion:'. $user_dataversion);
 
@@ -362,7 +462,8 @@ class veralink extends eqLogic
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
          log::add(VERALINK, 'debug', 'No change with result:'.$json);
-         $json="";
+         // result already prepared
+
       } else {
          $this->checkAndUpdateCmd('data', $json);
          $user_data = json_decode($json,false);
@@ -373,13 +474,16 @@ class veralink extends eqLogic
          $this->save(true);
          //log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
+         $result->json = $json;
+         $result->obj = $user_data;
       }
-      return $json;
+      return $result;
    }
 
    public function getLuStatus($ipaddr)
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $result = (object)['json'=>'', 'obj'=>null];
 
       $statusdataversion = $this->getConfiguration('statusdataversion', 1);
       $lastloadtime = $this->getConfiguration('lastloadtime', 0);
@@ -398,7 +502,7 @@ class veralink extends eqLogic
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
          log::add(VERALINK, 'debug', 'No change with result:'.$json);
-         $json="";
+         // result is already prepared
       } else {
          $lu_data = json_decode($json);
          $statusdataversion = $lu_data->DataVersion;
@@ -408,14 +512,14 @@ class veralink extends eqLogic
          $this->save(true);
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$lu_data->UserData_DataVersion));
-         if ($userdatadataversion != $lu_data->UserData_DataVersion) 
-         {
+         if ($userdatadataversion != $lu_data->UserData_DataVersion) {
             log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
-            $json = $this->getUserData($ipaddr,$userdatadataversion);
+            $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
+            // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'data');
             $old = json_decode($cmd->execCmd());
-            // il faut ecraser $old.devices etc... with $lu_datas
+
             foreach( $lu_data->devices as $dev ) {
                foreach($old->devices as $olddev ) {
                   if ($olddev->id == $dev->id) {
@@ -423,7 +527,7 @@ class veralink extends eqLogic
                         foreach($olddev->states as $oldstate) {
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
                               if ($state->variable != 'LastPollSuccess') {
-                                 log::add(VERALINK, 'info', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
+                                 log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
                                  $oldstate->value = $state->value;                              
                               }
                            }
@@ -436,27 +540,74 @@ class veralink extends eqLogic
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
+            $result->json = $json;
+            $result->obj = $old;
          }
       }
-      return $json;
+      return $result;
    }
 
+   public function updateInfoCommands() 
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      $cmd = $this->getCmd(null, 'data');
+      $data = json_decode($cmd->execCmd());
+      $devices = array_filter( $data->devices, function ($device) {
+         return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
+      });
+
+      foreach ($devices as $device) {         
+         $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
+         if ( is_object($eqLogic) ) {
+            // only do this for enabled equipments
+            if ($eqLogic->getIsEnable() == 1) {
+               $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
+               if (is_object($cmd)) {
+                  $oldval = $cmd->execCmd();
+                  foreach( $device->states as $state ) {
+                     if (($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status') && ($oldval!=$state->value)) {
+                        log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
+                           $device->id,
+                           self::PREFIX_BINLIGHT . $device->id,
+                           self::CMD_BLETAT.'-'.$device->id,
+                           $state->value
+                        ));
+                        $cmd->event($state->value); //, $_datetime = null, $_loop = 1
+                        break;   
+                     }
+                  }
+               } else {
+                  log::add(VERALINK, 'warning', 'Cmd not found '.self::CMD_BLETAT.'-'.$device->id);
+               }
+            }
+         } else {
+            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_BINLIGHT . $device->id);
+         }
+      }
+   }
+
+   // returns  (object)['json'=>'', 'obj'=>null];
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add(VERALINK, 'info', 'null IP addr');
+         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
 
       if ($initial==1) {
-         $json = $this->getUserData($ipaddr,$initial);         
+         $result = $this->getUserData($ipaddr,$initial);         
       }
       else {
-         $json = $this->getLuStatus($ipaddr);         
+         $result = $this->getLuStatus($ipaddr);         
       }
-      return $json;
+
+      // now udpate all Info commands
+      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
+      $this->updateInfoCommands( );
+
+      return $result;
    }
 
    public function getScenesOfRoom($idroom)
@@ -473,6 +624,27 @@ class veralink extends eqLogic
       });
 
       return $scenes;
+   }
+
+   public function switchLight($id,int $mode=0)
+   {
+      $ipaddr = $this->getConfiguration('ipaddr', null);
+      if (is_null($ipaddr)) {
+         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
+         return null;
+      }
+      if (($mode!=1) && ($mode!=0)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json&DeviceNum=%s&serviceId=urn:upnp-org:serviceId:SwitchPower1&action=SetTarget&newTargetValue=%s',
+         $ipaddr,
+         $id,
+         $mode
+         );
+
+      $xml = file_get_contents($url);
+      log::add(VERALINK, 'debug', 'action returned ' . $xml);
+      return $xml;
    }
 
    public function runScene($id)
@@ -514,20 +686,30 @@ class veralinkCmd extends cmd
    // Exécution d'une commande  
    public function execute($_options = array())
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
-      switch ($this->getLogicalId()) {
+      $root_eqlogic = $eqlogic->getRoot();
+
+      list( $cmd, $param ) = explode('-',$this->getLogicalId());
+      switch ($cmd) {
 
          case 'refresh':
-            $eqlogic->refreshData();
+            $root_eqlogic->refreshData();
             break;
 
-         default:
+         case veralink::CMD_BLON:
+         case veralink::CMD_BLOFF:
+            log::add(VERALINK, 'info', 'execute ' . $cmd .' '. $param);
+            $xml = $root_eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+            $root_eqlogic->refreshData();
+            break;
+
+         case veralink::CMD_SCENE:
             // this is a scene command
-            if (substr($this->getLogicalId(), 0, strlen(SCENECMD)) == SCENECMD) {
-               $id = substr($this->getLogicalId(), strlen(SCENECMD));
-               log::add(VERALINK, 'info', 'execute SCENE ' . $id);
-               $xml = $eqlogic->runScene($id);
-            }
+            log::add(VERALINK, 'info', 'execute SCENE ' . $param);
+            $xml = $root_eqlogic->runScene($param);
+            $root_eqlogic->refreshData();
+            break;
       }
    }
    /*     * **********************Getteur Setteur*************************** */
