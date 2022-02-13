@@ -232,7 +232,7 @@ class veralink extends eqLogic
          // Create PowerBinary Equipment objects
          //
          foreach( $objects->devices as $device ) {
-            if ($devices->device_type = 'urn:schemas-upnp-org:device:BinaryLight:1') {
+            if ($devices->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1') {
                $this->createBinaryLight( $device );
             }
          }
