@@ -60,7 +60,7 @@ class veralink extends eqLogic
       if ( $endtime - $starttime < $seconds )
       {
          $ms = floor(($seconds - ($endtime - $starttime))*1000000);
-         log::add(VERALINK, 'info', __METHOD__ . ' sleeping ms:'.$ms);
+         log::add(VERALINK, 'info', __METHOD__ . ' sleeping microsec:'.$ms);
          usleep($ms);
       }
 	}
@@ -563,8 +563,9 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
                $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
                if (is_object($cmd)) {
+                  $oldval = $cmd->execCmd();
                   foreach( $device->states as $state ) {
-                     if (($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status')) {
+                     if (($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status') && ($oldval!=$state->value)) {
                         log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                            $device->id,
                            self::PREFIX_BINLIGHT . $device->id,
