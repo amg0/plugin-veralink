@@ -247,6 +247,13 @@ class veralink extends eqLogic
       }
    }
 
+   public function getRoot()
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      $idroot = $this->getConfiguration('rootid',null);
+      return ( $idroot==null) ? $this : eqLogic::byId($idroot);
+   }
+
    public function createBinaryLightEqLogic($device) {
       log::add(VERALINK, 'debug', __METHOD__);
       $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
@@ -679,26 +686,27 @@ class veralinkCmd extends cmd
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
+      $root_eqlogic = $eqlogic->getRoot();
 
       list( $cmd, $param ) = explode('-',$this->getLogicalId());
       switch ($cmd) {
 
          case 'refresh':
-            $eqlogic->refreshData();
+            $root_eqlogic->refreshData();
             break;
 
          case veralink::CMD_BLON:
          case veralink::CMD_BLOFF:
             log::add(VERALINK, 'info', 'execute ' . $cmd .' '. $param);
-            $xml = $eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
-            $eqlogic->refreshData();
+            $xml = $root_eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+            $root_eqlogic->refreshData();
             break;
 
          case veralink::CMD_SCENE:
             // this is a scene command
             log::add(VERALINK, 'info', 'execute SCENE ' . $param);
-            $xml = $eqlogic->runScene($param);
-            $eqlogic->refreshData();
+            $xml = $root_eqlogic->runScene($param);
+            $root_eqlogic->refreshData();
             break;
       }
    }
