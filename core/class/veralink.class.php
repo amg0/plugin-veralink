@@ -248,10 +248,10 @@ class veralink extends eqLogic
    }
 
    public function createBinaryLightEqLogic($device) {
-      log::add(VERALINK, 'debug', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
+      log::add(VERALINK, 'debug', __METHOD__);
       $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
       if (!is_object($eqLogic)) {
-         log::add(VERALINK, 'info', 'create another EQ for device #' . $device->id);
+         log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', self::CONFIGTYPE_BINLIGHT);
@@ -268,12 +268,13 @@ class veralink extends eqLogic
 
    public function createRoomEqLogic($room) 
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       //
       // for each room , if and only if the EQ for the room does not exist, create it
       //
       $eqLogic = self::byLogicalId(self::PREFIX_ROOM . $room->id, VERALINK);
       if (!is_object($eqLogic)) {
-         log::add(VERALINK, 'info', 'create another EQ for room #' . $room->id);
+         log::add(VERALINK, 'info', __METHOD__.sprintf(' for room:#%s %s',$room->id,$room->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', self::CONFIGTYPE_ROOM);
@@ -308,7 +309,7 @@ class veralink extends eqLogic
       foreach( $array as $item) {
          $cmd = $this->getCmd(null, $item->logicalid);
          if (!is_object($cmd)) {
-            log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veradevid );
+            log::add(VERALINK, 'info', 'About to create Cmd '.$item->name.' for dev '.$veradevid );
             $cmd = new veralinkCmd();
             $cmd->setLogicalId($item->logicalid);
             $cmd->setEqLogic_id($this->getId());
@@ -408,7 +409,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement après la suppression de l'équipement 
    public function postRemove()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
    }
 
    /*
@@ -582,7 +583,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
-         log::add(VERALINK, 'info', 'null IP addr');
+         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
 
@@ -690,12 +691,14 @@ class veralinkCmd extends cmd
          case veralink::CMD_BLOFF:
             log::add(VERALINK, 'info', 'execute ' . $cmd .' '. $param);
             $xml = $eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+            $eqlogic->refreshData();
             break;
 
          case veralink::CMD_SCENE:
             // this is a scene command
             log::add(VERALINK, 'info', 'execute SCENE ' . $param);
             $xml = $eqlogic->runScene($param);
+            $eqlogic->refreshData();
             break;
       }
    }
