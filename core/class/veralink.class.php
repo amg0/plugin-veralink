@@ -517,7 +517,7 @@ class veralink extends eqLogic
                         foreach($olddev->states as $oldstate) {
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
                               if ($state->variable != 'LastPollSuccess') {
-                                 log::add(VERALINK, 'info', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
+                                 log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
                                  $oldstate->value = $state->value;                              
                               }
                            }
@@ -537,9 +537,15 @@ class veralink extends eqLogic
       return $result;
    }
 
-   public function updateInfoCommands($devices) 
+   public function updateInfoCommands() 
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $cmd = $this->getCmd(null, 'data');
+      $data = json_decode($cmd->execCmd());
+      $devices = array_filter( $data->devices, function ($device) {
+         return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
+      });
+
       foreach ($devices as $device) {         
          $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
@@ -588,10 +594,7 @@ class veralink extends eqLogic
 
       // now udpate all Info commands
       // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
-      $this->updateInfoCommands(  array_filter( $result->obj->devices, function ($device) {
-            return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
-         }) 
-      );
+      $this->updateInfoCommands( );
 
       return $result;
    }
