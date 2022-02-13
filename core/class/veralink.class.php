@@ -336,7 +336,7 @@ class veralink extends eqLogic
             $cmd = new veralinkCmd();
             $cmd->setIsVisible(1);
          }
-         $cmd->setName($scene->name);
+         $cmd->setName(__('Scène', __FILE__).' '.$scene->name);
          $cmd->setLogicalId($logicalid);
          $cmd->setEqLogic_id($this->getId());
          $cmd->setType('action');
