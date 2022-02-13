@@ -23,10 +23,10 @@ const VERALINK = 'veralink';     // plugin logical name
 
 class veralink extends eqLogic
 {   
-   const PREFIX_ROOM = 'R_';           // prefix for rooms
-   const PREFIX_BINLIGHT = 'B_';       // prefix for Bin Lights
-   const CMD_SCENE = 'S-';       // prefix for scenes commands
-   const CMD_BLON = 'BLON-';     // prefix for Bin Light ON commands
+   const PREFIX_ROOM = 'R_';        // prefix for rooms
+   const PREFIX_BINLIGHT = 'B_';    // prefix for Bin Lights
+   const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
+   const CMD_BLON = 'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
    const CONFIGTYPE_ROOM = 'room';           // config type for Room
    const CONFIGTYPE_BINLIGHT = 'binlight';   // config type for BinLight
    const MIN_REFRESH = 5;           // min sec for vera refresh
@@ -297,7 +297,7 @@ class veralink extends eqLogic
       $veraid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
       //$device = $root_eqlogic->getDevice($veraid);
 
-      $logicalid = self::CMD_BLON.$veraid;
+      $logicalid = self::CMD_BLON.'-'.$veraid;
       $cmd = $this->getCmd(null, $logicalid);
       if (!is_object($cmd)) {
          log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veraid );
@@ -329,7 +329,7 @@ class veralink extends eqLogic
       $scenes = $root_eqlogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = self::CMD_SCENE.$scene->id;
+         $logicalid = self::CMD_SCENE.'-'.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
@@ -589,6 +589,7 @@ class veralinkCmd extends cmd
    // Exécution d'une commande  
    public function execute($_options = array())
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
 
       list( $cmd, $param ) = explode('-',$this->getLogicalId());
@@ -599,6 +600,7 @@ class veralinkCmd extends cmd
             break;
 
          case veralink::CMD_BLON:
+            log::add(VERALINK, 'info', 'execute BL ON ' . $param);
             break;
 
          case veralink::CMD_SCENE:
