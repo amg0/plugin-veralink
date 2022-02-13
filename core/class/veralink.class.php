@@ -259,7 +259,7 @@ class veralink extends eqLogic
          $eqLogic->setIsVisible(0);
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      $eqLogic->setName($this->getName().' '.$device->name);
+      $eqLogic->setName($device->name);
       $eqLogic->save();
    }
 
@@ -281,7 +281,7 @@ class veralink extends eqLogic
          $eqLogic->setIsVisible(0);
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      $eqLogic->setName($this->getName().' '.$room->name);
+      $eqLogic->setName($this->getName().' '.__('Pièce', __FILE__).' '.$room->name);
       $eqLogic->save();
    }
 
