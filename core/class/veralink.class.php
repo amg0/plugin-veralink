@@ -59,9 +59,10 @@ class veralink extends eqLogic
       $endtime = microtime (true);     // current time in sec as a float
       if ( $endtime - $starttime < $seconds )
       {
-         usleep(floor(($seconds - ($endtime - $starttime))*1000000));
+         $ms = floor(($seconds - ($endtime - $starttime))*1000000);
+         log::add(VERALINK, 'info', __METHOD__ . ' sleeping ms:'.$ms);
+         usleep($ms);
       }
-      log::add(VERALINK, 'debug', __METHOD__ . ' running: end');
 	}
 
 	public static function deamon_info() {
