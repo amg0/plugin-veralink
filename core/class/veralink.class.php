@@ -245,21 +245,21 @@ class veralink extends eqLogic
 
    public function createBinaryLight($device) {
       log::add(VERALINK, 'debug', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
-      $eqLogic = self::byLogicalId(PREFIX_BINLIGHT . $device->id, VERALINK);
-      if (!is_object($eqLogic)) {
-         log::add(VERALINK, 'info', 'create another EQ for device #' . $device->id);
-         $eqLogic = new veralink();
-         $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', 'binlight');
-         $eqLogic->setLogicalId(PREFIX_BINLIGHT . $device->id);
-         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
-         $eqLogic->setConfiguration('rootid', $this->getId());
-         $eqLogic->setIsEnable(0);
-         $eqLogic->setIsVisible(0);
-      }
-      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      $eqLogic->setName($this->getName().' '.$device->name);
-      $eqLogic->save();
+      // $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
+      // if (!is_object($eqLogic)) {
+      //    log::add(VERALINK, 'info', 'create another EQ for device #' . $device->id);
+      //    $eqLogic = new veralink();
+      //    $eqLogic->setEqType_name(VERALINK);
+      //    $eqLogic->setConfiguration('type', 'binlight');
+      //    $eqLogic->setLogicalId(self::PREFIX_BINLIGHT . $device->id);
+      //    $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+      //    $eqLogic->setConfiguration('rootid', $this->getId());
+      //    $eqLogic->setIsEnable(0);
+      //    $eqLogic->setIsVisible(0);
+      // }
+      // $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      // $eqLogic->setName($this->getName().' '.$device->name);
+      // $eqLogic->save();
    }
 
    public function createRoomEqLogic($room) 
@@ -267,13 +267,13 @@ class veralink extends eqLogic
       //
       // for each room , if and only if the EQ for the room does not exist, create it
       //
-      $eqLogic = self::byLogicalId(PREFIX_ROOM . $room->id, VERALINK);
+      $eqLogic = self::byLogicalId(self::PREFIX_ROOM . $room->id, VERALINK);
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', 'create another EQ for room #' . $room->id);
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', CONFIGTYPE_ROOM);
-         $eqLogic->setLogicalId(PREFIX_ROOM . $room->id);
+         $eqLogic->setConfiguration('type', self::CONFIGTYPE_ROOM);
+         $eqLogic->setLogicalId(self::PREFIX_ROOM . $room->id);
          $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
@@ -302,11 +302,11 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       $root_eqlogic = eqLogic::byId($idroot);
 
-      $idroom = substr( $this->getLogicalId(), strlen(PREFIX_ROOM) );
+      $idroom = substr( $this->getLogicalId(), strlen(self::PREFIX_ROOM) );
       $scenes = $root_eqlogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = PREFIX_SCENE.$scene->id;
+         $logicalid = self::PREFIX_SCENE.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
@@ -332,10 +332,10 @@ class veralink extends eqLogic
 
       $configtype = $this->getConfiguration('type', null);
       switch( $configtype ) {
-         case CONFIGTYPE_ROOM:
+         case self::CONFIGTYPE_ROOM:
             $this->postSaveRoom($configtype);
             break;
-         case CONFIGTYPE_BINLIGHT:
+         case self::CONFIGTYPE_BINLIGHT:
             $this->postSaveBinLight($configtype);
             break;
          default:
@@ -355,8 +355,8 @@ class veralink extends eqLogic
          foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type');
             switch($eqtype) {
-               case CONFIGTYPE_ROOM:
-               case CONFIGTYPE_BINLIGHT: 
+               case self::CONFIGTYPE_ROOM:
+               case self::CONFIGTYPE_BINLIGHT: 
                   log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
                   $cart[] = $eqLogic;
                   break;
@@ -391,7 +391,7 @@ class veralink extends eqLogic
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
       // verity it is numeric and within range
-      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
+      $resvalue = config::checkValueBetween($value, self::MIN_REFRESH, self::MAX_REFRESH);
       if ($value != $resvalue) {
          log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
@@ -575,8 +575,8 @@ class veralinkCmd extends cmd
 
          default:
             // this is a scene command
-            if (substr($this->getLogicalId(), 0, strlen(PREFIX_SCENE)) == PREFIX_SCENE) {
-               $id = substr($this->getLogicalId(), strlen(PREFIX_SCENE));
+            if (substr($this->getLogicalId(), 0, strlen(self::PREFIX_SCENE)) == self::PREFIX_SCENE) {
+               $id = substr($this->getLogicalId(), strlen(self::PREFIX_SCENE));
                log::add(VERALINK, 'info', 'execute SCENE ' . $id);
                $xml = $eqlogic->runScene($id);
             }
