@@ -302,7 +302,7 @@ class veralink extends eqLogic
       $array = array(
          (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veradevid,    'name'=>'On',  'type'=>'action|other'],
          (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veradevid,   'name'=>'Off', 'type'=>'action|other'],
-         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veradevid,  'name'=>'Etat','type'=>'info|string'],
+         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veradevid,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise'],
       );
 
       foreach( $array as $item) {
@@ -319,7 +319,8 @@ class veralink extends eqLogic
             $cmd->setSubType( $split[1] );
 
             $cmd->setIsVisible(1);
-            $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+            $cmd->setTemplate('dashboard',(isset($item->template))?$item->template:'default');    //template pour le dashboard
+            $cmd->setTemplate('mobile',(isset($item->template))?$item->template:'default');       //template pour le mobile
             //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
             $cmd->setdisplay('showIconAndNamedashboard', 1);
             $cmd->setdisplay('showIconAndNamemobile', 1);
