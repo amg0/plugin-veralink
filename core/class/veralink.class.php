@@ -474,8 +474,9 @@ class veralink extends eqLogic
       } else {
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
-         $this->checkAndUpdateCmd('scenes', $user_data->scenes);
-         $this->checkAndUpdateCmd('devices', $user_data->devices);
+
+         $this->checkAndUpdateCmd('scenes', json_encode($user_data->scenes));
+         $this->checkAndUpdateCmd('devices', json_encode($user_data->devices));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
@@ -581,8 +582,6 @@ class veralink extends eqLogic
                            $state->value
                         ));
                         $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-                        //public function checkAndUpdateCmd($_logicalId, $_value, $_updateTime = null) {
-                        //$cmd->event($state->value); //, $_datetime = null, $_loop = 1
                         break;   
                      }
                   }
