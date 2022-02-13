@@ -222,7 +222,8 @@ class veralink extends eqLogic
       //
       // Refresh the Data command if needed
       //
-      $objects = json_decode($this->refreshData(1));
+      $results = $this->refreshData(1);
+      $objects = $results->obj;
       if (isset($objects)) {
          //
          // Create Room Equipment objects
@@ -437,6 +438,8 @@ class veralink extends eqLogic
    public function getUserData($ipaddr,$initial=null)
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $result = (object)['json'=>'', 'obj'=>null];
+
       $user_dataversion = ( isset($initial) ? $initial : $this->getConfiguration('user_dataversion', 1) );
       log::add(VERALINK, 'debug', 'initial userdataversion:'. $user_dataversion);
 
@@ -450,7 +453,8 @@ class veralink extends eqLogic
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
          log::add(VERALINK, 'debug', 'No change with result:'.$json);
-         $json="";
+         // result already prepared
+
       } else {
          $this->checkAndUpdateCmd('data', $json);
          $user_data = json_decode($json,false);
@@ -461,13 +465,16 @@ class veralink extends eqLogic
          $this->save(true);
          //log::add(VERALINK, 'debug', 'received devices:'. json_encode($user_data->devices));
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
+         $result->json = $json;
+         $result->obj = $user_data;
       }
-      return $json;
+      return $result;
    }
 
    public function getLuStatus($ipaddr)
    {
       log::add(VERALINK, 'debug', __METHOD__);
+      $result = (object)['json'=>'', 'obj'=>null];
 
       $statusdataversion = $this->getConfiguration('statusdataversion', 1);
       $lastloadtime = $this->getConfiguration('lastloadtime', 0);
@@ -486,7 +493,7 @@ class veralink extends eqLogic
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
          log::add(VERALINK, 'debug', 'No change with result:'.$json);
-         $json="";
+         // result is already prepared
       } else {
          $lu_data = json_decode($json);
          $statusdataversion = $lu_data->DataVersion;
@@ -496,14 +503,14 @@ class veralink extends eqLogic
          $this->save(true);
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$lu_data->UserData_DataVersion));
-         if ($userdatadataversion != $lu_data->UserData_DataVersion) 
-         {
+         if ($userdatadataversion != $lu_data->UserData_DataVersion) {
             log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
-            $json = $this->getUserData($ipaddr,$userdatadataversion);
+            $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
+            // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'data');
             $old = json_decode($cmd->execCmd());
-            // il faut ecraser $old.devices etc... with $lu_datas
+
             foreach( $lu_data->devices as $dev ) {
                foreach($old->devices as $olddev ) {
                   if ($olddev->id == $dev->id) {
@@ -524,11 +531,14 @@ class veralink extends eqLogic
             $json = json_encode($old);
             $this->checkAndUpdateCmd('data', $json);
             $this->save(true);
+            $result->json = $json;
+            $result->obj = $old;
          }
       }
-      return $json;
+      return $result;
    }
 
+   // returns  (object)['json'=>'', 'obj'=>null];
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
@@ -539,12 +549,12 @@ class veralink extends eqLogic
       }
 
       if ($initial==1) {
-         $json = $this->getUserData($ipaddr,$initial);         
+         $result = $this->getUserData($ipaddr,$initial);         
       }
       else {
-         $json = $this->getLuStatus($ipaddr);         
+         $result = $this->getLuStatus($ipaddr);         
       }
-      return $json;
+      return $result;
    }
 
    public function getScenesOfRoom($idroom)
