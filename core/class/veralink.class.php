@@ -623,8 +623,8 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
-      $datacmd = html_entity_decode( $this->getCmd('info','scenes') );      // get Cmd data of type info
-      $data = json_decode( $datacmd -> execCmd() );
+      $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
+      $data = json_decode( html_entity_decode( $datacmd -> execCmd() ) );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
       // only keep scenes from the same room and which are not pure notification scenes
