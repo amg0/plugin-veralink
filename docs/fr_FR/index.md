@@ -19,6 +19,22 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 
 ## Installation
 
-a la fin le dashboard de la vera ressemblera, par defaut a ceci.
-![This is an image](../images/veradashboard.png)
+au debut il faut commencer par ajouter le plugin. pour le moment a travers github avec la branche master ou beta
+![ajouter plugin](../images/ajouterplugin.png)
+
+puis il faut l'activer dans jeedom
+![ajouter plugin](../images/activerplugin.png)
+
+dans la configuration du plugin, il faut configurer la frequence du refresh des donnees de la vera. 10s semble etre une bonne valeur.
+![ajouter plugin](../images/configuration.png)
+![ajouter plugin](../images/configurerrefresh.png)
+
+il faut creer un nouvelle equipement qui represente votre vera. pour cela on creer un equipement, on choisi un objet parent auquel le rattacher, puis on renseigne l'addresse IP de la vera
+![ajouter plugin](../images/ipaddress.png)
+
+a la sauvegarde, il faut etre patient. le plugin communique avec la vera et va creer des equipements pour les pieces de la vera avec des commandes pour lancer les scenes qui sont dans ces pieces. le plugin va aussi creer des equipements pour les objets de type BinaryLight avec des commandes ETAT, ON et OFF. tout cela prend un petit de temps, mais si tout ce passe bien vous obtiendrer une liste d'equipement comme ceci. c'est alors votre choix de decider quel equipement rendre actif et visible pour qu'il soit fonctionel et visible sur le dashboard de jeedom
+![ajouter plugin](../images/equipements.png)
+
+Une fois que tout est fait, le dashboard de la vera ressemblera, par defaut a ceci.
+![dashboard](../images/veradashboard.png)
 
