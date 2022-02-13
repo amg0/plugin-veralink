@@ -23,9 +23,10 @@ const VERALINK = 'veralink';     // plugin logical name
 
 class veralink extends eqLogic
 {   
-   const PREFIX_SCENE = 'S_';       // prefix for scenes
-   const PREFIX_ROOM = 'R_';        // prefix for rooms
-   const PREFIX_BINLIGHT = 'B_';    // prefix for Bin Lights
+   const PREFIX_ROOM = 'R_';           // prefix for rooms
+   const PREFIX_BINLIGHT = 'B_';       // prefix for Bin Lights
+   const CMD_SCENE = 'S-';       // prefix for scenes commands
+   const CMD_BLON = 'BLON-';     // prefix for Bin Light ON commands
    const CONFIGTYPE_ROOM = 'room';           // config type for Room
    const CONFIGTYPE_BINLIGHT = 'binlight';   // config type for BinLight
    const MIN_REFRESH = 5;           // min sec for vera refresh
@@ -237,29 +238,29 @@ class veralink extends eqLogic
          //
          foreach( $objects->devices as $device ) {
             if ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1') {
-               $this->createBinaryLight( $device );
+               $this->createBinaryLightEqLogic( $device );
             }
          }
       }
    }
 
-   public function createBinaryLight($device) {
+   public function createBinaryLightEqLogic($device) {
       log::add(VERALINK, 'debug', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
-      // $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
-      // if (!is_object($eqLogic)) {
-      //    log::add(VERALINK, 'info', 'create another EQ for device #' . $device->id);
-      //    $eqLogic = new veralink();
-      //    $eqLogic->setEqType_name(VERALINK);
-      //    $eqLogic->setConfiguration('type', 'binlight');
-      //    $eqLogic->setLogicalId(self::PREFIX_BINLIGHT . $device->id);
-      //    $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
-      //    $eqLogic->setConfiguration('rootid', $this->getId());
-      //    $eqLogic->setIsEnable(0);
-      //    $eqLogic->setIsVisible(0);
-      // }
-      // $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
-      // $eqLogic->setName($this->getName().' '.$device->name);
-      // $eqLogic->save();
+      $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
+      if (!is_object($eqLogic)) {
+         log::add(VERALINK, 'info', 'create another EQ for device #' . $device->id);
+         $eqLogic = new veralink();
+         $eqLogic->setEqType_name(VERALINK);
+         $eqLogic->setConfiguration('type', self::CONFIGTYPE_BINLIGHT);
+         $eqLogic->setLogicalId(self::PREFIX_BINLIGHT . $device->id);
+         $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
+         $eqLogic->setConfiguration('rootid', $this->getId());
+         $eqLogic->setIsEnable(0);
+         $eqLogic->setIsVisible(0);
+      }
+      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      $eqLogic->setName($this->getName().' '.$device->name);
+      $eqLogic->save();
    }
 
    public function createRoomEqLogic($room) 
@@ -290,6 +291,29 @@ class veralink extends eqLogic
       // This is a BinLight EQLOGIC
       //
       log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+      $idroot = $this->getConfiguration('rootid');
+      $root_eqlogic = eqLogic::byId($idroot);
+
+      $veraid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
+      //$device = $root_eqlogic->getDevice($veraid);
+
+      $logicalid = self::CMD_BLON.$veraid;
+      $cmd = $this->getCmd(null, $logicalid);
+      if (!is_object($cmd)) {
+         log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veraid );
+         $cmd = new veralinkCmd();
+         $cmd->setLogicalId($logicalid);
+         $cmd->setName('On');
+         $cmd->setEqLogic_id($this->getId());
+         $cmd->setIsVisible(1);
+         $cmd->setType('action');
+         $cmd->setSubType('other');
+         $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+         //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+         $cmd->setdisplay('showIconAndNamedashboard', 1);
+         $cmd->setdisplay('showIconAndNamemobile', 1);
+         $cmd->save();   
+      }
    }
 
    public function postSaveRoom($configtype)
@@ -298,7 +322,6 @@ class veralink extends eqLogic
       // This is a room EQLOGIC
       //
       log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
-
       $idroot = $this->getConfiguration('rootid');
       $root_eqlogic = eqLogic::byId($idroot);
 
@@ -306,7 +329,7 @@ class veralink extends eqLogic
       $scenes = $root_eqlogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = self::PREFIX_SCENE.$scene->id;
+         $logicalid = self::CMD_SCENE.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
@@ -567,19 +590,22 @@ class veralinkCmd extends cmd
    public function execute($_options = array())
    {
       $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
-      switch ($this->getLogicalId()) {
+
+      list( $cmd, $param ) = explode('-',$this->getLogicalId());
+      switch ($cmd) {
 
          case 'refresh':
             $eqlogic->refreshData();
             break;
 
-         default:
+         case veralink::CMD_BLON:
+            break;
+
+         case veralink::CMD_SCENE:
             // this is a scene command
-            if (substr($this->getLogicalId(), 0, strlen(self::PREFIX_SCENE)) == self::PREFIX_SCENE) {
-               $id = substr($this->getLogicalId(), strlen(self::PREFIX_SCENE));
-               log::add(VERALINK, 'info', 'execute SCENE ' . $id);
-               $xml = $eqlogic->runScene($id);
-            }
+            log::add(VERALINK, 'info', 'execute SCENE ' . $param);
+            $xml = $eqlogic->runScene($param);
+            break;
       }
    }
    /*     * **********************Getteur Setteur*************************** */
