@@ -391,7 +391,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la suppression de l'équipement 
    public function preRemove()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
 
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);
