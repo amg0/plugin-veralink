@@ -548,7 +548,7 @@ class veralink extends eqLogic
                self::PREFIX_BINLIGHT . $device->id,   // $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
                self::CMD_BLETAT.'-'.$device->id,      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
                false,                                 // $_multiple = false
-               $_type = 'info');
+               'info');
          
          if (is_object($cmd)) {
             $state = array_filter( $device->states, function($state) {
