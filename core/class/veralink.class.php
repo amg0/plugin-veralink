@@ -544,24 +544,33 @@ class veralink extends eqLogic
       foreach ($devices as $device) {
          log::add(VERALINK, 'debug', 'device: '. json_encode($device));      
          
+         $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
+         if (is_object($eqLogic)) {
+            $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
+            if (is_object($cmd)) {
+               $state = array_filter( $device->states, function($state) {
+                  return ($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status');
+               });
+               if (isset($state[0])) {
+                  log::add(VERALINK, 'info', 'Set command state to '.$state->value);
+                  $cmd->event($state->value); //, $_datetime = null, $_loop = 1
+               } else {
+                  log::add(VERALINK, 'warning', 'Vera State not found '. json_encode($device->states));
+               }
+            } else {
+               log::add(VERALINK, 'warning', 'Cmd not found '.self::CMD_BLETAT.'-'.$device->id);
+            }
+         } else {
+            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_BINLIGHT . $device->id);
+         }
+/* 
          $cmd = cmd::byEqLogicIdAndLogicalId(
                self::PREFIX_BINLIGHT . $device->id,   // $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
                self::CMD_BLETAT.'-'.$device->id,      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
                false,                                 // $_multiple = false
                'info');
          
-         if (is_object($cmd)) {
-            $state = array_filter( $device->states, function($state) {
-               return ($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status');
-            });
-            if (isset($state[0])) {
-               $cmd->event($state->value); //, $_datetime = null, $_loop = 1
-            } else {
-               log::add(VERALINK, 'warning', 'Vera State not found '. json_encode($device->states));
-            }
-         } else {
-            log::add(VERALINK, 'warning', 'Cmd not found '.self::CMD_BLETAT.'-'.$device->id);
-         }
+ */
       }
    }
 
