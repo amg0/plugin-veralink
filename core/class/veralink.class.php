@@ -297,19 +297,19 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       $root_eqlogic = eqLogic::byId($idroot);
 
-      $veraid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
-      //$device = $root_eqlogic->getDevice($veraid);
+      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
+      //$device = $root_eqlogic->getDevice($veradevid);
 
       $array = array(
-         (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veraid,    'name'=>'On',  'type'=>'action|other'],
-         (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veraid,   'name'=>'Off', 'type'=>'action|other'],
-         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veraid,  'name'=>'Etat','type'=>'info|string'],
+         (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veradevid,    'name'=>'On',  'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veradevid,   'name'=>'Off', 'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veradevid,  'name'=>'Etat','type'=>'info|string'],
       );
 
       foreach( $array as $item) {
          $cmd = $this->getCmd(null, $item->logicalid);
          if (!is_object($cmd)) {
-            log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veraid );
+            log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veradevid );
             $cmd = new veralinkCmd();
             $cmd->setLogicalId($item->logicalid);
             $cmd->setEqLogic_id($this->getId());
@@ -541,7 +541,28 @@ class veralink extends eqLogic
    public function updateInfoCommands($devices) 
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      log::add(VERALINK, 'debug', 'devices: '. json_encode($devices));
+      foreach ($devices as $device) {
+         log::add(VERALINK, 'debug', 'device: '. json_encode($device));      
+         
+         $cmd = cmd::byEqLogicIdAndLogicalId(
+               self::PREFIX_BINLIGHT . $device->id,   // $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
+               self::CMD_BLETAT.'-'.$device->id,      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
+               false,                                 // $_multiple = false
+               $_type = 'info');
+         
+         if (is_object($cmd)) {
+            $state = array_filter( $device->states, function($state) {
+               return ($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status');
+            });
+            if (isset($state[0])) {
+               $cmd->event($state->value); //, $_datetime = null, $_loop = 1
+            } else {
+               log::add(VERALINK, 'warning', 'Vera State not found '. json_encode($device->states));
+            }
+         } else {
+            log::add(VERALINK, 'warning', 'Cmd not found '.self::CMD_BLETAT.'-'.$device->id);
+         }
+      }
    }
 
    // returns  (object)['json'=>'', 'obj'=>null];
@@ -562,6 +583,7 @@ class veralink extends eqLogic
       }
 
       // now udpate all Info commands
+      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
       $this->updateInfoCommands(  array_filter( $result->obj->devices, function ($device) {
             return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
          }) 
