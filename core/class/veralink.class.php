@@ -217,13 +217,30 @@ class veralink extends eqLogic
       //
       $objects = json_decode($this->refreshData(1));
       if (isset($objects)) {
+         //
+         // Create Room Equipment objects
+         //
+
          // create eqlogic for room 0 for scenes not assigned to a room
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
          // create a eqLogic per room
          foreach ($objects->rooms as $room) {
                $this->createRoomEqLogic( $room );
          }
+
+         //
+         // Create PowerBinary Equipment objects
+         //
+         foreach( $objects->devices as $device ) {
+            if ($devices->device_type = 'urn:schemas-upnp-org:device:BinaryLight:1') {
+               $this->createBinaryLight( $device );
+            }
+         }
       }
+   }
+
+   public function createBinaryLight($device) {
+      log::add(VERALINK, 'debug', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
    }
 
    public function createRoomEqLogic($room) 
