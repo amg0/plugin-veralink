@@ -5,6 +5,7 @@ Ce plugin permet de detecter les pieces et les scenes d'un controlleur **Vera** 
 ## Utilisation
 Le plugin permet de declarer une vera par son addresse IP ce qui creer un equipement de type 'racine'.
 - Les pieces de la vera seront detectees et proposees comme un autre equipement dans jeedom. l'utilisateur pourra choisir quels equipements ( les pieces ) il active et rend visibles dans jeedom.
+
 - Si la piece de la vera comporte une scene,  une action est cree sur l'equipement piece. cette action permet de declencher la scene sur la vera.
 
 
@@ -14,7 +15,10 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 * la liste des equipements de type piece restera synchronisé avec la listes des pieces existantes sur la vera.
 
 
+- les equipementes de type binaryLight sur la vera sont crée comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles
 
+## Installation
 
-
+a la fin le dashboard de la vera ressemblera, par defaut a ceci.
+![This is an image](../images/veradashboard.png)
 
