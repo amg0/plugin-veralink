@@ -548,10 +548,10 @@ class veralink extends eqLogic
          if (is_object($eqLogic)) {
             $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
             if (is_object($cmd)) {
-               $state = array_filter( $device->states, function($state) {
+               $states = array_filter( $device->states, function($state) {
                   return ($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status');
                });
-               if (isset($state[0])) {
+               if (is_object($states[0])) {
                   log::add(VERALINK, 'info', 'Set command state to '.$state->value);
                   $cmd->event($state->value); //, $_datetime = null, $_loop = 1
                } else {
