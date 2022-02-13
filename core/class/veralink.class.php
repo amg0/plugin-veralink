@@ -475,8 +475,8 @@ class veralink extends eqLogic
          $user_data = json_decode($json,false);
          $user_dataversion = $user_data->DataVersion;
 
-         $this->checkAndUpdateCmd('scenes', json_encode($user_data->scenes));
-         $this->checkAndUpdateCmd('devices', json_encode($user_data->devices));
+         $this->checkAndUpdateCmd('scenes', htmlentities(json_encode($user_data->scenes)));
+         $this->checkAndUpdateCmd('devices', htmlentities(json_encode($user_data->devices)));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
@@ -527,7 +527,7 @@ class veralink extends eqLogic
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode($cmd->execCmd());
+            $olddevices = json_decode( html_entity_decode( $cmd->execCmd()) );
 
             foreach( $lu_data->devices as $dev ) {
                foreach($olddevices as $olddev ) {
@@ -560,7 +560,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $cmd = $this->getCmd(null, 'devices');
-      $data = json_decode($cmd->execCmd());
+      $data = json_decode( html_entity_decode( $cmd->execCmd()) );
       $devices = array_filter( $data, function ($device) {
          return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
       });
@@ -623,7 +623,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
-      $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
+      $datacmd = html_entity_decode( $this->getCmd('info','scenes') );      // get Cmd data of type info
       $data = json_decode( $datacmd -> execCmd() );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
