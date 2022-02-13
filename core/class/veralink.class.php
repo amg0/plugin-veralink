@@ -547,7 +547,7 @@ class veralink extends eqLogic
             }
             //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
             $json = json_encode($olddevices);
-            $this->checkAndUpdateCmd('devices', $json);
+            $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
             $result->json = $json;
             $result->obj = $old;
