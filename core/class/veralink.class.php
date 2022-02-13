@@ -538,6 +538,12 @@ class veralink extends eqLogic
       return $result;
    }
 
+   public function updateInfoCommands($devices) 
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', 'devices: '. json_encode($devices));
+   }
+
    // returns  (object)['json'=>'', 'obj'=>null];
    public function refreshData( $initial=null )
    {
@@ -554,6 +560,13 @@ class veralink extends eqLogic
       else {
          $result = $this->getLuStatus($ipaddr);         
       }
+
+      // now udpate all Info commands
+      $this->updateInfoCommands(  array_filter( $result->obj->devices, function ($device) {
+            return ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1');
+         }) 
+      );
+
       return $result;
    }
 
