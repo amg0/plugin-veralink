@@ -27,6 +27,8 @@ class veralink extends eqLogic
    const PREFIX_BINLIGHT = 'B_';    // prefix for Bin Lights
    const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
    const CMD_BLON = 'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
+   const CMD_BLOFF = 'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
+   const CMD_BLETAT = 'BLETAT';       // prefix for Bin Light State info
    const CONFIGTYPE_ROOM = 'room';           // config type for Room
    const CONFIGTYPE_BINLIGHT = 'binlight';   // config type for BinLight
    const MIN_REFRESH = 5;           // min sec for vera refresh
@@ -46,11 +48,11 @@ class veralink extends eqLogic
       $starttime = microtime (true);   // current time in sec as a float
       //
       // do the work for all eqlogic of type root
-      // !isset($this->getConfiguration('type', null))
+      // type is root and isEnable is one
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
          $config = $eqLogic->getConfiguration('type',null);
-			if ($config===null) {
+			if ( ($config===null) && ($eqLogic->getIsEnable() == 1) ) {
 				$eqLogic->refreshData();
 			}
 		}
@@ -297,22 +299,32 @@ class veralink extends eqLogic
       $veraid = substr( $this->getLogicalId(), strlen(self::PREFIX_BINLIGHT) );
       //$device = $root_eqlogic->getDevice($veraid);
 
-      $logicalid = self::CMD_BLON.'-'.$veraid;
-      $cmd = $this->getCmd(null, $logicalid);
-      if (!is_object($cmd)) {
-         log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veraid );
-         $cmd = new veralinkCmd();
-         $cmd->setLogicalId($logicalid);
-         $cmd->setName('On');
-         $cmd->setEqLogic_id($this->getId());
-         $cmd->setIsVisible(1);
-         $cmd->setType('action');
-         $cmd->setSubType('other');
-         $cmd->setTemplate('dashboard','default');   //template pour le dashboard
-         //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
-         $cmd->setdisplay('showIconAndNamedashboard', 1);
-         $cmd->setdisplay('showIconAndNamemobile', 1);
-         $cmd->save();   
+      $array = array(
+         (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veraid,    'name'=>'On',  'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veraid,   'name'=>'Off', 'type'=>'action|other'],
+         (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veraid,  'name'=>'Etat','type'=>'info|string'],
+      );
+
+      foreach( $array as $item) {
+         $cmd = $this->getCmd(null, $item->logicalid);
+         if (!is_object($cmd)) {
+            log::add(VERALINK, 'info', 'About to create Cmd for dev '.$veraid );
+            $cmd = new veralinkCmd();
+            $cmd->setLogicalId($item->logicalid);
+            $cmd->setEqLogic_id($this->getId());
+            $cmd->setName(  $item->name );
+
+            $split = explode('|',$item->type);
+            $cmd->setType( $split[0] );
+            $cmd->setSubType( $split[1] );
+
+            $cmd->setIsVisible(1);
+            $cmd->setTemplate('dashboard','default');   //template pour le dashboard
+            //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+            $cmd->setdisplay('showIconAndNamedashboard', 1);
+            $cmd->setdisplay('showIconAndNamemobile', 1);
+            $cmd->save();   
+         }
       }
    }
 
@@ -374,6 +386,7 @@ class veralink extends eqLogic
       // only remove associated room equipments if this is a root eqLogic equipment ( a vera ) 
       $configtype = $this->getConfiguration('type', null);
       if (!isset($configtype)) {
+         self::deamon_stop();
          $cart = array();
          foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type');
@@ -550,6 +563,27 @@ class veralink extends eqLogic
       return $scenes;
    }
 
+   public function switchLight($id,int $mode=0)
+   {
+      $ipaddr = $this->getConfiguration('ipaddr', null);
+      if (is_null($ipaddr)) {
+         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
+         return null;
+      }
+      if (($mode!=1) && ($mode!=0)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json&DeviceNum=%s&serviceId=urn:upnp-org:serviceId:SwitchPower1&action=SetTarget&newTargetValue=%s',
+         $ipaddr,
+         $id,
+         $mode
+         );
+
+      $xml = file_get_contents($url);
+      log::add(VERALINK, 'debug', 'action returned ' . $xml);
+      return $xml;
+   }
+
    public function runScene($id)
    {
       $ipaddr = $this->getConfiguration('ipaddr', null);
@@ -600,7 +634,9 @@ class veralinkCmd extends cmd
             break;
 
          case veralink::CMD_BLON:
-            log::add(VERALINK, 'info', 'execute BL ON ' . $param);
+         case veralink::CMD_BLOFF:
+            log::add(VERALINK, 'info', 'execute ' . $cmd .' '. $param);
+            $xml = $eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
             break;
 
          case veralink::CMD_SCENE:
