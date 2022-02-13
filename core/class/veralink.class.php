@@ -572,7 +572,9 @@ class veralink extends eqLogic
                            self::CMD_BLETAT.'-'.$device->id,
                            $state->value
                         ));
-                        $cmd->event($state->value); //, $_datetime = null, $_loop = 1
+                        $eqLogic->checkAndUpdateCmd($cmd,$state->value);
+                        //public function checkAndUpdateCmd($_logicalId, $_value, $_updateTime = null) {
+                        //$cmd->event($state->value); //, $_datetime = null, $_loop = 1
                         break;   
                      }
                   }
