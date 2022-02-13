@@ -541,16 +541,19 @@ class veralink extends eqLogic
    public function updateInfoCommands($devices) 
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      foreach ($devices as $device) {
-         log::add(VERALINK, 'debug', 'device: '. json_encode($device));      
-         
+      foreach ($devices as $device) {         
          $eqLogic = self::byLogicalId(self::PREFIX_BINLIGHT . $device->id, VERALINK);
-         if (is_object($eqLogic)) {
+         if ( is_object($eqLogic) && ($eqLogic->getIsEnable() == 1) ) {
             $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
             if (is_object($cmd)) {
                foreach( $device->states as $state ) {
                   if (($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status')) {
-                     log::add(VERALINK, 'info', 'Set command state to '.$state->value);
+                     log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
+                        $device->id,
+                        self::PREFIX_BINLIGHT . $device->id,
+                        self::CMD_BLETAT.'-'.$device->id,
+                        $state->value
+                     ));
                      $cmd->event($state->value); //, $_datetime = null, $_loop = 1
                      break;   
                   }
