@@ -44,25 +44,35 @@ class veralink extends eqLogic
    // self::CmdByEqType['configtype']['prefix']
    // in_array( configtype , array_keys(self::CmdByEdType) )
    //CmdByEqType['binlight'][cmds]
-   const CmdByEqType = array(
-      'binlight' => array( 'prefix'=>'D_', 'cmds'=>array(
-         array('cmdprefix'=>CMD_BLON),
-         array('cmdprefix'=>CMD_BLOFF),
-         array('cmdprefix'=>CMD_BLETAT)
-      )),
-      'temp' => array( 'prefix'=>'D_', 'cmds'=>array(
-         array('cmdprefix'=>CMD_TEMP)
-      )),
-      'room' => array( 'prefix'=>'R_', 'cmds'=>array(
-      ))
-   );
+   // const CmdByEqType = array(
+   //    'binlight' => array( 'prefix'=>'D_', 'cmds'=>array(
+   //       array('cmdprefix'=>CMD_BLON),
+   //       array('cmdprefix'=>CMD_BLOFF),
+   //       array('cmdprefix'=>CMD_BLETAT)
+   //    )),
+   //    'temp' => array( 'prefix'=>'D_', 'cmds'=>array(
+   //       array('cmdprefix'=>CMD_TEMP)
+   //    )),
+   //    'room' => array( 'prefix'=>'R_', 'cmds'=>array(
+   //    ))
+   // );
 
    // self::CmdByVeraType['vera_device_type']['configtype']
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
-         array('configtype'=>CONFIGTYPE_BINLIGHT, 'cmdprefix'=>self::CMD_BLETAT, 'service'=>'urn:upnp-org:serviceId:SwitchPower1', 'variable'=>'Status'),
+         array(
+               'configtype'=>CONFIGTYPE_BINLIGHT, 
+               'cmdprefix'=>self::CMD_BLETAT, 
+               'service'=>'urn:upnp-org:serviceId:SwitchPower1', 
+               'variable'=>'Status'
+            ),
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
-         array('configtype'=>CONFIGTYPE_TEMP, 'cmdprefix'=>self::CMD_TEMP, 'service'=>'urn:upnp-org:serviceId:TemperatureSensor1', 'variable'=>'CurrentTemperature')
+         array(
+               'configtype'=>CONFIGTYPE_TEMP, 
+               'cmdprefix'=>self::CMD_TEMP, 
+               'service'=>'urn:upnp-org:serviceId:TemperatureSensor1', 
+               'variable'=>'CurrentTemperature'
+            )
    );
 
 
