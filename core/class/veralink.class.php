@@ -23,6 +23,24 @@ const VERALINK = 'veralink';     // plugin logical name
 
 class veralink extends eqLogic
 {   
+   // private $config = array(
+   //    'binlight' => array('type'=>'binlight', 'prefix'=>'D_', 'cmds'=>array(
+   //       array('cmdprefix'=>'BLON'),
+   //       array('cmdprefix'=>'BLOFF'),
+   //       array('cmdprefix'=>'BLETAT')
+   //    )),
+   //    'temperature' => array('type'=>'temp', 'prefix'=>'D_', 'cmds'=>array(
+   //       array('cmdprefix'=>'TEMP')
+   //    ))
+   // );
+
+   const CmdByType = array(
+      'urn:schemas-upnp-org:device:BinaryLight:1'=>
+         array('cmdlid'=>self::CMD_BLETAT, 'service'=>'urn:upnp-org:serviceId:SwitchPower1', 'variable'=>'Status'),
+      'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
+         array('cmdlid'=>self::CMD_TEMP, 'service'=>'urn:upnp-org:serviceId:TemperatureSensor1', 'variable'=>'CurrentTemperature')
+   );
+
    const PREFIX_VERA = 'D_';        // prefix for Vera devices
 
    const CONFIGTYPE_ROOM = 'room';           // config type for Room
@@ -37,10 +55,6 @@ class veralink extends eqLogic
    const CMD_TEMP = 'TEMP';         // prefix for Temp sensors
 
    const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
-
-
-
-
    
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
@@ -640,9 +654,7 @@ class veralink extends eqLogic
       $cmd = $this->getCmd(null, 'devices');
       $data = json_decode( base64_decode( $cmd->execCmd()) );
       $devices = array_filter( $data, function ($device) {
-         return 
-            ($device->device_type == 'urn:schemas-upnp-org:device:BinaryLight:1') || 
-            ($device->device_type == 'urn:schemas-micasaverde-com:device:TemperatureSensor:1');
+         return in_array($device->device_type , array_keys(self::CmdByType));
       });
 
       foreach ($devices as $device) {         
@@ -650,42 +662,26 @@ class veralink extends eqLogic
          if ( is_object($eqLogic) ) {
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
-               switch ($device->device_type) {
-                  case 'urn:schemas-upnp-org:device:BinaryLight:1':
-                     $cmd = $eqLogic->getCmd(null, self::CMD_BLETAT.'-'.$device->id);
-                     break;
-                  case 'urn:schemas-micasaverde-com:device:TemperatureSensor:1':
-                     $cmd = $eqLogic->getCmd(null, self::CMD_TEMP.'-'.$device->id);
-                     break;   
-                  default:
-                     assert(false);
-               }
+
+               $cmd = $eqLogic->getCmd(null, self::CmdByType[$device->device_type]['cmdlid'].'-'.$device->id);
                if (is_object($cmd)) {
+
                   $oldval = $cmd->execCmd();
+                  
                   foreach( $device->states as $state ) {
                      if ($oldval==$state->value)
                         continue;
 
-                     if (($state->service == 'urn:upnp-org:serviceId:SwitchPower1') && ($state->variable == 'Status') ) {
+                     // type , value match
+                     $map=self::CmdByType[$device->device_type];
+                     if (($state->service == $map['service']) && ($state->variable == $map['variable']) ) {
                         log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                            $device->id,
                            self::PREFIX_VERA . $device->id,
-                           self::CMD_BLETAT.'-'.$device->id,
+                           $map['cmdlid'].'-'.$device->id,
                            $state->value
                         ));
                         $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-                        break;   
-                     }
-
-                     if (($state->service == 'urn:upnp-org:serviceId:TemperatureSensor1') && ($state->variable == 'CurrentTemperature') ) {
-                        log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
-                           $device->id,
-                           self::PREFIX_VERA . $device->id,
-                           self::CMD_TEMP.'-'.$device->id,
-                           $state->value
-                        ));
-                        $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-                        break;   
                      }
                   }
                } else {
