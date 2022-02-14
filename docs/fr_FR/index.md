@@ -15,7 +15,7 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 * la liste des equipements de type piece restera synchronisé avec la listes des pieces existantes sur la vera.
 
 
-- les equipementes de type binaryLight sur la vera sont crée comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles
+- les equipementes de type binaryLight & TemperatureSensor sur la vera sont crées comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles
 
 ## Installation
 
