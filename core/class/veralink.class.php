@@ -62,19 +62,26 @@ class veralink extends eqLogic
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
                'configtype'=>CONFIGTYPE_BINLIGHT, 
-               'cmdprefix'=>self::CMD_BLETAT, 
+               'cmdprefix'=>CMD_BLETAT, 
                'service'=>'urn:upnp-org:serviceId:SwitchPower1', 
-               'variable'=>'Status'
+               'variable'=>'Status',
+               'commands'=> [
+                  array( 'logicalid'=>CMD_BLON.'-',    'name'=>'On',  'type'=>'action|other'),
+                  array( 'logicalid'=>CMD_BLOFF.'-',   'name'=>'Off', 'type'=>'action|other'),
+                  array( 'logicalid'=>CMD_BLETAT.'-',  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise')
+               ]
             ),
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
          array(
                'configtype'=>CONFIGTYPE_TEMP, 
-               'cmdprefix'=>self::CMD_TEMP, 
+               'cmdprefix'=>CMD_TEMP, 
                'service'=>'urn:upnp-org:serviceId:TemperatureSensor1', 
-               'variable'=>'CurrentTemperature'
-            )
+               'variable'=>'CurrentTemperature',
+               'commands'=> [
+                  array( 'logicalid'=>CMD_TEMP.'-',    'name'=>'Température',  'type'=>'info|numeric' )
+               ]
+         )
    );
-
 
    /*     * *************************Attributs****************************** */
 
