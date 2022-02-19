@@ -291,7 +291,7 @@ class veralink extends eqLogic
          foreach( $objects->devices as $device ) {
             $config = self::CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
-               $this->createChildEqLogic($device,$config['configtype']);
+               $this->createChildEqLogic($device,$device->device_type);
             } 
          }
       }
@@ -357,14 +357,13 @@ class veralink extends eqLogic
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
 
-      $array = array(
-         (object)[ 'logicalid'=>self::CMD_TEMP.'-'.$veradevid,    'name'=>'Température',  'type'=>'info|numeric'],
-      );
+      $array = self::CmdByVeraType[$configtype]['commands'];
 
       foreach( $array as $item) {
-         $cmd = $this->getCmd(null, $item->logicalid);
+         $cmdid = $item->logicalid.'-'.$veradevid;
+         $cmd = $this->getCmd(null, $cmdid);
          if (!is_object($cmd)) {
-            log::add(VERALINK, 'info', 'About to create Cmd '.$item->name.' for dev '.$veradevid );
+            log::add(VERALINK, 'info', 'About to create Cmd '.$cmdid.' for dev '.$veradevid );
             $cmd = new veralinkCmd();
             $cmd->setLogicalId($item->logicalid);
             $cmd->setEqLogic_id($this->getId());
@@ -811,7 +810,7 @@ class veralinkCmd extends cmd
          default:
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' '. $param);
             //$xml = $root_eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
-            $root_eqlogic->refreshData();
+            //$root_eqlogic->refreshData();
             break;
 
 
