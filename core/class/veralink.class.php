@@ -815,9 +815,11 @@ class veralinkCmd extends cmd
             $configtype = $eqLogic->getConfiguration('type',null);
             $array = veralink::CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
+               log::add(VERALINK, 'debug', 'command ' . json_encode($command));
                if ($command['logicalid'] != $cmdid)
                   continue;
-               $xml = $root_eqLogic->$command['function']($param,$command['value']);
+               $function = $command['function'];
+               $xml = $root_eqLogic->$function($param,$command['value']);
                $root_eqLogic->refreshData();
             }
             //$xml = $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
