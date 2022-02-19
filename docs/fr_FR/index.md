@@ -21,8 +21,8 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - MotionSensor
 
 ## Change Log
+
 [Change Log](changelog.md)
-=======
 
 ## Installation
 
