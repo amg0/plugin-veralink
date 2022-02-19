@@ -45,7 +45,8 @@ class veralink extends eqLogic
    /* Documentation Jeedom Config ( category, generic types, etc )
    https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
    */
-   const CmdByVeraType = array(
+
+   static private $CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
             'EqCategory'=>'light',
@@ -295,7 +296,7 @@ class veralink extends eqLogic
          // Create PowerBinary Equipment objects
          //
          foreach( $objects->devices as $device ) {
-            $config = self::CmdByVeraType[$device->device_type] ;
+            $config = self::$CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
             } 
@@ -324,7 +325,7 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
-         $category = self::CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $category = self::$CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
@@ -367,7 +368,7 @@ class veralink extends eqLogic
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERADEVICE) );
 
-      $array = self::CmdByVeraType[$configtype]['commands'];
+      $array = self::$CmdByVeraType[$configtype]['commands'];
 
       foreach( $array as $item) {
          $item = (object) $item;
@@ -620,7 +621,7 @@ class veralink extends eqLogic
       $data = json_decode( base64_decode( $cmd->execCmd()) );
 
       $devices = array_filter( $data, function ($device) {
-         return in_array($device->device_type , array_keys(self::CmdByVeraType));
+         return in_array($device->device_type , array_keys(self::$CmdByVeraType));
       });
 
       foreach ($devices as $device) {         
@@ -630,7 +631,7 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
-               $map=self::CmdByVeraType[$device->device_type];
+               $map=self::$CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
@@ -790,7 +791,7 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            $array = veralink::CmdByVeraType[$configtype]['commands'];
+            $array = veralink::$CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
