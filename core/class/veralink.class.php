@@ -35,11 +35,12 @@ class veralink extends eqLogic
    const CMD_BLETAT =      'BLETAT';     // prefix for Bin Light State info
    const CMD_TEMPSENSOR =  'TEMPS';         // prefix for Temp sensors
    const CMD_LIGHTSENSOR = 'LIGHTS';         // prefix for Temp sensors
-   
+
    const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
    
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
+
 
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
@@ -336,6 +337,7 @@ class veralink extends eqLogic
       $eqLogic->save();
    }
 
+   
    public function postSaveEqLogic($configtype) 
    {
       //
@@ -374,6 +376,7 @@ class veralink extends eqLogic
          }
       }
    }
+
 
    public function postSaveRoom($configtype)
    {
@@ -681,6 +684,7 @@ class veralink extends eqLogic
    public function switchLight($id,int $mode=0)
    {
       log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
+
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -758,7 +762,9 @@ class veralinkCmd extends cmd
             break;
          
          default:
+
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
+
             $configtype = $eqLogic->getConfiguration('type',null);
             $array = veralink::CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
