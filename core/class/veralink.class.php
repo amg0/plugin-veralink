@@ -347,7 +347,7 @@ class veralink extends eqLogic
       $eqLogic->save();
    }
 
-   public function postSaveTemperature($configtype) 
+   public function postSaveEqLogic($configtype) 
    {
       //
       // This is a Temperature EQLOGIC
@@ -362,49 +362,6 @@ class veralink extends eqLogic
 
       foreach( $array as $item) {
          $item = (object) $item;
-         $cmdid = $item->logicalid.'-'.$veradevid;
-         $cmd = $this->getCmd(null, $cmdid);
-         if (!is_object($cmd)) {
-            log::add(VERALINK, 'info', 'About to create Cmd '.$cmdid.' for dev '.$veradevid );
-            $cmd = new veralinkCmd();
-            $cmd->setLogicalId($cmdid);
-            $cmd->setEqLogic_id($this->getId());
-            $cmd->setName(  $item->name );
-
-            $split = explode('|',$item->type);
-            $cmd->setType( $split[0] );
-            $cmd->setSubType( $split[1] );
-
-            $cmd->setIsVisible(1);
-            $cmd->setTemplate('dashboard',(isset($item->template))?$item->template:'default');    //template pour le dashboard
-            $cmd->setTemplate('mobile',(isset($item->template))?$item->template:'default');       //template pour le mobile
-            //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
-            $cmd->setdisplay('showIconAndNamedashboard', 1);
-            $cmd->setdisplay('showIconAndNamemobile', 1);
-            $cmd->save();   
-         }
-      }
-   }
-   public function postSaveBinLight($configtype) 
-   {
-      //
-      // This is a BinLight EQLOGIC
-      //
-      log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
-      $idroot = $this->getConfiguration('rootid');
-      //$root_eqLogic = eqLogic::byId($idroot);
-
-      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
-
-      $array = self::CmdByVeraType[$configtype]['commands'];
-      // array(
-      //    (object)[ 'logicalid'=>self::CMD_BLON.'-'.$veradevid,    'name'=>'On',  'type'=>'action|other'],
-      //    (object)[ 'logicalid'=>self::CMD_BLOFF.'-'.$veradevid,   'name'=>'Off', 'type'=>'action|other'],
-      //    (object)[ 'logicalid'=>self::CMD_BLETAT.'-'.$veradevid,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise'],
-      // );
-
-      foreach( $array as $item) {
-         $item=(object)$item;
          $cmdid = $item->logicalid.'-'.$veradevid;
          $cmd = $this->getCmd(null, $cmdid);
          if (!is_object($cmd)) {
@@ -467,18 +424,17 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__);
 
       $configtype = $this->getConfiguration('type', null);
+
       switch( $configtype ) {
          case self::CONFIGTYPE_ROOM:
             $this->postSaveRoom($configtype);
             break;
-         case self::CONFIGTYPE_BINLIGHT:
-            $this->postSaveBinLight($configtype);
-            break;
-         case self::CONFIGTYPE_TEMP:
-            $this->postSaveTemperature($configtype);
-            break;
          default:
-            $this->postSaveRoot();
+            if ( isset($configtype )){
+               $this->postSaveEqLogic($configtype);   
+            } else {
+               $this->postSaveRoot();
+            } 
       }
    }
 
