@@ -501,7 +501,6 @@ class veralink extends eqLogic
             if (isset($eqtype)) {
                log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
                $cart[] = $eqLogic;
-               break;
             }
          }
          foreach($cart as $eqLogic) {
