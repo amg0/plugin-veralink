@@ -20,6 +20,9 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - LightSensor
   - MotionSensor
 
+## Change Log
+[Change Log](changelog.md)
+
 ## Installation
 
 au debut il faut commencer par ajouter le plugin. pour le moment a travers github avec la branche master ou beta
