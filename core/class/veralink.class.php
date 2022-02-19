@@ -217,6 +217,11 @@ class veralink extends eqLogic
    {
       //log::add(VERALINK, 'debug', __METHOD__);
       //$this->setDisplay("width","800px");                   // widget display width
+      foreach ((jeedom::getConfiguration('eqLogic:category')) as $key => $value) {
+         log::add(VERALINK, 'debug', sprintf('%s key:%s value:%s',__METHOD__,$key,json_encode($value)));
+         // if ($key == 'default') $key = '';
+         // echo '<li><a><input checked type="checkbox" class="catFilterKey" data-key="' . $value['name'] . '"/>&nbsp;<i class="' . $value['icon'] . '"></i> ' . $value['name'] . '</a></li>';
+      }
    }
 
    // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
