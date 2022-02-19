@@ -23,40 +23,23 @@ const VERALINK = 'veralink';     // plugin logical name
 
 class veralink extends eqLogic
 {   
-   const PREFIX_VERA = 'D_';        // prefix for Vera devices
+   const PREFIX_VERADEVICE =  'D_';        // prefix for Vera devices
+   const PREFIX_ROOM =        'R_';        // prefix for rooms
 
-   const CONFIGTYPE_ROOM = 'room';  // config type for Room
-   const PREFIX_ROOM = 'R_';        // prefix for rooms
-
-   const CONFIGTYPE_BINLIGHT = 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
-   const CMD_BLON = 'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
-   const CMD_BLOFF = 'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
-   const CMD_BLETAT = 'BLETAT';     // prefix for Bin Light State info
+   const CONFIGTYPE_ROOM =    'room';  // config type for Room
+   const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
+   const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
    
-   const CONFIGTYPE_TEMP = 'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
-   const CMD_TEMP = 'TEMP';         // prefix for Temp sensors
-
+   const CMD_BLON =        'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
+   const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
+   const CMD_BLETAT =      'BLETAT';     // prefix for Bin Light State info
+   const CMD_TEMPSENSOR =  'TEMPS';         // prefix for Temp sensors
+   const CMD_LIGHTSENSOR = 'LIGHTS';         // prefix for Temp sensors
+   
    const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
    
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
-
-   // self::CmdByEqType['configtype']['prefix']
-   // in_array( configtype , array_keys(self::CmdByEdType) )
-   //CmdByEqType['binlight'][cmds]
-   // const CmdByEqType = array(
-   //    'binlight' => array( 'prefix'=>'D_', 'cmds'=>array(
-   //       array('cmdprefix'=>CMD_BLON),
-   //       array('cmdprefix'=>CMD_BLOFF),
-   //       array('cmdprefix'=>CMD_BLETAT)
-   //    )),
-   //    'temp' => array( 'prefix'=>'D_', 'cmds'=>array(
-   //       array('cmdprefix'=>CMD_TEMP)
-   //    )),
-   //    'room' => array( 'prefix'=>'R_', 'cmds'=>array(
-   //    ))
-   // );
-
 
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
@@ -70,13 +53,13 @@ class veralink extends eqLogic
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
          array(
                'commands'=> [
-                  array( 'logicalid'=>CMD_TEMP,    'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+                  array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
                ]
             ),
       'urn:schemas-micasaverde-com:device:LightSensor:1'=>
          array(
             'commands'=> [
-               array( 'logicalid'=>CMD_TEMP,    'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+               array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
             ]
          )
    );
@@ -313,13 +296,13 @@ class veralink extends eqLogic
 
    public function createChildEqLogic($device,$configtype) {
       log::add(VERALINK, 'debug', __METHOD__);
-      $eqLogic = self::byLogicalId(self::PREFIX_VERA . $device->id, VERALINK);
+      $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', $configtype);
-         $eqLogic->setLogicalId(self::PREFIX_VERA . $device->id);
+         $eqLogic->setLogicalId(self::PREFIX_VERADEVICE . $device->id);
          //$eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
@@ -362,7 +345,7 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       //$root_eqLogic = eqLogic::byId($idroot);
 
-      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
+      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERADEVICE) );
 
       $array = self::CmdByVeraType[$configtype]['commands'];
 
@@ -614,7 +597,7 @@ class veralink extends eqLogic
       });
 
       foreach ($devices as $device) {         
-         $eqLogic = self::byLogicalId(self::PREFIX_VERA . $device->id, VERALINK);
+         $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
@@ -638,7 +621,7 @@ class veralink extends eqLogic
                               continue;
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                               $device->id,
-                              self::PREFIX_VERA . $device->id,
+                              self::PREFIX_VERADEVICE . $device->id,
                               $cmdid,
                               $state->value
                            ));
@@ -651,7 +634,7 @@ class veralink extends eqLogic
                }
             }
          } else {
-            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_VERA . $device->id);
+            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_VERADEVICE . $device->id);
          }
       }
    }
