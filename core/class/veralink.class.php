@@ -367,7 +367,7 @@ class veralink extends eqLogic
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd '.$cmdid.' for dev '.$veradevid );
             $cmd = new veralinkCmd();
-            $cmd->setLogicalId($item->logicalid);
+            $cmd->setLogicalId($cmdid);
             $cmd->setEqLogic_id($this->getId());
             $cmd->setName(  $item->name );
 
