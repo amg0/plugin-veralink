@@ -498,7 +498,7 @@ class veralink extends eqLogic
          $cart = array();
          foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type');
-            if (in_array( $eqtype , array_keys(self::CmdByEdType))) {
+            if (isset($eqtype)) {
                log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
                $cart[] = $eqLogic;
                break;
