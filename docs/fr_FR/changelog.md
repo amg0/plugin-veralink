@@ -8,6 +8,8 @@
 
 - support des equipement de type LightSensor de la Vera
 - support des equipement de type MotionSensor de la Vera
+- support des equipement de type TemperatureSensor de la Vera
+- configuration des types generiques sur les commandes
 - design configurable/extensible pour les autres types de devices
 - Bugfixes
 
