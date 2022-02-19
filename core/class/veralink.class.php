@@ -72,6 +72,12 @@ class veralink extends eqLogic
                'commands'=> [
                   array( 'logicalid'=>CMD_TEMP,    'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
                ]
+            ),
+      'urn:schemas-micasaverde-com:device:LightSensor:1'=>
+         array(
+            'commands'=> [
+               array( 'logicalid'=>CMD_TEMP,    'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+            ]
          )
    );
 
