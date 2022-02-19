@@ -88,7 +88,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__ . ' running: start');
       $starttime = microtime (true);   // current time in sec as a float
       //
-      // do the work for all eqlogic of type root and isEnable is one
+      // do the work for all eqLogic of type root and isEnable is one
       //
       foreach (self::byType(VERALINK) as $eqLogic) {
          $config = $eqLogic->getConfiguration('type',null);
@@ -278,7 +278,7 @@ class veralink extends eqLogic
          // Create Room Equipment objects
          //
 
-         // create a special eqlogic for room 0 (scenes not assigned to a room)
+         // create a special eqLogic for room 0 (scenes not assigned to a room)
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
 
          // create a eqLogic per room
@@ -354,7 +354,7 @@ class veralink extends eqLogic
       //
       log::add(VERALINK, 'debug', __METHOD__.' EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       $idroot = $this->getConfiguration('rootid');
-      $root_eqlogic = eqLogic::byId($idroot);
+      //$root_eqLogic = eqLogic::byId($idroot);
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
 
@@ -392,7 +392,7 @@ class veralink extends eqLogic
       //
       log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       $idroot = $this->getConfiguration('rootid');
-      $root_eqlogic = eqLogic::byId($idroot);
+      //$root_eqLogic = eqLogic::byId($idroot);
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
 
@@ -436,10 +436,10 @@ class veralink extends eqLogic
       //
       log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       $idroot = $this->getConfiguration('rootid');
-      $root_eqlogic = eqLogic::byId($idroot);
+      $root_eqLogic = eqLogic::byId($idroot);
 
       $idroom = substr( $this->getLogicalId(), strlen(self::PREFIX_ROOM) );
-      $scenes = $root_eqlogic->getScenesOfRoom($idroom);
+      $scenes = $root_eqLogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
          $logicalid = self::CMD_SCENE.'-'.$scene->id;
@@ -794,20 +794,20 @@ class veralinkCmd extends cmd
    public function execute($_options = array())
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $eqlogic = $this->getEqLogic(); //Récupération de l’eqlogic
-      $root_eqlogic = $eqlogic->getRoot();
+      $eqLogic = $this->getEqLogic(); //Récupération de l’eqLogic
+      $root_eqLogic = $eqLogic->getRoot();
       list( $cmdid, $param ) = explode('-',$this->getLogicalId());
 
       switch ($cmdid) {
          case 'refresh':
-            $root_eqlogic->refreshData();
+            $root_eqLogic->refreshData();
             break;
 
          case veralink::CMD_SCENE:
             // this is a scene command
             log::add(VERALINK, 'info', 'execute SCENE ' . $param);
-            $xml = $root_eqlogic->runScene($param);
-            $root_eqlogic->refreshData();
+            $xml = $root_eqLogic->runScene($param);
+            $root_eqLogic->refreshData();
             break;
          
          default:
@@ -817,10 +817,10 @@ class veralinkCmd extends cmd
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
-               $xml = $root_eqlogic->$command['function']($param,$command['value']);
-               $root_eqlogic->refreshData();
+               $xml = $root_eqLogic->$command['function']($param,$command['value']);
+               $root_eqLogic->refreshData();
             }
-            //$xml = $root_eqlogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+            //$xml = $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
             break;
       }
    }
