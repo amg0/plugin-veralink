@@ -42,41 +42,31 @@ class veralink extends eqLogic
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
 
-   /* Jeedom Category for EQ
-      foreach ((jeedom::getConfiguration('eqLogic:category')) as $key => $value) {
-         // log::add(VERALINK, 'debug', sprintf('%s key:%s value:%s',__METHOD__,$key,json_encode($value)));
-         // key:heating value:{"name":"Chauffage","icon":"fas fa-fire"}
-         // key:security value:{"name":"S\u00e9curit\u00e9","icon":"fas fa-lock"}
-         // key:energy value:{"name":"Energie","icon":"fas fa-bolt"}
-         // key:light value:{"name":"Lumi\u00e8re","icon":"far fa-lightbulb"}
-         // key:opening value:{"name":"Ouvrant","icon":"fas fa-door-open"}
-         // key:automatism value:{"name":"Automatisme","icon":"fas fa-magic"}
-         // key:multimedia value:{"name":"Multim\u00e9dia","icon":"fas fa-sliders-h"}
-         // key:default value:{"name":"Autre","icon":"far fa-circle"}
-      }
+   /* Documentation Jeedom Config ( category, generic types, etc )
+   https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
    */
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
             'EqCategory'=>'light',
             'commands'=> [
-               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'function'=>'switchLight', 'value'=>1),
-               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'function'=>'switchLight', 'value'=>0),
-               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
+               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
             ]
          ),
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
          array(
             'EqCategory'=>'heating',
             'commands'=> [
-               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
             ]
          ),
       'urn:schemas-micasaverde-com:device:LightSensor:1'=>
          array(
             'EqCategory'=>'light',
             'commands'=> [
-               array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+               array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
             ]
             ),
       'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
@@ -84,7 +74,7 @@ class veralink extends eqLogic
             'EqCategory'=>'security',       
             'commands'=> [
                array( 
-                  'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'template'=>'presence',
+                  'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
                   'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
             ]
          )
@@ -394,11 +384,15 @@ class veralink extends eqLogic
             $cmd->setType( $split[0] );
             $cmd->setSubType( $split[1] );
 
-            $cmd->setIsVisible(1);
             if (isset($item->template)) {
                $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
                $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
             }
+
+            if (isset($item->generic))
+               $cmd->setGeneric_type($item->generic);
+
+            $cmd->setIsVisible(1);
             //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
             $cmd->setdisplay('showIconAndNamedashboard', 1);
             $cmd->setdisplay('showIconAndNamemobile', 1);
