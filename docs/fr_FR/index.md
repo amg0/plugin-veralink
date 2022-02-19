@@ -22,6 +22,7 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 
 ## Change Log
 [Change Log](changelog.md)
+=======
 
 ## Installation
 
