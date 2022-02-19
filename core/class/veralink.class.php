@@ -31,13 +31,13 @@ class veralink extends eqLogic
    const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
    const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
    
-   const CMD_BLON =        'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
+   const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
    const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
-   const CMD_BLETAT =      'BLETAT';     // prefix for Bin Light State info
-   const CMD_TEMPSENSOR =  'TEMPS';         // prefix for Temp sensors
-   const CMD_LIGHTSENSOR = 'LIGHTS';         // prefix for Temp sensors
-
-   const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
+   const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
+   const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
+   const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
+   const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+   const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
    
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
@@ -54,10 +54,6 @@ class veralink extends eqLogic
          // key:multimedia value:{"name":"Multim\u00e9dia","icon":"fas fa-sliders-h"}
          // key:default value:{"name":"Autre","icon":"far fa-circle"}
       }
-      // does not work
-      // $category = self::CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
-      // value {"heating":"0","security":"0","energy":"0","light":"0","opening":"0","automatism":"1","multimedia":"0","default":"0"}
-      // $eqLogic->setCategory($category,$value??? );
    */
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
@@ -81,6 +77,13 @@ class veralink extends eqLogic
             'EqCategory'=>'light',
             'commands'=> [
                array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+            ]
+            ),
+      'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
+         array(     
+            'EqCategory'=>'security',       
+            'commands'=> [
+               array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
             ]
          )
    );
