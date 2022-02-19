@@ -42,24 +42,43 @@ class veralink extends eqLogic
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
 
-
+   /* Jeedom Category for EQ
+      foreach ((jeedom::getConfiguration('eqLogic:category')) as $key => $value) {
+         // log::add(VERALINK, 'debug', sprintf('%s key:%s value:%s',__METHOD__,$key,json_encode($value)));
+         // key:heating value:{"name":"Chauffage","icon":"fas fa-fire"}
+         // key:security value:{"name":"S\u00e9curit\u00e9","icon":"fas fa-lock"}
+         // key:energy value:{"name":"Energie","icon":"fas fa-bolt"}
+         // key:light value:{"name":"Lumi\u00e8re","icon":"far fa-lightbulb"}
+         // key:opening value:{"name":"Ouvrant","icon":"fas fa-door-open"}
+         // key:automatism value:{"name":"Automatisme","icon":"fas fa-magic"}
+         // key:multimedia value:{"name":"Multim\u00e9dia","icon":"fas fa-sliders-h"}
+         // key:default value:{"name":"Autre","icon":"far fa-circle"}
+      }
+      // does not work
+      // $category = self::CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+      // value {"heating":"0","security":"0","energy":"0","light":"0","opening":"0","automatism":"1","multimedia":"0","default":"0"}
+      // $eqLogic->setCategory($category,$value??? );
+   */
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
-               'commands'=> [
-                  array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'function'=>'switchLight', 'value'=>1),
-                  array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'function'=>'switchLight', 'value'=>0),
-                  array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
-               ]
-            ),
+            'EqCategory'=>'light',
+            'commands'=> [
+               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'function'=>'switchLight', 'value'=>1),
+               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'function'=>'switchLight', 'value'=>0),
+               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+            ]
+         ),
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
          array(
-               'commands'=> [
-                  array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
-               ]
-            ),
+            'EqCategory'=>'heating',
+            'commands'=> [
+               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+            ]
+         ),
       'urn:schemas-micasaverde-com:device:LightSensor:1'=>
          array(
+            'EqCategory'=>'light',
             'commands'=> [
                array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
             ]
@@ -217,11 +236,6 @@ class veralink extends eqLogic
    {
       //log::add(VERALINK, 'debug', __METHOD__);
       //$this->setDisplay("width","800px");                   // widget display width
-      foreach ((jeedom::getConfiguration('eqLogic:category')) as $key => $value) {
-         log::add(VERALINK, 'debug', sprintf('%s key:%s value:%s',__METHOD__,$key,json_encode($value)));
-         // if ($key == 'default') $key = '';
-         // echo '<li><a><input checked type="checkbox" class="catFilterKey" data-key="' . $value['name'] . '"/>&nbsp;<i class="' . $value['icon'] . '"></i> ' . $value['name'] . '</a></li>';
-      }
    }
 
    // Fonction exécutée automatiquement après la sauvegarde (création ou mise à jour) de l'équipement 
@@ -304,6 +318,7 @@ class veralink extends eqLogic
    public function createChildEqLogic($device,$configtype) {
       log::add(VERALINK, 'debug', __METHOD__);
       $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
@@ -314,6 +329,8 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
+         $category = self::CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
       $eqLogic->setName($device->name);
