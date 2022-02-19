@@ -31,37 +31,59 @@ class veralink extends eqLogic
    const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
    const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
    
-   const CMD_BLON =        'BLON';         // prefix for Bin Light ON commands - DO NOT include '-'
+   const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
    const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
-   const CMD_BLETAT =      'BLETAT';     // prefix for Bin Light State info
-   const CMD_TEMPSENSOR =  'TEMPS';         // prefix for Temp sensors
-   const CMD_LIGHTSENSOR = 'LIGHTS';         // prefix for Temp sensors
-
-   const CMD_SCENE = 'SC';          // prefix for scenes commands - DO NOT include '-'
+   const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
+   const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
+   const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
+   const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+   const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
    
    const MIN_REFRESH = 5;           // min sec for vera refresh
    const MAX_REFRESH = 240;         // max sec for vera refresh
 
-
+   /* Jeedom Category for EQ
+      foreach ((jeedom::getConfiguration('eqLogic:category')) as $key => $value) {
+         // log::add(VERALINK, 'debug', sprintf('%s key:%s value:%s',__METHOD__,$key,json_encode($value)));
+         // key:heating value:{"name":"Chauffage","icon":"fas fa-fire"}
+         // key:security value:{"name":"S\u00e9curit\u00e9","icon":"fas fa-lock"}
+         // key:energy value:{"name":"Energie","icon":"fas fa-bolt"}
+         // key:light value:{"name":"Lumi\u00e8re","icon":"far fa-lightbulb"}
+         // key:opening value:{"name":"Ouvrant","icon":"fas fa-door-open"}
+         // key:automatism value:{"name":"Automatisme","icon":"fas fa-magic"}
+         // key:multimedia value:{"name":"Multim\u00e9dia","icon":"fas fa-sliders-h"}
+         // key:default value:{"name":"Autre","icon":"far fa-circle"}
+      }
+   */
    const CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
-               'commands'=> [
-                  array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'function'=>'switchLight', 'value'=>1),
-                  array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'function'=>'switchLight', 'value'=>0),
-                  array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
-               ]
-            ),
+            'EqCategory'=>'light',
+            'commands'=> [
+               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'function'=>'switchLight', 'value'=>1),
+               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'function'=>'switchLight', 'value'=>0),
+               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+            ]
+         ),
       'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
          array(
-               'commands'=> [
-                  array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
-               ]
-            ),
+            'EqCategory'=>'heating',
+            'commands'=> [
+               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+            ]
+         ),
       'urn:schemas-micasaverde-com:device:LightSensor:1'=>
          array(
+            'EqCategory'=>'light',
             'commands'=> [
                array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+            ]
+            ),
+      'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
+         array(     
+            'EqCategory'=>'security',       
+            'commands'=> [
+               array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
             ]
          )
    );
@@ -299,6 +321,7 @@ class veralink extends eqLogic
    public function createChildEqLogic($device,$configtype) {
       log::add(VERALINK, 'debug', __METHOD__);
       $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
@@ -309,6 +332,8 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
+         $category = self::CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
       $eqLogic->setName($device->name);
