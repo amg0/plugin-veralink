@@ -20,6 +20,8 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - LightSensor
   - MotionSensor
 
+- les types generiques correspondants sont configures sur les commandes
+
 ## Change Log
 
 [Change Log](changelog.md)
