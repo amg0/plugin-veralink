@@ -735,7 +735,7 @@ class veralink extends eqLogic
 
    public function switchLight($id,int $mode=0)
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -813,17 +813,16 @@ class veralinkCmd extends cmd
             break;
          
          default:
-            log::add(VERALINK, 'info', 'execute ' . $cmdid .' '. $param);
+            log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
             $configtype = $eqLogic->getConfiguration('type',null);
             $array = veralink::CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
-               $xml = $root_eqLogic->$function($param,$command['value']);
+               $xml = $root_eqLogic->$function($param,$command['value']);  // $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
                $root_eqLogic->refreshData();
             }
-            //$xml = $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
             break;
       }
    }
