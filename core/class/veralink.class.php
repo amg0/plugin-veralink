@@ -813,7 +813,7 @@ class veralinkCmd extends cmd
          default:
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' '. $param);
             $configtype = $eqLogic->getConfiguration('type',null);
-            $array = self::CmdByVeraType[$configtype]['commands'];
+            $array = veralink::CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
