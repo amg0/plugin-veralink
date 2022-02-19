@@ -83,7 +83,9 @@ class veralink extends eqLogic
          array(     
             'EqCategory'=>'security',       
             'commands'=> [
-               array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+               array( 
+                  'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'template'=>'presence',
+                  'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
             ]
          )
    );
@@ -393,8 +395,10 @@ class veralink extends eqLogic
             $cmd->setSubType( $split[1] );
 
             $cmd->setIsVisible(1);
-            $cmd->setTemplate('dashboard',(isset($item->template))?$item->template:'default');    //template pour le dashboard
-            $cmd->setTemplate('mobile',(isset($item->template))?$item->template:'default');       //template pour le mobile
+            if (isset($item->template)) {
+               $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
+               $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+            }
             //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
             $cmd->setdisplay('showIconAndNamedashboard', 1);
             $cmd->setdisplay('showIconAndNamemobile', 1);
