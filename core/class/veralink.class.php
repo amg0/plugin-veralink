@@ -351,15 +351,18 @@ class veralink extends eqLogic
       //
       // This is a Temperature EQLOGIC
       //
-      log::add(VERALINK, 'debug', 'EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
+      log::add(VERALINK, 'debug', __METHOD__.' EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       $idroot = $this->getConfiguration('rootid');
       $root_eqlogic = eqLogic::byId($idroot);
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERA) );
 
       $array = self::CmdByVeraType[$configtype]['commands'];
+      log::add(VERALINK, 'debug', 'command array is '.json_encode($array));
 
       foreach( $array as $item) {
+         $item = (object) $item;
+         log::add(VERALINK, 'debug', 'command item is '.json_encode($item));
          $cmdid = $item->logicalid.'-'.$veradevid;
          $cmd = $this->getCmd(null, $cmdid);
          if (!is_object($cmd)) {
@@ -402,6 +405,7 @@ class veralink extends eqLogic
       // );
 
       foreach( $array as $item) {
+         $item=(object)$item;
          $cmdid = $item->logicalid.'-'.$veradevid;
          $cmd = $this->getCmd(null, $cmdid);
          if (!is_object($cmd)) {
