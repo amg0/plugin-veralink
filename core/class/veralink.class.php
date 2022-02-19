@@ -735,6 +735,7 @@ class veralink extends eqLogic
 
    public function switchLight($id,int $mode=0)
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -756,6 +757,7 @@ class veralink extends eqLogic
 
    public function runScene($id)
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -815,7 +817,6 @@ class veralinkCmd extends cmd
             $configtype = $eqLogic->getConfiguration('type',null);
             $array = veralink::CmdByVeraType[$configtype]['commands'];
             foreach($array as $command) {
-               log::add(VERALINK, 'debug', 'command ' . json_encode($command));
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
