@@ -12,10 +12,13 @@ Le plugin permet de declarer une vera par son addresse IP ce qui creer un equipe
 Les equipements de type pieces, suivront toujours l'equipement racine ( la vera ). 
 * Si l'equipement vera est detruit, les pieces associees seronts detruites.
 * si l'equipement vera est deplacé dans un autre objet parent jeedom, les pieces seront deplacees dans le meme objet parent.
-* la liste des equipements de type piece restera synchronisé avec la listes des pieces existantes sur la vera.
+* la liste des equipements restera synchronisé avec la listes des equipements sur la vera.
 
 
-- les equipementes de type binaryLight & TemperatureSensor sur la vera sont crées comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles
+- les equipementes de type binaryLight & TemperatureSensor sur la vera sont crées comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles. les types supportés sont:
+  - binaryLight
+  - TemperatureSensor
+  - LightSensor
 
 ## Installation
 
