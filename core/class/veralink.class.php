@@ -1,6 +1,6 @@
 <?php
 
-/* This file is part of Jeedom.
+/* This file is part of Veralink , a plugin for Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
