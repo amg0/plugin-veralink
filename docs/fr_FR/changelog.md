@@ -7,6 +7,7 @@
 # 19/02/2022
 
 - support des equipement de type LightSensor de la Vera
+- support des equipement de type MotionSensor de la Vera
 - design configurable/extensible pour les autres types de devices
 - Bugfixes
 
