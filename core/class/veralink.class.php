@@ -832,6 +832,7 @@ class veralinkCmd extends cmd
 
             $configtype = $eqLogic->getConfiguration('type',null);
             $array = veralink::$CmdByVeraType[$configtype]['commands'];
+            //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
