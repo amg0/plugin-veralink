@@ -566,7 +566,7 @@ class veralink extends eqLogic
          );
 
          $this->checkAndUpdateCmd('scenes', (json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', (str_replace('\r', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('devices', (str_replace('\\r', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
