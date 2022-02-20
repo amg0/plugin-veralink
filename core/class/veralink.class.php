@@ -654,6 +654,7 @@ class veralink extends eqLogic
       $data = json_decode( base64_decode( $cmd->execCmd()) );
 
       $devices = array_filter( $data, function ($device) {
+         $device = (object)$device;
          return in_array($device->device_type , array_keys(self::$CmdByVeraType));
       });
 
