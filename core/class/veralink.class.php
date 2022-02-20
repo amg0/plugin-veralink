@@ -274,6 +274,17 @@ class veralink extends eqLogic
 		$refresh->setSubType('other');
       $refresh->save();  
 
+      $reset = $this->getCmd(null, 'reset');
+		if (!is_object($reset)) {
+			$refreresetsh = new veralinkCmd();
+			$reset->setName(__('Reset', __FILE__));
+		}
+		$reset->setEqLogic_id($this->getId());
+		$reset->setLogicalId('reset');
+		$reset->setType('action');
+		$reset->setSubType('other');
+      $reset->save();  
+
       //
       // Get the VERA data for the first time and create the rooms and binary lights
       //
