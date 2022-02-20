@@ -554,27 +554,23 @@ class veralink extends eqLogic
             $user_data['scenes']
          );
 
-         log::add(VERALINK, 'debug', 'xxx UD dev idx 30 :'.json_encode($user_data['devices'][30]));
          // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
-            //log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
             return in_array($d['device_type'], array_keys(CmdByVeraType));
          }));
-         log::add(VERALINK, 'debug', 'filtereddevices:'.json_encode($filtereddevices));
 
          $devicestosave = array_map(function ($d) {
-               //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));$
                return (object)array('id'=>$d['id'],'device_type'=>$d['device_type'],'name'=>$d['name'],'states'=>$d['states']);
             },
             $filtereddevices
          );
 
          $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\c', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\r', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
-         log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
-         log::add(VERALINK, 'debug', 'devicestosave:'.json_encode($devicestosave));
+         // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
+         // log::add(VERALINK, 'debug', 'devicestosave:'.json_encode($devicestosave));
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
@@ -662,21 +658,16 @@ class veralink extends eqLogic
       $cmd = $this->getCmd(null, 'devices');
       $devices = json_decode( base64_decode( $cmd->execCmd()) , true );
 
-      // $devices = array_filter( $data, function ($device) {
-      //    return in_array($device['device_type'] , array_keys(CmdByVeraType));
-      // });
-      log::add(VERALINK, 'debug', __METHOD__.' devices:'.json_encode($devices));
-
       foreach ($devices as $device) {         
          $device=(object)$device;
          $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
 
-            log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
+               log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
                $map=CmdByVeraType[$device->device_type];
                log::add(VERALINK, 'debug', __METHOD__.' map:'.json_encode($map));
 
@@ -689,7 +680,9 @@ class veralink extends eqLogic
                   $cmd = $eqLogic->getCmd(null, $cmdid);
                   if (is_object($cmd)) {
                      // search the device state for that command
+                     log::add(VERALINK, 'debug', __METHOD__.' device states:'.json_encode($device->states));
                      foreach( $device->states as $state ) {
+                        $state = (object)$state;
                         // matching variable
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
                            // if no change, skip
