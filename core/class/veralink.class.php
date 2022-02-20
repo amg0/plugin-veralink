@@ -573,6 +573,9 @@ class veralink extends eqLogic
          $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\n', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
+         log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
+         log::add(VERALINK, 'debug', 'devicestosave:'.json_encode($devicestosave));
+
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
 
