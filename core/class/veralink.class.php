@@ -46,7 +46,7 @@ class veralink extends eqLogic
    https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
    */
 
-   static private $CmdByVeraType = array(
+   private $CmdByVeraType = array(
       'urn:schemas-upnp-org:device:BinaryLight:1'=>
          array(
             'EqCategory'=>'light',
