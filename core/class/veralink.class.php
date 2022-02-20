@@ -632,7 +632,9 @@ class veralink extends eqLogic
                   if ($olddev->id == $dev->id) {
                      log::add(VERALINK, 'debug', 'old userdata device :'.json_encode($olddev));
                      foreach($dev->states as $state) {
+                        log::add(VERALINK, 'debug', 'new device state :'.json_encode($state));
                         foreach($olddev->states as $oldstate) {
+                           log::add(VERALINK, 'debug', 'old device state :'.json_encode($oldstate));
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
                               if ($state->variable != 'LastPollSuccess') {
                                  log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
