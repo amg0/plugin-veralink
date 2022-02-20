@@ -82,7 +82,6 @@ class veralink extends eqLogic
    */
 
 
-
    /*     * *************************Attributs****************************** */
 
    /*
