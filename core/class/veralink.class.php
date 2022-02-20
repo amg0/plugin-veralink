@@ -603,7 +603,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
-         log::add(VERALINK, 'debug', 'No change with result:'.$json);
+         //log::add(VERALINK, 'debug', 'No change with result:'.$json);
          // empty result is already prepared
       } else {
          $lu_data = json_decode($json,false);   // object
@@ -615,26 +615,17 @@ class veralink extends eqLogic
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$lu_data->UserData_DataVersion));
          if ($userdatadataversion != $lu_data->UserData_DataVersion) {
-            log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
+            //log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
             $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
             $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );      // object
-
-            log::add(VERALINK, 'debug', 'ludata devices :'.json_encode($lu_data->devices));
-
             foreach( $lu_data->devices as $dev ) {
-               //$dev = (object) $dev;
-               log::add(VERALINK, 'debug', 'ludata device :'.json_encode($dev));
                foreach($olddevices as $olddev ) {
-                  //$olddev = (object) $olddev;
                   if ($olddev->id == $dev->id) {
-                     log::add(VERALINK, 'debug', 'old userdata device :'.json_encode($olddev));
                      foreach($dev->states as $state) {
-                        log::add(VERALINK, 'debug', 'new device type:'.gettype($state).' state :'.json_encode($state));
                         foreach($olddev->states as $oldstate) {
-                           log::add(VERALINK, 'debug', 'old device type:'.gettype($oldstate).' state :'.json_encode($oldstate));
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
                               if ($state->variable != 'LastPollSuccess') {
                                  log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
@@ -647,7 +638,7 @@ class veralink extends eqLogic
                   }
                }
             }
-            //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
+
             $json = json_encode($olddevices);
             $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
