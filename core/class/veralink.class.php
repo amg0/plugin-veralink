@@ -557,14 +557,13 @@ class veralink extends eqLogic
          // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
             //log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
-            $d = (object)$d;
-            return in_array($d->device_type, array_keys(CmdByVeraType));
+            return in_array($d['device_type'], array_keys(CmdByVeraType));
          }));
 
          $devicestosave = array_map(function ($d) {
                //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));$
                $d = (object)$d;
-               return array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$v->states);
+               return array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$d->states);
             },
             $filtereddevices
          );
