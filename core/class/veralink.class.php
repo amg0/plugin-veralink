@@ -533,6 +533,7 @@ class veralink extends eqLogic
          $user_dataversion = $user_data['DataVersion'];
 
          $scenestosave = array_map(function ($v) {
+               log::add(VERALINK, 'debug', 'array map item '.json_encode($v));
                return (object)array('id'=>$v->id,'name'=>$v->name, 'room'=>$v->room, 'notification_only'=>$v->notification_only);
             },
             $user_data['scenes']
