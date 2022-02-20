@@ -18,6 +18,7 @@
 
 /* * ***************************Includes********************************* */
 
+
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 const VERALINK = 'veralink';     // plugin logical name
