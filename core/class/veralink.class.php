@@ -826,7 +826,7 @@ class veralinkCmd extends cmd
             $root_eqLogic->save();
             break;
 
-         case veralink::CMD_SCENE:
+         case CMD_SCENE:
             // this is a scene command
             log::add(VERALINK, 'info', 'execute SCENE ' . $param);
             $xml = $root_eqLogic->runScene($param);
@@ -838,13 +838,13 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            $array = veralink::$CmdByVeraType[$configtype]['commands'];
+            $array = CmdByVeraType[$configtype]['commands'];
             //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
-               $xml = $root_eqLogic->$function($param,$command['value']);  // $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+               $xml = $root_eqLogic->$function($param,$command['value']);
                $root_eqLogic->refreshData();
             }
             break;
