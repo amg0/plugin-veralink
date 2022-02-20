@@ -529,11 +529,24 @@ class veralink extends eqLogic
          // result already prepared
 
       } else {
-         $user_data = json_decode($json,false);
-         $user_dataversion = $user_data->DataVersion;
+         $user_data = json_decode($json,true);
+         $user_dataversion = $user_data['DataVersion'];
 
-         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($user_data->scenes)));
-         $this->checkAndUpdateCmd('devices', base64_encode(json_encode($user_data->devices)));
+         $scenestosave = array_map(function ($v) {
+               return (object)array('id'=>$v->id,'name'=>$v->name, 'room'=>$v->room, 'notification_only'=>$v->notification_only);
+            },
+            $user_data['scenes']
+         );
+         log::add(VERALINK, 'debug', '$scenestosave:'.json_encode($scenestosave));
+         $devicestosave = array_map(function ($v) {
+            return (object)array('id'=>$v->id,'name'=>$v->name,'states'=>$v->states);
+            },
+            $user_data['devices']
+         );
+         log::add(VERALINK, 'debug', '$devicestosave:'.json_encode($devicestosave));
+
+         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
+         $this->checkAndUpdateCmd('devices', base64_encode(json_encode($devicestosave)));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
