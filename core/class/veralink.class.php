@@ -605,7 +605,7 @@ class veralink extends eqLogic
          log::add(VERALINK, 'debug', 'No change with result:'.$json);
          // empty result is already prepared
       } else {
-         $lu_data = json_decode($json);
+         $lu_data = json_decode($json,false);
          $statusdataversion = $lu_data->DataVersion;
          $lastloadtime = $lu_data->LoadTime;
          $this->setConfiguration('statusdataversion', $statusdataversion);
@@ -619,7 +619,7 @@ class veralink extends eqLogic
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode( base64_decode( $cmd->execCmd()) );
+            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );
 
             foreach( $lu_data->devices as $dev ) {
                foreach($olddevices as $olddev ) {
@@ -643,7 +643,7 @@ class veralink extends eqLogic
             $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
             $result->json = $json;
-            $result->obj = $old;
+            $result->obj = $olddevices;
          }
       }
       return $result;
