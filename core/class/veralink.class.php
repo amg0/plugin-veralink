@@ -291,8 +291,8 @@ class veralink extends eqLogic
       // Get the VERA data for the first time and create the rooms and binary lights
       //
       $results = $this->refreshData(1);
-      $objects = $results->obj;
-      if (isset($objects)) {
+      $array = $results->arr;
+      if (isset($array)) {
          //
          // Create Room Equipment objects
          //
@@ -300,17 +300,17 @@ class veralink extends eqLogic
          // create a special eqLogic for room 0 (scenes not assigned to a room)
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
 
-         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms as obj:'.json_encode($objects->rooms));
-         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms as arr:'.json_encode($objects['rooms']));
          // create a eqLogic per room
-         foreach ($objects->rooms as $room) {
+         foreach ($array['rooms'] as $room) {
+            $room=(object)$room;
             $this->createRoomEqLogic( $room );
          }
 
          //
          // Create PowerBinary Equipment objects
          //
-         foreach( $objects->devices as $device ) {
+         foreach( $array['devices']as $device ) {
+            $device = (object)$device;
             $config = CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
@@ -578,7 +578,7 @@ class veralink extends eqLogic
 
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
          $result->json = $json;
-         $result->obj = $user_data;
+         $result->arr = $user_data;
       }
       return $result;
    }
@@ -621,10 +621,12 @@ class veralink extends eqLogic
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );
+            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , true );
 
             foreach( $lu_data->devices as $dev ) {
+               $dev = (object) $dev;
                foreach($olddevices as $olddev ) {
+                  $olddev = (object) $olddev;
                   if ($olddev->id == $dev->id) {
                      foreach($dev->states as $state) {
                         foreach($olddev->states as $oldstate) {
@@ -645,7 +647,7 @@ class veralink extends eqLogic
             $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
             $result->json = $json;
-            $result->obj = $olddevices;
+            $result->arr = $olddevices;
          }
       }
       return $result;
