@@ -276,7 +276,7 @@ class veralink extends eqLogic
 
       $reset = $this->getCmd(null, 'reset');
 		if (!is_object($reset)) {
-			$refreresetsh = new veralinkCmd();
+			$reset = new veralinkCmd();
 			$reset->setName(__('Reset', __FILE__));
 		}
 		$reset->setEqLogic_id($this->getId());
@@ -810,6 +810,12 @@ class veralinkCmd extends cmd
       switch ($cmdid) {
          case 'refresh':
             $root_eqLogic->refreshData(1);
+            break;
+
+         case 'reset':
+            $root_eqLogic->checkAndUpdateCmd('scenes', base64_encode(json_encode('')));
+            $root_eqLogic->checkAndUpdateCmd('devices', base64_encode(json_encode('')));
+            $root_eqLogic->save();
             break;
 
          case veralink::CMD_SCENE:
