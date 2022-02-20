@@ -662,8 +662,10 @@ class veralink extends eqLogic
       // $devices = array_filter( $data, function ($device) {
       //    return in_array($device['device_type'] , array_keys(CmdByVeraType));
       // });
+      log::add(VERALINK, 'debug', __METHOD__.' devices:'.json_encode($devices));
 
       foreach ($devices as $device) {         
+         log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
          $device=(object)$device;
          $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
