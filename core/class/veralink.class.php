@@ -681,17 +681,18 @@ class veralink extends eqLogic
                   if (is_object($cmd)) {
                      // search the device state for that command
 
+                     log::add(VERALINK, 'debug', __METHOD__.' command:'.json_encode($command));
                      foreach( $device->states as $state ) {
                         $state = (object)$state;
-                        // matching variable
-                        log::add(VERALINK, 'debug', __METHOD__.' command:'.json_encode($command));
-                        log::add(VERALINK, 'debug', __METHOD__.' state:'.json_encode($state));
-                        log::add(VERALINK, 'debug', __METHOD__.' jeedom Cmd value:'.$cmd->execCmd());
-
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
+                           // matching variable
+                           log::add(VERALINK, 'debug', __METHOD__.' state:'.json_encode($state));
+                           log::add(VERALINK, 'debug', __METHOD__.' jeedom Cmd value:'.$cmd->execCmd());
+
                            // if no change, skip
                            if ($cmd->execCmd()==$state->value)
                               continue;
+                              
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                               $device->id,
                               PREFIX_VERADEVICE . $device->id,
