@@ -554,11 +554,13 @@ class veralink extends eqLogic
             $user_data['scenes']
          );
 
+         log::add(VERALINK, 'debug', 'xxx UD dev idx 30 :'.json_encode($user_data['devices'][30]));
          // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
             //log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
             return in_array($d['device_type'], array_keys(CmdByVeraType));
          }));
+         log::add(VERALINK, 'debug', 'filtereddevices:'.json_encode($filtereddevices));
 
          $devicestosave = array_map(function ($d) {
                //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));$
@@ -569,7 +571,7 @@ class veralink extends eqLogic
          );
 
          $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\n', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\c', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
