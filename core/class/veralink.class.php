@@ -300,8 +300,8 @@ class veralink extends eqLogic
          // create a special eqLogic for room 0 (scenes not assigned to a room)
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
 
-         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms:'.json_encode($objects->rooms));
-         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms:'.json_encode($objects['rooms']));
+         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms as obj:'.json_encode($objects->rooms));
+         log::add(VERALINK, 'debug', __METHOD__.' postSaveRoot rooms as arr:'.json_encode($objects['rooms']));
          // create a eqLogic per room
          foreach ($objects->rooms as $room) {
             $this->createRoomEqLogic( $room );
