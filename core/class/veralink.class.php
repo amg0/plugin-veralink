@@ -21,65 +21,67 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 const VERALINK = 'veralink';     // plugin logical name
+const PREFIX_VERADEVICE =  'D_';        // prefix for Vera devices
+const PREFIX_ROOM =        'R_';        // prefix for rooms
+
+const CONFIGTYPE_ROOM =    'room';  // config type for Room
+const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
+const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
+
+const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
+const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
+const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
+const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
+const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
+const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
+
+const MIN_REFRESH = 5;           // min sec for vera refresh
+const MAX_REFRESH = 240;         // max sec for vera refresh
+
+const CmdByVeraType = array(
+   'urn:schemas-upnp-org:device:BinaryLight:1'=>
+      array(
+         'EqCategory'=>'light',
+         'commands'=> [
+            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+            array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
+            array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+         ]
+      ),
+   'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
+      array(
+         'EqCategory'=>'heating',
+         'commands'=> [
+            array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+         ]
+      ),
+   'urn:schemas-micasaverde-com:device:LightSensor:1'=>
+      array(
+         'EqCategory'=>'light',
+         'commands'=> [
+            array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+         ]
+         ),
+   'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
+      array(     
+         'EqCategory'=>'security',       
+         'commands'=> [
+            array( 
+               'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
+               'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+         ]
+      )
+);
 
 class veralink extends eqLogic
 {   
-   const PREFIX_VERADEVICE =  'D_';        // prefix for Vera devices
-   const PREFIX_ROOM =        'R_';        // prefix for rooms
-
-   const CONFIGTYPE_ROOM =    'room';  // config type for Room
-   const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
-   const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
-   
-   const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
-   const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
-   const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
-   const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
-   const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
-   const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
-   const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
-   
-   const MIN_REFRESH = 5;           // min sec for vera refresh
-   const MAX_REFRESH = 240;         // max sec for vera refresh
 
    /* Documentation Jeedom Config ( category, generic types, etc )
    https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
    */
 
-   private $CmdByVeraType = array(
-      'urn:schemas-upnp-org:device:BinaryLight:1'=>
-         array(
-            'EqCategory'=>'light',
-            'commands'=> [
-               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
-               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
-            ]
-         ),
-      'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
-         array(
-            'EqCategory'=>'heating',
-            'commands'=> [
-               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
-            ]
-         ),
-      'urn:schemas-micasaverde-com:device:LightSensor:1'=>
-         array(
-            'EqCategory'=>'light',
-            'commands'=> [
-               array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
-            ]
-            ),
-      'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
-         array(     
-            'EqCategory'=>'security',       
-            'commands'=> [
-               array( 
-                  'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
-                  'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
-            ]
-         )
-   );
+
 
    /*     * *************************Attributs****************************** */
 
@@ -307,7 +309,7 @@ class veralink extends eqLogic
          // Create PowerBinary Equipment objects
          //
          foreach( $objects->devices as $device ) {
-            $config = self::$CmdByVeraType[$device->device_type] ;
+            $config = CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
             } 
@@ -336,7 +338,7 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
-         $category = self::$CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $category = CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
@@ -379,7 +381,7 @@ class veralink extends eqLogic
 
       $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERADEVICE) );
 
-      $array = self::$CmdByVeraType[$configtype]['commands'];
+      $array = CmdByVeraType[$configtype]['commands'];
 
       foreach( $array as $item) {
          $item = (object) $item;
@@ -554,7 +556,7 @@ class veralink extends eqLogic
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
             //log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
             $d = (object)$d;
-            return in_array($d->device_type, array_keys(self::$CmdByVeraType));
+            return in_array($d->device_type, array_keys(CmdByVeraType));
          }));
 
          $devicestosave = array_map(function ($d) {
@@ -655,7 +657,7 @@ class veralink extends eqLogic
 
       $devices = array_filter( $data, function ($device) {
          $device = (object)$device;
-         return in_array($device->device_type , array_keys(self::$CmdByVeraType));
+         return in_array($device->device_type , array_keys(CmdByVeraType));
       });
 
       foreach ($devices as $device) {         
@@ -666,7 +668,7 @@ class veralink extends eqLogic
 
                // iterate through possible commands for this device type
                $device=(object)$device;
-               $map=self::$CmdByVeraType[$device->device_type];
+               $map=CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
