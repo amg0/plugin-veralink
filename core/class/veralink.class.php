@@ -546,7 +546,7 @@ class veralink extends eqLogic
          });
          $devicestosave = array_map(function ($v) {
                $v=(object)$v;
-               return (object)array('id'=>$v->id,'name'=>$v->name,'states'=>$v->states);
+               return (object)array('id'=>$v->id,'name'=>$v->name/*,'states'=>$v->states*/);
             },
             $filtereddevices
          );
