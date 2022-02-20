@@ -653,7 +653,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $cmd = $this->getCmd(null, 'devices');
-      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );
+      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );    // array
 
       foreach ($devices as $device) {         
          $device=(object)$device;
@@ -664,10 +664,7 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
-               log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
                $map=CmdByVeraType[$device->device_type];
-               log::add(VERALINK, 'debug', __METHOD__.' map:'.json_encode($map));
-
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
@@ -677,20 +674,16 @@ class veralink extends eqLogic
                   $cmd = $eqLogic->getCmd(null, $cmdid);
                   if (is_object($cmd)) {
                      // search the device state for that command
-
-                     log::add(VERALINK, 'debug', __METHOD__.' command:'.json_encode($command));
                      foreach( $device->states as $state ) {
                         $state = (object)$state;
+                        // matching variable
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
-                           // matching variable
-                           log::add(VERALINK, 'debug', __METHOD__.' state:'.json_encode($state));
-                           log::add(VERALINK, 'debug', __METHOD__.' jeedom Cmd value:'.$cmd->execCmd());
 
                            // if no change, skip
                            if ($cmd->execCmd()==$state->value)
                               continue;
 
-                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
+                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s => set value:%s',
                               $device->id,
                               PREFIX_VERADEVICE . $device->id,
                               $cmdid,
