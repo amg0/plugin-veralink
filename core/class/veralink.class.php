@@ -665,6 +665,7 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
+               $device=(object)$device;
                $map=self::$CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
