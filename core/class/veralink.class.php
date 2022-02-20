@@ -21,65 +21,66 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
 const VERALINK = 'veralink';     // plugin logical name
+const PREFIX_VERADEVICE =  'D_';        // prefix for Vera devices
+const PREFIX_ROOM =        'R_';        // prefix for rooms
+
+const CONFIGTYPE_ROOM =    'room';  // config type for Room
+const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
+const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
+
+const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
+const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
+const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
+const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
+const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
+const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
+
+const MIN_REFRESH = 5;           // min sec for vera refresh
+const MAX_REFRESH = 240;         // max sec for vera refresh
+
+const CmdByVeraType = array(
+   'urn:schemas-upnp-org:device:BinaryLight:1'=>
+      array(
+         'EqCategory'=>'light',
+         'commands'=> [
+            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+            array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
+            array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+         ]
+      ),
+   'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
+      array(
+         'EqCategory'=>'heating',
+         'commands'=> [
+            array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+         ]
+      ),
+   'urn:schemas-micasaverde-com:device:LightSensor:1'=>
+      array(
+         'EqCategory'=>'light',
+         'commands'=> [
+            array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+         ]
+         ),
+   'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
+      array(     
+         'EqCategory'=>'security',       
+         'commands'=> [
+            array( 
+               'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
+               'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+         ]
+      )
+);
 
 class veralink extends eqLogic
 {   
-   const PREFIX_VERADEVICE =  'D_';        // prefix for Vera devices
-   const PREFIX_ROOM =        'R_';        // prefix for rooms
-
-   const CONFIGTYPE_ROOM =    'room';  // config type for Room
-   const CONFIGTYPE_BINLIGHT= 'urn:schemas-upnp-org:device:BinaryLight:1';   // config type for BinLight
-   const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor:1';  // config type for Temperature
-   
-   const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
-   const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
-   const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
-   const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
-   const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
-   const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
-   const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
-   
-   const MIN_REFRESH = 5;           // min sec for vera refresh
-   const MAX_REFRESH = 240;         // max sec for vera refresh
 
    /* Documentation Jeedom Config ( category, generic types, etc )
    https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
    */
 
-   static private $CmdByVeraType = array(
-      'urn:schemas-upnp-org:device:BinaryLight:1'=>
-         array(
-            'EqCategory'=>'light',
-            'commands'=> [
-               array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
-               array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-               array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
-            ]
-         ),
-      'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
-         array(
-            'EqCategory'=>'heating',
-            'commands'=> [
-               array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
-            ]
-         ),
-      'urn:schemas-micasaverde-com:device:LightSensor:1'=>
-         array(
-            'EqCategory'=>'light',
-            'commands'=> [
-               array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
-            ]
-            ),
-      'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
-         array(     
-            'EqCategory'=>'security',       
-            'commands'=> [
-               array( 
-                  'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
-                  'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
-            ]
-         )
-   );
 
    /*     * *************************Attributs****************************** */
 
@@ -274,12 +275,23 @@ class veralink extends eqLogic
 		$refresh->setSubType('other');
       $refresh->save();  
 
+      $reset = $this->getCmd(null, 'reset');
+		if (!is_object($reset)) {
+			$reset = new veralinkCmd();
+			$reset->setName(__('Reset', __FILE__));
+		}
+		$reset->setEqLogic_id($this->getId());
+		$reset->setLogicalId('reset');
+		$reset->setType('action');
+		$reset->setSubType('other');
+      $reset->save();  
+
       //
       // Get the VERA data for the first time and create the rooms and binary lights
       //
       $results = $this->refreshData(1);
-      $objects = $results->obj;
-      if (isset($objects)) {
+      $array = $results->arr;
+      if (isset($array)) {
          //
          // Create Room Equipment objects
          //
@@ -288,15 +300,17 @@ class veralink extends eqLogic
          $this->createRoomEqLogic( (object) array('id'=>0, 'name'=>__('Sans Piece', __FILE__)) );   // cast to object to enable -> access
 
          // create a eqLogic per room
-         foreach ($objects->rooms as $room) {
+         foreach ($array['rooms'] as $room) {
+            $room=(object)$room;
             $this->createRoomEqLogic( $room );
          }
 
          //
          // Create PowerBinary Equipment objects
          //
-         foreach( $objects->devices as $device ) {
-            $config = self::$CmdByVeraType[$device->device_type] ;
+         foreach( $array['devices']as $device ) {
+            $device = (object)$device;
+            $config = CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
             } 
@@ -313,19 +327,19 @@ class veralink extends eqLogic
 
    public function createChildEqLogic($device,$configtype) {
       log::add(VERALINK, 'debug', __METHOD__);
-      $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+      $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
 
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', $configtype);
-         $eqLogic->setLogicalId(self::PREFIX_VERADEVICE . $device->id);
+         $eqLogic->setLogicalId(PREFIX_VERADEVICE . $device->id);
          //$eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
-         $category = self::$CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $category = CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
@@ -339,13 +353,13 @@ class veralink extends eqLogic
       //
       // for each room , if and only if the EQ for the room does not exist, create it
       //
-      $eqLogic = self::byLogicalId(self::PREFIX_ROOM . $room->id, VERALINK);
+      $eqLogic = self::byLogicalId(PREFIX_ROOM . $room->id, VERALINK);
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for room:#%s %s',$room->id,$room->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', self::CONFIGTYPE_ROOM);
-         $eqLogic->setLogicalId(self::PREFIX_ROOM . $room->id);
+         $eqLogic->setConfiguration('type', CONFIGTYPE_ROOM);
+         $eqLogic->setLogicalId(PREFIX_ROOM . $room->id);
          $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
@@ -366,9 +380,9 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       //$root_eqLogic = eqLogic::byId($idroot);
 
-      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERADEVICE) );
+      $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
-      $array = self::$CmdByVeraType[$configtype]['commands'];
+      $array = CmdByVeraType[$configtype]['commands'];
 
       foreach( $array as $item) {
          $item = (object) $item;
@@ -412,11 +426,11 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       $root_eqLogic = eqLogic::byId($idroot);
 
-      $idroom = substr( $this->getLogicalId(), strlen(self::PREFIX_ROOM) );
+      $idroom = substr( $this->getLogicalId(), strlen(PREFIX_ROOM) );
       $scenes = $root_eqLogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = self::CMD_SCENE.'-'.$scene->id;
+         $logicalid = CMD_SCENE.'-'.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
@@ -443,7 +457,7 @@ class veralink extends eqLogic
       $configtype = $this->getConfiguration('type', null);
 
       switch( $configtype ) {
-         case self::CONFIGTYPE_ROOM:
+         case CONFIGTYPE_ROOM:
             $this->postSaveRoom($configtype);
             break;
          default:
@@ -501,7 +515,7 @@ class veralink extends eqLogic
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
       // verity it is numeric and within range
-      $resvalue = config::checkValueBetween($value, self::MIN_REFRESH, self::MAX_REFRESH);
+      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
       if ($value != $resvalue) {
          log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
@@ -529,19 +543,40 @@ class veralink extends eqLogic
          // result already prepared
 
       } else {
-         $user_data = json_decode($json,false);
-         $user_dataversion = $user_data->DataVersion;
+         $user_data = json_decode($json,true);
+         $user_dataversion = $user_data['DataVersion'];
 
-         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($user_data->scenes)));
-         $this->checkAndUpdateCmd('devices', base64_encode(json_encode($user_data->devices)));
+         $scenestosave = array_map(function ($v) {
+               $v=(object)$v;
+               return (object)array('id'=>$v->id,'name'=>$v->name, 'room'=>$v->room, 'notification_only'=>$v->notification_only);
+            },
+            $user_data['scenes']
+         );
+
+         // not the use of array_values as array_filter presevers the keys in the result which is not what we want
+         $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
+            return in_array($d['device_type'], array_keys(CmdByVeraType));
+         }));
+
+         $devicestosave = array_map(function ($d) {
+               return (object)array('id'=>$d['id'],'device_type'=>$d['device_type'],'name'=>$d['name'],'states'=>$d['states']);
+            },
+            $filtereddevices
+         );
+
+         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
+         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\r', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
+
+         // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
+         // log::add(VERALINK, 'debug', 'devicestosave:'.json_encode($devicestosave));
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
 
          log::add(VERALINK, 'debug', 'received userdataversion:'. $user_dataversion);
          $result->json = $json;
-         $result->obj = $user_data;
+         $result->arr = $user_data;
       }
       return $result;
    }
@@ -567,10 +602,10 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', 'received :'.substr($json,0,200));
 
       if (($json == 'NO_CHANGES') || ($json == 'Exiting')) {
-         log::add(VERALINK, 'debug', 'No change with result:'.$json);
+         //log::add(VERALINK, 'debug', 'No change with result:'.$json);
          // empty result is already prepared
       } else {
-         $lu_data = json_decode($json);
+         $lu_data = json_decode($json,false);   // object
          $statusdataversion = $lu_data->DataVersion;
          $lastloadtime = $lu_data->LoadTime;
          $this->setConfiguration('statusdataversion', $statusdataversion);
@@ -579,13 +614,12 @@ class veralink extends eqLogic
          
          log::add(VERALINK, 'debug', sprintf('NEW statusdataversion:%s loadtime:%s userdataversion:%s',$statusdataversion,$lastloadtime,$lu_data->UserData_DataVersion));
          if ($userdatadataversion != $lu_data->UserData_DataVersion) {
-            log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
+            //log::add(VERALINK, 'info', 'refresh user_data:'.$lu_data->UserData_DataVersion);
             $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode( base64_decode( $cmd->execCmd()) );
-
+            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );      // object
             foreach( $lu_data->devices as $dev ) {
                foreach($olddevices as $olddev ) {
                   if ($olddev->id == $dev->id) {
@@ -603,12 +637,12 @@ class veralink extends eqLogic
                   }
                }
             }
-            //log::add(VERALINK, 'debug', 'updated devices:'. json_encode($old->devices));
+
             $json = json_encode($olddevices);
             $this->checkAndUpdateCmd('devices', base64_encode($json) );
             $this->save(true);
             $result->json = $json;
-            $result->obj = $old;
+            $result->arr = $olddevices;
          }
       }
       return $result;
@@ -618,20 +652,18 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $cmd = $this->getCmd(null, 'devices');
-      $data = json_decode( base64_decode( $cmd->execCmd()) );
-
-      $devices = array_filter( $data, function ($device) {
-         return in_array($device->device_type , array_keys(self::$CmdByVeraType));
-      });
+      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );    // array
 
       foreach ($devices as $device) {         
-         $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+         $device=(object)$device;
+         $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
+
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
-               $map=self::$CmdByVeraType[$device->device_type];
+               $map=CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
@@ -642,14 +674,17 @@ class veralink extends eqLogic
                   if (is_object($cmd)) {
                      // search the device state for that command
                      foreach( $device->states as $state ) {
+                        $state = (object)$state;
                         // matching variable
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
+
                            // if no change, skip
                            if ($cmd->execCmd()==$state->value)
                               continue;
-                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
+
+                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s => set value:%s',
                               $device->id,
-                              self::PREFIX_VERADEVICE . $device->id,
+                              PREFIX_VERADEVICE . $device->id,
                               $cmdid,
                               $state->value
                            ));
@@ -662,7 +697,7 @@ class veralink extends eqLogic
                }
             }
          } else {
-            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_VERADEVICE . $device->id);
+            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.PREFIX_VERADEVICE . $device->id);
          }
       }
    }
@@ -685,7 +720,7 @@ class veralink extends eqLogic
       }
 
       // now udpate all Info commands
-      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
+      // info commands have a logicalid like CMD_BLETAT.'-'.$veradevid
       $this->updateInfoCommands( );
       return $result;
    }
@@ -776,10 +811,16 @@ class veralinkCmd extends cmd
 
       switch ($cmdid) {
          case 'refresh':
-            $root_eqLogic->refreshData();
+            $root_eqLogic->refreshData(1);
             break;
 
-         case veralink::CMD_SCENE:
+         case 'reset':
+            $root_eqLogic->checkAndUpdateCmd('scenes', base64_encode(json_encode('')));
+            $root_eqLogic->checkAndUpdateCmd('devices', base64_encode(json_encode('')));
+            $root_eqLogic->save();
+            break;
+
+         case CMD_SCENE:
             // this is a scene command
             log::add(VERALINK, 'info', 'execute SCENE ' . $param);
             $xml = $root_eqLogic->runScene($param);
@@ -791,12 +832,13 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            $array = veralink::$CmdByVeraType[$configtype]['commands'];
+            $array = CmdByVeraType[$configtype]['commands'];
+            //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
-               $xml = $root_eqLogic->$function($param,$command['value']);  // $root_eqLogic->switchLight($param,($cmd==veralink::CMD_BLON) ? 1 : 0);
+               $xml = $root_eqLogic->$function($param,$command['value']);
                $root_eqLogic->refreshData();
             }
             break;
