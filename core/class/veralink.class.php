@@ -565,8 +565,8 @@ class veralink extends eqLogic
             $filtereddevices
          );
 
-         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\r', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('scenes', (json_encode($scenestosave)));
+         $this->checkAndUpdateCmd('devices', (str_replace('\r', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
@@ -620,7 +620,7 @@ class veralink extends eqLogic
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
             $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );      // object
+            $olddevices = json_decode( ( $cmd->execCmd()) , false );      // object
             foreach( $lu_data->devices as $dev ) {
                foreach($olddevices as $olddev ) {
                   if ($olddev->id == $dev->id) {
@@ -640,7 +640,7 @@ class veralink extends eqLogic
             }
 
             $json = json_encode($olddevices);
-            $this->checkAndUpdateCmd('devices', base64_encode($json) );
+            $this->checkAndUpdateCmd('devices', ($json) );
             $this->save(true);
             $result->json = $json;
             $result->arr = $olddevices;
@@ -653,7 +653,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $cmd = $this->getCmd(null, 'devices');
-      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );    // array
+      $devices = json_decode( ( $cmd->execCmd()) , true );    // array
 
       foreach ($devices as $device) {         
          $device=(object)$device;
@@ -731,7 +731,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
       $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
-      $data = json_decode( base64_decode( $datacmd -> execCmd() ) );
+      $data = json_decode( ( $datacmd -> execCmd() ) );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
       // only keep scenes from the same room and which are not pure notification scenes
@@ -816,8 +816,8 @@ class veralinkCmd extends cmd
             break;
 
          case 'reset':
-            $root_eqLogic->checkAndUpdateCmd('scenes', base64_encode(json_encode('')));
-            $root_eqLogic->checkAndUpdateCmd('devices', base64_encode(json_encode('')));
+            $root_eqLogic->checkAndUpdateCmd('scenes', (json_encode('')));
+            $root_eqLogic->checkAndUpdateCmd('devices', (json_encode('')));
             $root_eqLogic->save();
             break;
 
