@@ -538,23 +538,24 @@ class veralink extends eqLogic
             },
             $user_data['scenes']
          );
-         log::add(VERALINK, 'debug', '$scenestosave:'.json_encode($scenestosave));
+
+         // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
-            log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
+            //log::add(VERALINK, 'debug', 'array map item '.json_encode($d));
             $d = (object)$d;
             return in_array($d->device_type, array_keys(self::$CmdByVeraType));
          }));
+
          $devicestosave = array_map(function ($d) {
-               log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));
+               //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));
                $d = (object)$d;
-            return (object)array('id'=>$d->id,'name'=>$d->name/*,'states'=>$v->states*/);
+            return (object)array('id'=>$d->id,'name'=>$d->name,'states'=>$v->states);
             },
             $filtereddevices
          );
-         log::add(VERALINK, 'debug', '$devicestosave:'.json_encode($devicestosave));
 
          $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', base64_encode(json_encode($devicestosave)));
+         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\n', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // make sure the initial call from postSave does not trigger an infinite loop 
