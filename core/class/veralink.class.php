@@ -562,9 +562,9 @@ class veralink extends eqLogic
          }));
 
          $devicestosave = array_map(function ($d) {
-               //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));
+               //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));$
                $d = (object)$d;
-            return (object)array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$v->states);
+               return array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$v->states);
             },
             $filtereddevices
          );
@@ -676,7 +676,7 @@ class veralink extends eqLogic
                // iterate through possible commands for this device type
                $map=CmdByVeraType[$device->device_type];
                log::add(VERALINK, 'debug', __METHOD__.' map:'.json_encode($map));
-               
+
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
