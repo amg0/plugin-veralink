@@ -244,7 +244,7 @@ class veralink extends eqLogic
       //
       $cmds = array(
          (object)array('cmd'=>'scenes', 'name'=>__('Scènes', __FILE__)),
-         (object)array('cmd'=>'devices', 'name'=>__('Devices', __FILE__)),
+         //(object)array('cmd'=>'devices', 'name'=>__('Devices', __FILE__)),
       );
       foreach( $cmds as $cmd) {
          $data = $this->getCmd(null, $cmd->cmd);
@@ -565,8 +565,9 @@ class veralink extends eqLogic
             $filtereddevices
          );
 
-         $this->checkAndUpdateCmd('scenes', base64_encode(json_encode($scenestosave)));
-         $this->checkAndUpdateCmd('devices', base64_encode(str_replace('\r', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('scenes', (json_encode($scenestosave)));
+         //$this->checkAndUpdateCmd('devices', (str_replace('\\n', '', json_encode($devicestosave))));
+         $this->setConfiguration('veralink_devices', (str_replace('\\n', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
 
          // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
@@ -619,8 +620,10 @@ class veralink extends eqLogic
             $result = $this->getUserData($ipaddr,$userdatadataversion);
          } else {
             // il faut ecraser $old.devices etc... with $lu_datas
-            $cmd = $this->getCmd(null, 'devices');
-            $olddevices = json_decode( base64_decode( $cmd->execCmd()) , false );      // object
+            //$cmd = $this->getCmd(null, 'devices');
+            //$olddevices = json_decode( ( $cmd->execCmd()) , false );      // object
+            $cmd = $this->getConfiguration('veralink_devices',null);
+            $olddevices = json_decode( $cmd ?? [], false );      // object
             foreach( $lu_data->devices as $dev ) {
                foreach($olddevices as $olddev ) {
                   if ($olddev->id == $dev->id) {
@@ -640,7 +643,8 @@ class veralink extends eqLogic
             }
 
             $json = json_encode($olddevices);
-            $this->checkAndUpdateCmd('devices', base64_encode($json) );
+            //$this->checkAndUpdateCmd('devices', ($json) );
+            $this->setConfiguration('veralink_devices',$json);
             $this->save(true);
             $result->json = $json;
             $result->arr = $olddevices;
@@ -652,8 +656,10 @@ class veralink extends eqLogic
    public function updateInfoCommands() 
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $cmd = $this->getCmd(null, 'devices');
-      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );    // array
+      // $cmd = $this->getCmd(null, 'devices');
+      // $devices = json_decode( ( $cmd->execCmd()) , true );    // array
+      $cmd = $this->getConfiguration('veralink_devices',null);
+      $devices = json_decode( $cmd ?? [] , true );    // array
 
       foreach ($devices as $device) {         
          $device=(object)$device;
@@ -731,7 +737,7 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
       $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
-      $data = json_decode( base64_decode( $datacmd -> execCmd() ) );
+      $data = json_decode( ( $datacmd -> execCmd() ) );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
       // only keep scenes from the same room and which are not pure notification scenes
@@ -816,8 +822,9 @@ class veralinkCmd extends cmd
             break;
 
          case 'reset':
-            $root_eqLogic->checkAndUpdateCmd('scenes', base64_encode(json_encode('')));
-            $root_eqLogic->checkAndUpdateCmd('devices', base64_encode(json_encode('')));
+            $root_eqLogic->checkAndUpdateCmd('scenes', (json_encode('')));
+            //$root_eqLogic->checkAndUpdateCmd('devices', (json_encode('')));
+            $root_eqLogic->setConfiguration('veralink_devices', (json_encode('')));
             $root_eqLogic->save();
             break;
 
