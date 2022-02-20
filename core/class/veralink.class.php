@@ -623,7 +623,7 @@ class veralink extends eqLogic
             $olddevices = json_decode( base64_decode( $cmd->execCmd()) , true );
 
             log::add(VERALINK, 'debug', 'ludata devices :'.json_encode($lu_data->devices));
-            log::add(VERALINK, 'debug', 'ludata devices []:'.json_encode($lu_data['devices'];
+            log::add(VERALINK, 'debug', 'ludata devices []:'.json_encode($lu_data['devices']));
             foreach( $lu_data->devices as $dev ) {
                $dev = (object) $dev;
                log::add(VERALINK, 'debug', 'ludata device :'.$dev);
