@@ -540,11 +540,15 @@ class veralink extends eqLogic
             $user_data['scenes']
          );
          log::add(VERALINK, 'debug', '$scenestosave:'.json_encode($scenestosave));
-            $devicestosave = array_map(function ($v) {
+         $filtereddevices = array_filter($user_data['devices'],function($d){
+            $d=(object)$d;
+            return in_array($d->device_type, array_keys(self::$CmdByVeraType));
+         });
+         $devicestosave = array_map(function ($v) {
                $v=(object)$v;
                return (object)array('id'=>$v->id,'name'=>$v->name,'states'=>$v->states);
-               },
-               $user_data['devices']
+            },
+            $filtereddevices
          );
          log::add(VERALINK, 'debug', '$devicestosave:'.json_encode($devicestosave));
 
