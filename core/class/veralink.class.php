@@ -563,7 +563,7 @@ class veralink extends eqLogic
          $devicestosave = array_map(function ($d) {
                //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));$
                $d = (object)$d;
-               return array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$d->states);
+               return (object)array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$d->states);
             },
             $filtereddevices
          );
