@@ -789,7 +789,7 @@ class veralinkCmd extends cmd
 
       switch ($cmdid) {
          case 'refresh':
-            $root_eqLogic->refreshData();
+            $root_eqLogic->refreshData(1);
             break;
 
          case veralink::CMD_SCENE:
