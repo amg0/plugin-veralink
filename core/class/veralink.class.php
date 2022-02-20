@@ -657,12 +657,11 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       $cmd = $this->getCmd(null, 'devices');
-      $data = json_decode( base64_decode( $cmd->execCmd()) );
+      $devices = json_decode( base64_decode( $cmd->execCmd()) , true );
 
-      $devices = array_filter( $data, function ($device) {
-         $device = (object)$device;
-         return in_array($device->device_type , array_keys(CmdByVeraType));
-      });
+      // $devices = array_filter( $data, function ($device) {
+      //    return in_array($device['device_type'] , array_keys(CmdByVeraType));
+      // });
 
       foreach ($devices as $device) {         
          $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
