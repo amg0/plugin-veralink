@@ -326,14 +326,14 @@ class veralink extends eqLogic
 
    public function createChildEqLogic($device,$configtype) {
       log::add(VERALINK, 'debug', __METHOD__);
-      $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+      $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
 
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for device:#%s %s',$device->id,$device->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', $configtype);
-         $eqLogic->setLogicalId(self::PREFIX_VERADEVICE . $device->id);
+         $eqLogic->setLogicalId(PREFIX_VERADEVICE . $device->id);
          //$eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
@@ -352,13 +352,13 @@ class veralink extends eqLogic
       //
       // for each room , if and only if the EQ for the room does not exist, create it
       //
-      $eqLogic = self::byLogicalId(self::PREFIX_ROOM . $room->id, VERALINK);
+      $eqLogic = self::byLogicalId(PREFIX_ROOM . $room->id, VERALINK);
       if (!is_object($eqLogic)) {
          log::add(VERALINK, 'info', __METHOD__.sprintf(' for room:#%s %s',$room->id,$room->name));
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
-         $eqLogic->setConfiguration('type', self::CONFIGTYPE_ROOM);
-         $eqLogic->setLogicalId(self::PREFIX_ROOM . $room->id);
+         $eqLogic->setConfiguration('type', CONFIGTYPE_ROOM);
+         $eqLogic->setLogicalId(PREFIX_ROOM . $room->id);
          $eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
@@ -379,7 +379,7 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       //$root_eqLogic = eqLogic::byId($idroot);
 
-      $veradevid = substr( $this->getLogicalId(), strlen(self::PREFIX_VERADEVICE) );
+      $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
       $array = CmdByVeraType[$configtype]['commands'];
 
@@ -425,11 +425,11 @@ class veralink extends eqLogic
       $idroot = $this->getConfiguration('rootid');
       $root_eqLogic = eqLogic::byId($idroot);
 
-      $idroom = substr( $this->getLogicalId(), strlen(self::PREFIX_ROOM) );
+      $idroom = substr( $this->getLogicalId(), strlen(PREFIX_ROOM) );
       $scenes = $root_eqLogic->getScenesOfRoom($idroom);
 
       foreach($scenes as $scene) {
-         $logicalid = self::CMD_SCENE.'-'.$scene->id;
+         $logicalid = CMD_SCENE.'-'.$scene->id;
          $cmd = $this->getCmd(null, $logicalid);
          if (!is_object($cmd)) {
             log::add(VERALINK, 'info', 'About to create Cmd for scene '.$scene->id.' name:'.$scene->name);
@@ -456,7 +456,7 @@ class veralink extends eqLogic
       $configtype = $this->getConfiguration('type', null);
 
       switch( $configtype ) {
-         case self::CONFIGTYPE_ROOM:
+         case CONFIGTYPE_ROOM:
             $this->postSaveRoom($configtype);
             break;
          default:
@@ -514,7 +514,7 @@ class veralink extends eqLogic
     public static function preConfig_refresh_freq( $value ) {
       log::add(VERALINK, 'debug', __METHOD__); 
       // verity it is numeric and within range
-      $resvalue = config::checkValueBetween($value, self::MIN_REFRESH, self::MAX_REFRESH);
+      $resvalue = config::checkValueBetween($value, MIN_REFRESH, MAX_REFRESH);
       if ($value != $resvalue) {
          log::add(VERALINK, 'debug', 'outside range, modified value for refresh frequency '.$resvalue);
       }
@@ -661,7 +661,7 @@ class veralink extends eqLogic
       });
 
       foreach ($devices as $device) {         
-         $eqLogic = self::byLogicalId(self::PREFIX_VERADEVICE . $device->id, VERALINK);
+         $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
@@ -686,7 +686,7 @@ class veralink extends eqLogic
                               continue;
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                               $device->id,
-                              self::PREFIX_VERADEVICE . $device->id,
+                              PREFIX_VERADEVICE . $device->id,
                               $cmdid,
                               $state->value
                            ));
@@ -699,7 +699,7 @@ class veralink extends eqLogic
                }
             }
          } else {
-            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.self::PREFIX_VERADEVICE . $device->id);
+            log::add(VERALINK, 'warning', 'Cannot find EQ logic '.PREFIX_VERADEVICE . $device->id);
          }
       }
    }
@@ -722,7 +722,7 @@ class veralink extends eqLogic
       }
 
       // now udpate all Info commands
-      // info commands have a logicalid like self::CMD_BLETAT.'-'.$veradevid
+      // info commands have a logicalid like CMD_BLETAT.'-'.$veradevid
       $this->updateInfoCommands( );
       return $result;
    }
