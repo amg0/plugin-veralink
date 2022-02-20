@@ -564,7 +564,7 @@ class veralink extends eqLogic
          $devicestosave = array_map(function ($d) {
                //log::add(VERALINK, 'debug', 'second array map item '.json_encode($d));
                $d = (object)$d;
-            return (object)array('id'=>$d->id,'name'=>$d->name,'states'=>$v->states);
+            return (object)array('id'=>$d->id,'device_type',$d->device_type,'name'=>$d->name,'states'=>$v->states);
             },
             $filtereddevices
          );
@@ -665,15 +665,18 @@ class veralink extends eqLogic
       log::add(VERALINK, 'debug', __METHOD__.' devices:'.json_encode($devices));
 
       foreach ($devices as $device) {         
-         log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
          $device=(object)$device;
          $eqLogic = self::byLogicalId(PREFIX_VERADEVICE . $device->id, VERALINK);
          if ( is_object($eqLogic) ) {
+
+            log::add(VERALINK, 'debug', __METHOD__.' device:'.json_encode($device));
             // only do this for enabled equipments
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
                $map=CmdByVeraType[$device->device_type];
+               log::add(VERALINK, 'debug', __METHOD__.' map:'.json_encode($map));
+               
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
