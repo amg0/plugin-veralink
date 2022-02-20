@@ -624,9 +624,11 @@ class veralink extends eqLogic
 
             foreach( $lu_data->devices as $dev ) {
                $dev = (object) $dev;
+               log::add(VERALINK, 'debug', 'ludata device :'.$dev);
                foreach($olddevices as $olddev ) {
                   $olddev = (object) $olddev;
                   if ($olddev->id == $dev->id) {
+                     log::add(VERALINK, 'debug', 'old userdata device :'.$olddev);
                      foreach($dev->states as $state) {
                         foreach($olddev->states as $oldstate) {
                            if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
@@ -692,7 +694,7 @@ class veralink extends eqLogic
                            // if no change, skip
                            if ($cmd->execCmd()==$state->value)
                               continue;
-                              
+
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s set value:%s',
                               $device->id,
                               PREFIX_VERADEVICE . $device->id,
