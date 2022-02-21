@@ -4,9 +4,14 @@
 >
 >Pour rappel s'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
 
+# 21/02/2022
+
+- Optimization du stockage des infos de la vera (scenes in configuration)
+- add Firmware command to vera root equipment
+
 # 20/02/2022
 
-- Optimization du stockage des infos de la vera
+- Optimization du stockage des infos de la vera (devices in configuration)
 - Utilisation de configuration au lieu de Command pour les gros json
 
 # 19/02/2022

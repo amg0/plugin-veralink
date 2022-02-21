@@ -243,25 +243,25 @@ class veralink extends eqLogic
       // this is the root EQLOGIC.  so create the scenes and devices command if needed
       //
       $cmds = array(
-         (object)array('cmd'=>'firmware', 'name'=>__('Firmware', __FILE__)),
-         //(object)array('cmd'=>'devices', 'name'=>__('Devices', __FILE__)),
+         (object)array('lid'=>'firmware', 'name'=>__('Firmware', __FILE__)),
+         //(object)array('lid'=>'devices', 'name'=>__('Devices', __FILE__)),
       );
       foreach( $cmds as $cmd) {
-         $data = $this->getCmd(null, $cmd->cmd);
+         $data = $this->getCmd(null, $cmd->lid);
          if (!is_object($data)) {
             $data = new veralinkCmd();
-            $data->setName($cmd->name);
+
+            //$data->setTemplate('dashboard','default');   //template pour le dashboard
+            $data->setIsVisible(0);
          }
-         $data->setLogicalId($cmd->cmd);
+         $data->setName($cmd->name);
+         $data->setLogicalId($cmd->lid);
          $data->setEqLogic_id($this->getId());
          $data->setType('info');
          $data->setSubType('string');
-         //$data->setTemplate('dashboard','default');   //template pour le dashboard
-         $data->setIsVisible(0);
          $data->save();   
       }
 
-   
       //
       // refresh data command
       //
