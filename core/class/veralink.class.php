@@ -53,7 +53,7 @@ const CmdByVeraType = array(
             array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
             array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1'),
-            array( 'logicalid'=>CMD_BLWATTS, 'name'=>'Watts','type'=>'info|numeric', 'generic'=>'POWER', 'template'=>'prise', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1')
+            array( 'logicalid'=>CMD_BLWATTS, 'name'=>'Watts','type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1')
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -408,6 +408,9 @@ class veralink extends eqLogic
             if (isset($item->generic))
                $cmd->setGeneric_type($item->generic);
 
+            if (isset($item->unite))
+               $cmd->setUnite($item->unite);
+               
             $cmd->setIsVisible(1);
             //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
             $cmd->setdisplay('showIconAndNamedashboard', 1);
