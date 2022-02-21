@@ -376,15 +376,15 @@ class veralink extends eqLogic
    }
 
    private function shouldCreateCommand( $service, $variable, $veradevid) {
-      log::add(VERALINK, 'debug', __METHOD__.sprintf(' service:%s variable:%s device:%s',$service, $variable, $veradevid));
+      //log::add(VERALINK, 'debug', __METHOD__.sprintf(' service:%s variable:%s device:%s',$service, $variable, $veradevid));
       $cfg = $this->getConfiguration('veralink_devices',null);
       $devices = json_decode( $cfg ?? [] , true );    // array
       foreach($devices as $dev) {
          if ($dev['id'] == $veradevid) {
             foreach( $dev['states'] as $state ) {
                if (($state['service']==$service) && ($state['variable']==$variable)) {
-                  log::add(VERALINK, 'debug', __METHOD__.sprintf(' should create command for service:%s variable:%s device:%s',$service, $variable, $veradevid));
-                  return false;
+                  //log::add(VERALINK, 'debug', __METHOD__.sprintf(' should create command for service:%s variable:%s device:%s',$service, $variable, $veradevid));
+                  return true;
                }
             }
          }
