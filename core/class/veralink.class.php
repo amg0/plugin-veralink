@@ -707,7 +707,11 @@ class veralink extends eqLogic
                         // matching variable
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
 
-                           // if no change, skip
+                           // temporary code, need to change that
+                           if ($command['optional'])
+                              $eqLogic->batteryStatus($state->value);
+
+                              // if no change, skip
                            if ($cmd->execCmd()==$state->value)
                               continue;
 
@@ -718,11 +722,6 @@ class veralink extends eqLogic
                               $state->value
                            ));
                            $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-
-                           // temporary code, need to change that
-                           if ($command['optional'])
-                              $eqLogic->batteryStatus($state->value);
-
                            break;
                         }
                      }
