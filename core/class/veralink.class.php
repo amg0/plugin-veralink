@@ -376,6 +376,7 @@ class veralink extends eqLogic
    }
 
    private function shouldCreateCommand( $service, $variable, $veradevid) {
+      log::add(VERALINK, 'debug', __METHOD__);
       $cfg = $this->getConfiguration('veralink_devices',null);
       $devices = json_decode( $cfg ?? [] , true );    // array
       foreach($devices as $dev) {
