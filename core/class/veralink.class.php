@@ -723,7 +723,8 @@ class veralink extends eqLogic
                         }
                      }
                   } else {
-                     log::add(VERALINK, 'warning', 'Cmd '.$cmdid.' is not found for device '.$device->id);
+                     if (!isset($command->optional)) 
+                        log::add(VERALINK, 'warning', 'Cmd '.$cmdid.' is not found for device '.$device->id);
                   }
                }
             }
