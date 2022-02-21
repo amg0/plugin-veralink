@@ -7,7 +7,9 @@
 # 21/02/2022
 
 - Optimization du stockage des infos de la vera (scenes in configuration)
-- add Firmware command to vera root equipment
+- add Firmware command to vera root equipments
+- add Watts command to binary lights equipments
+- add Battery command to battery powered equiments
 
 # 20/02/2022
 

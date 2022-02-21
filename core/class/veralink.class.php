@@ -40,6 +40,7 @@ const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+const CMD_BATTERY = 'BATTERY';         // prefix for battery commands
 const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
 
 const MIN_REFRESH = 5;           // min sec for vera refresh
@@ -60,6 +61,7 @@ const CmdByVeraType = array(
       array(
          'EqCategory'=>'heating',
          'commands'=> [
+            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
             array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
          ]
       ),
@@ -67,6 +69,7 @@ const CmdByVeraType = array(
       array(
          'EqCategory'=>'light',
          'commands'=> [
+            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
             array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
          ]
          ),
@@ -74,6 +77,7 @@ const CmdByVeraType = array(
       array(     
          'EqCategory'=>'security',       
          'commands'=> [
+            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
             array( 
                'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
                'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
@@ -307,7 +311,7 @@ class veralink extends eqLogic
          }
 
          //
-         // Create PowerBinary Equipment objects
+         // Create supported types Equipment objects
          //
          foreach( $array['devices']as $device ) {
             $device = (object)$device;
@@ -371,7 +375,10 @@ class veralink extends eqLogic
       $eqLogic->save();
    }
 
-   
+   public function shouldCreateCommand( $service, $variable, $veradevid) {
+      return false;
+   }
+
    public function postSaveEqLogic($configtype) 
    {
       //
@@ -383,39 +390,41 @@ class veralink extends eqLogic
 
       $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
+      // Create Mandatory commands
       $array = CmdByVeraType[$configtype]['commands'];
-
       foreach( $array as $item) {
          $item = (object) $item;
-         $cmdid = $item->logicalid.'-'.$veradevid;
-         $cmd = $this->getCmd(null, $cmdid);
-         if (!is_object($cmd)) {
-            log::add(VERALINK, 'info', 'About to create Cmd '.$cmdid.' for dev '.$veradevid );
-            $cmd = new veralinkCmd();
-            $cmd->setLogicalId($cmdid);
-            $cmd->setEqLogic_id($this->getId());
-            $cmd->setName(  $item->name );
-
-            $split = explode('|',$item->type);
-            $cmd->setType( $split[0] );
-            $cmd->setSubType( $split[1] );
-
-            if (isset($item->template)) {
-               $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
-               $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+         if (!isset($item->optional) || shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
+            $cmdid = $item->logicalid.'-'.$veradevid;
+            $cmd = $this->getCmd(null, $cmdid);
+            if (!is_object($cmd)) {
+               log::add(VERALINK, 'info', 'About to create Cmd '.$cmdid.' for dev '.$veradevid );
+               $cmd = new veralinkCmd();
+               $cmd->setLogicalId($cmdid);
+               $cmd->setEqLogic_id($this->getId());
+               $cmd->setName(  $item->name );
+   
+               $split = explode('|',$item->type);
+               $cmd->setType( $split[0] );
+               $cmd->setSubType( $split[1] );
+   
+               if (isset($item->template)) {
+                  $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
+                  $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+               }
+   
+               if (isset($item->generic))
+                  $cmd->setGeneric_type($item->generic);
+   
+               if (isset($item->unite))
+                  $cmd->setUnite($item->unite);
+                  
+               $cmd->setIsVisible(1);
+               //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
+               $cmd->setdisplay('showIconAndNamedashboard', 1);
+               $cmd->setdisplay('showIconAndNamemobile', 1);
+               $cmd->save();   
             }
-
-            if (isset($item->generic))
-               $cmd->setGeneric_type($item->generic);
-
-            if (isset($item->unite))
-               $cmd->setUnite($item->unite);
-               
-            $cmd->setIsVisible(1);
-            //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
-            $cmd->setdisplay('showIconAndNamedashboard', 1);
-            $cmd->setdisplay('showIconAndNamemobile', 1);
-            $cmd->save();   
          }
       }
    }
@@ -696,6 +705,8 @@ class veralink extends eqLogic
                               $state->value
                            ));
                            $eqLogic->checkAndUpdateCmd($cmd,$state->value);
+                           $bFound=true;
+                           break;
                         }
                      }
                   } else {
@@ -853,11 +864,3 @@ class veralinkCmd extends cmd
    }
    /*     * **********************Getteur Setteur*************************** */
 }
-
-/* 
-TOKNOW:  THIS does not work, the original idea would be that execute is an abstract method of an abstract class Cmd but it is not the case
-<PluginID>Cmd is a important naming convention. cf https://community.jeedom.com/t/plusieurs-classes-de-commandes-cmd/76608/2
-
-class veraSceneCmd extends cmd {
-} 
-*/
