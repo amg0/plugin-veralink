@@ -243,7 +243,7 @@ class veralink extends eqLogic
       // this is the root EQLOGIC.  so create the scenes and devices command if needed
       //
       $cmds = array(
-         (object)array('cmd'=>'scenes', 'name'=>__('Scènes', __FILE__)),
+         (object)array('cmd'=>'firmware', 'name'=>__('Firmware', __FILE__)),
          //(object)array('cmd'=>'devices', 'name'=>__('Devices', __FILE__)),
       );
       foreach( $cmds as $cmd) {
@@ -565,13 +565,10 @@ class veralink extends eqLogic
             $filtereddevices
          );
 
-         $this->checkAndUpdateCmd('scenes', (json_encode($scenestosave)));
-         //$this->checkAndUpdateCmd('devices', (str_replace('\\n', '', json_encode($devicestosave))));
+         $this->checkAndUpdateCmd('firmware', $user_data['BuildVersion']);
+         $this->setConfiguration('veralink_scenes', (json_encode($scenestosave)));
          $this->setConfiguration('veralink_devices', (str_replace('\\n', '', json_encode($devicestosave))));
          $this->setConfiguration('user_dataversion', $user_dataversion);
-
-         // log::add(VERALINK, 'debug', 'scenestosave:'.json_encode($scenestosave));
-         // log::add(VERALINK, 'debug', 'devicestosave:'.json_encode($devicestosave));
 
          // make sure the initial call from postSave does not trigger an infinite loop 
          $this->save(true);
@@ -736,8 +733,8 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__.' idroom:'.$idroom);
       $searchfor = strval($idroom);
-      $datacmd = $this->getCmd('info','scenes');      // get Cmd data of type info
-      $data = json_decode( ( $datacmd -> execCmd() ) );
+      $datacmd = $this->getConfiguration('veralink_scenes',null);
+      $data = json_decode( $datacmd ?? '[]'  );
 
       // pass the searchfor into the scope of the anonymous function using the use keyword
       // only keep scenes from the same room and which are not pure notification scenes
@@ -822,8 +819,7 @@ class veralinkCmd extends cmd
             break;
 
          case 'reset':
-            $root_eqLogic->checkAndUpdateCmd('scenes', (json_encode('')));
-            //$root_eqLogic->checkAndUpdateCmd('devices', (json_encode('')));
+            $root_eqLogic->setConfiguration('veralink_scenes', (json_encode('')));
             $root_eqLogic->setConfiguration('veralink_devices', (json_encode('')));
             $root_eqLogic->save();
             break;
