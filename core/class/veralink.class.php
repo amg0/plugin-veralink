@@ -18,6 +18,10 @@
 
 /* * ***************************Includes********************************* */
 
+   /* Documentation Jeedom Config ( category, generic types, etc )
+   https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
+   */
+
 
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
@@ -32,6 +36,7 @@ const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor
 const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
 const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
 const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
+const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -47,7 +52,8 @@ const CmdByVeraType = array(
          'commands'=> [
             array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-            array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat','type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+            array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1'),
+            array( 'logicalid'=>CMD_BLWATTS, 'name'=>'Watts','type'=>'info|numeric', 'generic'=>'POWER', 'template'=>'prise', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1')
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -77,12 +83,6 @@ const CmdByVeraType = array(
 
 class veralink extends eqLogic
 {   
-
-   /* Documentation Jeedom Config ( category, generic types, etc )
-   https://github.com/jeedom/core/blob/alpha/core/config/jeedom.config.php#L153
-   */
-
-
    /*     * *************************Attributs****************************** */
 
    /*
