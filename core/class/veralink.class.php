@@ -376,7 +376,7 @@ class veralink extends eqLogic
    }
 
    private function shouldCreateCommand( $service, $variable, $veradevid) {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__.sprintf(' service:%s variable:%s device:%s',$service, $variable, $veradevid));
       $cfg = $this->getConfiguration('veralink_devices',null);
       $devices = json_decode( $cfg ?? [] , true );    // array
       foreach($devices as $dev) {
@@ -399,7 +399,7 @@ class veralink extends eqLogic
       //
       log::add(VERALINK, 'debug', __METHOD__.' EQ configuration type is ' . $configtype . ' logical Id:' . $this->getLogicalId());
       $idroot = $this->getConfiguration('rootid');
-      //$root_eqLogic = eqLogic::byId($idroot);
+      $root_eqLogic = eqLogic::byId($idroot);
 
       $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
@@ -407,7 +407,7 @@ class veralink extends eqLogic
       $array = CmdByVeraType[$configtype]['commands'];
       foreach( $array as $item) {
          $item = (object) $item;
-         if (!isset($item->optional) || $this->shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
+         if (!isset($item->optional) || $root_eqLogic->shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
             $cmdid = $item->logicalid.'-'.$veradevid;
             $cmd = $this->getCmd(null, $cmdid);
             if (!is_object($cmd)) {
