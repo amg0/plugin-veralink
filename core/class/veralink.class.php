@@ -707,8 +707,8 @@ class veralink extends eqLogic
                         // matching variable
                         if (($state->service == $command['service']) && ($state->variable == $command['variable']) ) {
 
-                           // temporary code, need to change that
-                           if ($command['optional'])
+                           // specific code for Battery level to report it in Jeedom
+                           if ($command['variable']=='BatteryLevel')
                               $eqLogic->batteryStatus($state->value);
 
                               // if no change, skip
