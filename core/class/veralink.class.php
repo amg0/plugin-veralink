@@ -247,8 +247,10 @@ class veralink extends eqLogic
       // this is the root EQLOGIC.  so create the scenes and devices command if needed
       //
       $cmds = array(
+
          (object)array('lid'=>'firmware', 'name'=>__('Firmware', __FILE__)),
          //(object)array('lid'=>'devices', 'name'=>__('Devices', __FILE__)),
+
       );
       foreach( $cmds as $cmd) {
          $data = $this->getCmd(null, $cmd->lid);
