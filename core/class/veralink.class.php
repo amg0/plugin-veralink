@@ -718,7 +718,11 @@ class veralink extends eqLogic
                               $state->value
                            ));
                            $eqLogic->checkAndUpdateCmd($cmd,$state->value);
-                           $bFound=true;
+
+                           // temporary code, need to change that
+                           if ($command['optional'])
+                              $eqLogic->batteryStatus($state->value);
+
                            break;
                         }
                      }
