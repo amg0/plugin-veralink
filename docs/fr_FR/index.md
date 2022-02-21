@@ -47,3 +47,5 @@ a la sauvegarde, il faut etre patient. le plugin communique avec la vera et va c
 Une fois que tout est fait, le dashboard de la vera ressemblera, par defaut a ceci.
 ![dashboard](../images/veradashboard.png)
 
+Les equipements a pile sont reportés dans jeedom Analyse/Equipements.
+![dashboard](../images/batterylevels.png)
