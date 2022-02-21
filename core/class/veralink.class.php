@@ -375,7 +375,7 @@ class veralink extends eqLogic
       $eqLogic->save();
    }
 
-   public function shouldCreateCommand( $service, $variable, $veradevid) {
+   private function shouldCreateCommand( $service, $variable, $veradevid) {
       return false;
    }
 
@@ -394,7 +394,7 @@ class veralink extends eqLogic
       $array = CmdByVeraType[$configtype]['commands'];
       foreach( $array as $item) {
          $item = (object) $item;
-         if (!isset($item->optional) || shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
+         if (!isset($item->optional) || $this->shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
             $cmdid = $item->logicalid.'-'.$veradevid;
             $cmd = $this->getCmd(null, $cmdid);
             if (!is_object($cmd)) {
