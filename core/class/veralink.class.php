@@ -57,6 +57,15 @@ const CmdByVeraType = array(
             array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'LIGHT_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
          ]
       ),
+   'urn:schemas-upnp-org:device:DimmableLight:1'=>
+      array(
+         'EqCategory'=>'light',
+         'commands'=> [
+            array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
+            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+
+         ]
+      ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
       array(
          'EqCategory'=>'heating',
@@ -434,7 +443,7 @@ class veralink extends eqLogic
                if (isset($item->unite))
                   $cmd->setUnite($item->unite);
                   
-               $cmd->setIsVisible(1);
+               $cmd->setIsVisible($item->optional ? 0 : 1);
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
                $cmd->setdisplay('showIconAndNamemobile', 1);
