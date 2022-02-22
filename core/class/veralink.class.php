@@ -434,7 +434,7 @@ class veralink extends eqLogic
                if (isset($item->unite))
                   $cmd->setUnite($item->unite);
                   
-               $cmd->setIsVisible(1);
+               $cmd->setIsVisible($item->optional ? 0 : 1);
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
                $cmd->setdisplay('showIconAndNamemobile', 1);
