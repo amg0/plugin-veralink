@@ -37,6 +37,7 @@ const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO 
 const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
 const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
+const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
 const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
@@ -65,6 +66,7 @@ const CmdByVeraType = array(
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
             array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
             array( 'logicalid'=>CMD_DLSET,   'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
+            array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1')
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
