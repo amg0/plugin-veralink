@@ -69,10 +69,6 @@ const CmdByVeraType = array(
             array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
          ]
       ),
-      /* TODO 'updatecmdid'=>CMD_DLETAT, 
-		$action->setConfiguration('updateCmdId', $info->getId());
-		$action->setConfiguration('updateCmdToValue', 1);
-      */
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
       array(
          'EqCategory'=>'heating',
