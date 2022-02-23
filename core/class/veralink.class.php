@@ -66,7 +66,7 @@ const CmdByVeraType = array(
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
             array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
             array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
-            array( 'logicalid'=>CMD_DLSET,   'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+            array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
          ]
       ),
       /* TODO 'updatecmdid'=>CMD_DLETAT, 
@@ -451,7 +451,7 @@ class veralink extends eqLogic
                   $cmd->setUnite($item->unite);
                
                if (isset($item->updatecmdid)) {
-                  $targetcmd = $cmd = $this->getCmd(null, $item->updatecmdid.'-'.$veradevid );  // search target cmd, must have been saved before
+                  $targetcmd = $this->getCmd(null, $item->updatecmdid.'-'.$veradevid );  // search target cmd, must have been saved before
                   if (isset($targetcmd)) {
                      $cmd->setConfiguration('updateCmdId', $targetcmd->getId());
                      $cmd->setConfiguration('updateCmdToValue', 1);
