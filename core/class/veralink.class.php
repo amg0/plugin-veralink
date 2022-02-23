@@ -64,7 +64,7 @@ const CmdByVeraType = array(
          'commands'=> [
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
             array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
-            array( 'logicalid'=>CMD_DLSET,   'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'value'=>50),
+            array( 'logicalid'=>CMD_DLSET,   'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -900,7 +900,9 @@ class veralinkCmd extends cmd
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
-               $xml = $root_eqLogic->$function($param,$command['value']);
+               $option = $command['cmd_option'];
+               $value = (isset($option)) ? $_options[ $option ] : $command['value']; 
+               $xml = $root_eqLogic->$function($param,$value);
                $root_eqLogic->refreshData();
             }
             break;
