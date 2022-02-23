@@ -453,7 +453,7 @@ class veralink extends eqLogic
                if (isset($item->updatecmdid)) {
                   $targetcmd = $this->getCmd(null, $item->updatecmdid.'-'.$veradevid );  // search target cmd, must have been saved before
                   if (isset($targetcmd)) {
-                     $cmd->setConfiguration('updateCmdId', $targetcmd->getId());
+                     $cmd->setConfiguration('updateCmdId', (int) $targetcmd->getId());
                      $cmd->setConfiguration('updateCmdToValue', 1);
                   }
                }
