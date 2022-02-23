@@ -866,7 +866,7 @@ class veralinkCmd extends cmd
    // Exécution d'une commande  
    public function execute($_options = array())
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__.' options:'.json_encode($_options));
       $eqLogic = $this->getEqLogic(); //Récupération de l’eqLogic
       $root_eqLogic = $eqLogic->getRoot();
       list( $cmdid, $param ) = explode('-',$this->getLogicalId());
