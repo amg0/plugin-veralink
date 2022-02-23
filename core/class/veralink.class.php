@@ -788,15 +788,16 @@ class veralink extends eqLogic
       return $scenes;
    }
 
-   private function callVeraAction($id, $service, $action, $param, $level) {
+   private function callVeraAction($id, $service, $action, $param, $value) {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
       $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json%s&serviceId=%s&action=%s&%s=%s',
-         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $level
+         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $value
       );
+      log::add(VERALINK, 'debug', 'calling '.$url);
       $xml = file_get_contents($url);
       log::add(VERALINK, 'debug', 'action '.$action.' / '.$service.' returned ' . $xml);
       return $xml;
@@ -809,8 +810,10 @@ class veralink extends eqLogic
       }
 
       $service='urn:upnp-org:serviceId:Dimming1';
+      $action='SetLoadLevelTarget';
       $param='newLoadlevelTarget';
-      $action='setLoadLevelTarget';
+      //http://192.168.0.17/port_3480/data_request?id=action&output_format=json&DeviceNum=101&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=28
+
       return $this->callVeraAction($id, $service, $action, $param, $level);
    }
 
