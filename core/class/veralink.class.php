@@ -37,6 +37,7 @@ const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO 
 const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
 const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
+const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -62,7 +63,8 @@ const CmdByVeraType = array(
          'EqCategory'=>'light',
          'commands'=> [
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1)
+            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+            array( 'logicalid'=>CMD_DLSET,   'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'value'=>50),
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -786,41 +788,53 @@ class veralink extends eqLogic
       return $scenes;
    }
 
-   public function switchLight($id,int $mode=0)
-   {
-      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
-
+   private function callVeraAction($id, $service, $action, $param, $level) {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
+      $url = sprintf('http://%s/port_3480/data_request?id=action%s&serviceId=%s&action=%s&%s=%s',
+         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $level
+      );
+      $xml = file_get_contents($url);
+      log::add(VERALINK, 'debug', 'action '.$action.' / '.$service.' returned ' . $xml);
+      return $xml;
+   }
+
+   public function setLoadLevelTarget($id,int $level=0) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s level:%s',$id,$level));
+      if (($level<0) || ($level>100)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+
+      $service='urn:upnp-org:serviceId:Dimming1';
+      $param='newLoadlevelTarget';
+      $action='setLoadLevelTarget';
+      return $this->callVeraAction($id, $service, $action, $param, $level);
+   }
+
+   public function switchLight($id,int $mode=0)
+   {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
       if (($mode!=1) && ($mode!=0)) {
          throw new Exception(__('Parametre invalide pour l action', __FILE__));
       }
-      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json&DeviceNum=%s&serviceId=urn:upnp-org:serviceId:SwitchPower1&action=SetTarget&newTargetValue=%s',
-         $ipaddr,
-         $id,
-         $mode
-         );
 
-      $xml = file_get_contents($url);
-      log::add(VERALINK, 'debug', 'action returned ' . $xml);
-      return $xml;
+      $service='urn:upnp-org:serviceId:SwitchPower1';
+      $action='SetTarget';
+      $param='newTargetValue';
+      return $this->callVeraAction($id, $service, $action, $param, $mode);
    }
 
    public function runScene($id)
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $ipaddr = $this->getConfiguration('ipaddr', null);
-      if (is_null($ipaddr)) {
-         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
-         return null;
-      }
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=' . $id;
-      $xml = file_get_contents($url);
-      log::add(VERALINK, 'debug', 'runscene returned ' . $xml);
-      return $xml;
+
+      $service='urn:micasaverde-com:serviceId:HomeAutomationGateway1';
+      $action='RunScene';
+      $param='SceneNum';
+      return $this->callVeraAction(null, $service, $action, $param, $id);
    }
 
    /*     * **********************Getteur Setteur*************************** */
