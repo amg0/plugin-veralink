@@ -794,7 +794,7 @@ class veralink extends eqLogic
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
-      $url = sprintf('http://%s/port_3480/data_request?id=action%s&serviceId=%s&action=%s&%s=%s',
+      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json%s&serviceId=%s&action=%s&%s=%s',
          $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $level
       );
       $xml = file_get_contents($url);
