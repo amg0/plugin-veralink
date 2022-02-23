@@ -7,7 +7,7 @@
 # 22/02/2022
 
 - Battery command not visible by default
-- DimmableLight support
+- DimmableLight support (ON OFF)
 
 # 21/02/2022
 
