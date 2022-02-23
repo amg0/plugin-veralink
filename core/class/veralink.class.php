@@ -37,6 +37,8 @@ const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO 
 const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
 const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
+const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
+const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -62,7 +64,9 @@ const CmdByVeraType = array(
          'EqCategory'=>'light',
          'commands'=> [
             array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1)
+            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+            array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
+            array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
          ]
       ),
    'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -441,7 +445,15 @@ class veralink extends eqLogic
    
                if (isset($item->unite))
                   $cmd->setUnite($item->unite);
-                  
+               
+               if (isset($item->updatecmdid)) {
+                  $targetcmd = $this->getCmd(null, $item->updatecmdid.'-'.$veradevid );  // search target cmd, must have been saved before
+                  if (isset($targetcmd)) {
+                     $cmd->setValue( (int) $targetcmd->getId() );
+                     // $cmd->setConfiguration('updateCmdId', (int) $targetcmd->getId());
+                     // $cmd->setConfiguration('updateCmdToValue', 1);
+                  }
+               }
                $cmd->setIsVisible($item->optional ? 0 : 1);
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
@@ -786,41 +798,56 @@ class veralink extends eqLogic
       return $scenes;
    }
 
-   public function switchLight($id,int $mode=0)
-   {
-      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
-
+   private function callVeraAction($id, $service, $action, $param, $value) {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
+      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json%s&serviceId=%s&action=%s&%s=%s',
+         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $value
+      );
+      log::add(VERALINK, 'debug', 'calling '.$url);
+      $xml = file_get_contents($url);
+      log::add(VERALINK, 'debug', 'action '.$action.' / '.$service.' returned ' . $xml);
+      return $xml;
+   }
+
+   public function setLoadLevelTarget($id,int $level=0) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s level:%s',$id,$level));
+      if (($level<0) || ($level>100)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+
+      $service='urn:upnp-org:serviceId:Dimming1';
+      $action='SetLoadLevelTarget';
+      $param='newLoadlevelTarget';
+      //http://192.168.0.17/port_3480/data_request?id=action&output_format=json&DeviceNum=101&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=28
+
+      return $this->callVeraAction($id, $service, $action, $param, $level);
+   }
+
+   public function switchLight($id,int $mode=0)
+   {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
       if (($mode!=1) && ($mode!=0)) {
          throw new Exception(__('Parametre invalide pour l action', __FILE__));
       }
-      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json&DeviceNum=%s&serviceId=urn:upnp-org:serviceId:SwitchPower1&action=SetTarget&newTargetValue=%s',
-         $ipaddr,
-         $id,
-         $mode
-         );
 
-      $xml = file_get_contents($url);
-      log::add(VERALINK, 'debug', 'action returned ' . $xml);
-      return $xml;
+      $service='urn:upnp-org:serviceId:SwitchPower1';
+      $action='SetTarget';
+      $param='newTargetValue';
+      return $this->callVeraAction($id, $service, $action, $param, $mode);
    }
 
    public function runScene($id)
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      $ipaddr = $this->getConfiguration('ipaddr', null);
-      if (is_null($ipaddr)) {
-         log::add(VERALINK, 'warning', 'null IP addr, no action taken');
-         return null;
-      }
-      $url = 'http://' . $ipaddr . '/port_3480/data_request?id=action&serviceId=urn:micasaverde-com:serviceId:HomeAutomationGateway1&action=RunScene&SceneNum=' . $id;
-      $xml = file_get_contents($url);
-      log::add(VERALINK, 'debug', 'runscene returned ' . $xml);
-      return $xml;
+
+      $service='urn:micasaverde-com:serviceId:HomeAutomationGateway1';
+      $action='RunScene';
+      $param='SceneNum';
+      return $this->callVeraAction(null, $service, $action, $param, $id);
    }
 
    /*     * **********************Getteur Setteur*************************** */
@@ -849,7 +876,7 @@ class veralinkCmd extends cmd
    // Exécution d'une commande  
    public function execute($_options = array())
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__.' options:'.json_encode($_options));
       $eqLogic = $this->getEqLogic(); //Récupération de l’eqLogic
       $root_eqLogic = $eqLogic->getRoot();
       list( $cmdid, $param ) = explode('-',$this->getLogicalId());
@@ -883,7 +910,9 @@ class veralinkCmd extends cmd
                if ($command['logicalid'] != $cmdid)
                   continue;
                $function = $command['function'];
-               $xml = $root_eqLogic->$function($param,$command['value']);
+               $option = $command['cmd_option'];
+               $value = (isset($option)) ? $_options[ $option ] : $command['value']; 
+               $xml = $root_eqLogic->$function($param,$value);
                $root_eqLogic->refreshData();
             }
             break;
