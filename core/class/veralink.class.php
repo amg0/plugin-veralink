@@ -931,9 +931,7 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            //$veraconfig = veralink::getVeralinkConfig();
-            log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( veralink::$CmdByVeraType ));
-            $veraconfig = veralink::$CmdByVeraType;
+            $veraconfig = veralink::getVeralinkConfig();
             $array = $veraconfig[$configtype]['commands'];
             //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
