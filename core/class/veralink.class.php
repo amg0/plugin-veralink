@@ -54,7 +54,7 @@ class veralink extends eqLogic
    private static $CmdByVeraType =null;
    
    public function __construct() {
-      getVeralinkConfig();
+      self::getVeralinkConfig();
    }
 
    public static function getVeralinkConfig()
