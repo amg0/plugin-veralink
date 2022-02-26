@@ -109,7 +109,25 @@ const CmdByVeraType = array(
 );
 
 class veralink extends eqLogic
-{   
+{  
+   private static $_test ;
+   
+   public function __construct(int $id, ?string $name)
+   {
+       $this->_test = array(
+         'urn:schemas-upnp-org:device:BinaryLight:1'=>
+            array(
+               'EqCategory'=>'light',
+               'commands'=> [
+                  array( 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
+                  array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
+                  array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
+                  array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+               ]
+            )
+      );
+   }
+
    /*     * *************************Attributs****************************** */
 
    /*
@@ -774,6 +792,8 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
+      log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode($this->_test));
+
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
