@@ -67,55 +67,53 @@ class veralink extends eqLogic
                   'EqCategory'=>'light',
                   'commands'=> [
                      array( 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
-                     array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
-                     array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
-                     array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+                     array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_BLETAT,  'name'=>__('Etat',__FILE__), 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
                   ]
                ),
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
                array(
                   'EqCategory'=>'light',
                   'commands'=> [
-                     array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-                     array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
-                     array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
-                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+                     array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
                   ]
                ),
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
                array(
                   'EqCategory'=>'heating',
                   'commands'=> [
-                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-                     array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>__('Température',__FILE__),  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:LightSensor:1'=>
                array(
                   'EqCategory'=>'light',
                   'commands'=> [
-                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-                     array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>__('Luminosité',__FILE__),  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
                array(     
                   'EqCategory'=>'security',       
                   'commands'=> [
-                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
-                        'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
                array(     
                   'EqCategory'=>'other',
                   'commands'=> [
-                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>'Humidité',  'type'=>'info|numeric', 'generic'=>'HUMIDITY',
-                        'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' )
+                        'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>__('Humidité',__FILE__),  'type'=>'info|numeric', 'generic'=>'HUMIDITY','variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' )
                   ]
                )
          );
