@@ -96,7 +96,7 @@ const CmdByVeraType = array(
                'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
          ]
       ),
-   'urn:micasaverde-com:serviceId:HumiditySensor1'=>
+   'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
       array(     
          'EqCategory'=>'other',       //HUMIDITY
          'commands'=> [
