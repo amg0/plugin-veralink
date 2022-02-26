@@ -787,6 +787,7 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
+      getVeralinkConfig();
       log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::$CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
