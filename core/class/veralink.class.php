@@ -284,10 +284,7 @@ class veralink extends eqLogic
       // this is the root EQLOGIC.  so create the scenes and devices command if needed
       //
       $cmds = array(
-
          (object)array('lid'=>'firmware', 'name'=>__('Firmware', __FILE__)),
-         //(object)array('lid'=>'devices', 'name'=>__('Devices', __FILE__)),
-
       );
       foreach( $cmds as $cmd) {
          $data = $this->getCmd(null, $cmd->lid);
@@ -787,9 +784,8 @@ class veralink extends eqLogic
    // returns an object with 2 properties : (object)['json'=>'', 'obj'=>null];
    public function refreshData( $initial=null )
    {
-      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
-      //self::getVeralinkConfig();
-      log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::$CmdByVeraType ));
+      self::getVeralinkConfig();
+      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial). ' Config:'.json_encode( self::$CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -933,7 +929,6 @@ class veralinkCmd extends cmd
             $configtype = $eqLogic->getConfiguration('type',null);
             $veraconfig = veralink::getVeralinkConfig();
             $array = $veraconfig[$configtype]['commands'];
-            //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
                   continue;
