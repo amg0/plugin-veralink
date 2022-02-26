@@ -14,12 +14,13 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 * la liste des equipements restera synchronisé avec la listes des equipements sur la vera.
 
 
-- les equipementes de type binaryLight & TemperatureSensor sur la vera sont crées comme des equipements sous Jeedom et l'ETAT ainsi que les actions ON OFF sont disponibles. les types supportés sont:
+- les equipementes de la vera sont crées comme des equipements sous Jeedom avec les commandes correspondantes pour les actions et les variables de status principales. Les types de device VERA supportés sont:
   - binaryLight
   - dimmableLight
   - TemperatureSensor
   - LightSensor
   - MotionSensor
+  - Humidity Sensor
 
 - les types generiques correspondants sont configures sur les commandes
 
