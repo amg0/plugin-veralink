@@ -59,7 +59,9 @@ class veralink extends eqLogic
 
    public static function getVeralinkConfig()
    {
+      log::add(VERALINK, 'debug', __METHOD__);
       if (self::$CmdByVeraType == null) {
+         log::add(VERALINK, 'need to set config ', __METHOD__);
          self::$CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
