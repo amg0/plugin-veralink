@@ -49,73 +49,18 @@ const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT in
 const MIN_REFRESH = 5;           // min sec for vera refresh
 const MAX_REFRESH = 240;         // max sec for vera refresh
 
-const CmdByVeraType = array(
-   'urn:schemas-upnp-org:device:BinaryLight:1'=>
-      array(
-         'EqCategory'=>'light',
-         'commands'=> [
-            array( 'logicalid'=>CMD_BLWATTS, 'name'=>'Watts','type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
-            array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
-            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
-            array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
-         ]
-      ),
-   'urn:schemas-upnp-org:device:DimmableLight:1'=>
-      array(
-         'EqCategory'=>'light',
-         'commands'=> [
-            array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
-            array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
-            array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
-            array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
-         ]
-      ),
-   'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
-      array(
-         'EqCategory'=>'heating',
-         'commands'=> [
-            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-            array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
-         ]
-      ),
-   'urn:schemas-micasaverde-com:device:LightSensor:1'=>
-      array(
-         'EqCategory'=>'light',
-         'commands'=> [
-            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-            array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
-         ]
-      ),
-   'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
-      array(     
-         'EqCategory'=>'security',       
-         'commands'=> [
-            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-            array( 
-               'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
-               'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
-         ]
-      ),
-   'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
-      array(     
-         'EqCategory'=>'other',       //HUMIDITY
-         'commands'=> [
-            array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
-            array( 
-               'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>'Humidité',  'type'=>'info|numeric', 'generic'=>'HUMIDITY',
-               'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' )
-         ]
-      )
-);
-
 class veralink extends eqLogic
 {  
-   public static $_test =null;
+   private static $CmdByVeraType =null;
    
+   public function __construct() {
+      getVeralinkConfig();
+   }
+
    public static function getVeralinkConfig()
    {
-      if (self::$_test == null) {
-         self::$_test = array(
+      if (self::$CmdByVeraType == null) {
+         self::$CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
                   'EqCategory'=>'light',
@@ -125,10 +70,56 @@ class veralink extends eqLogic
                      array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
                      array( 'logicalid'=>CMD_BLETAT,  'name'=>'Etat', 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
                   ]
+               ),
+            'urn:schemas-upnp-org:device:DimmableLight:1'=>
+               array(
+                  'EqCategory'=>'light',
+                  'commands'=> [
+                     array( 'logicalid'=>CMD_BLOFF,   'name'=>'Off', 'type'=>'action|other', 'generic'=>'LIGHT_OFF', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'name'=>'On',  'type'=>'action|other', 'generic'=>'LIGHT_ON', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_DLETAT,  'name'=>'Etat Luminosité', 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>'Luminosité',  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+                  ]
+               ),
+            'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
+               array(
+                  'EqCategory'=>'heating',
+                  'commands'=> [
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>'Température',  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
+                  ]
+               ),
+            'urn:schemas-micasaverde-com:device:LightSensor:1'=>
+               array(
+                  'EqCategory'=>'light',
+                  'commands'=> [
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>'Luminosité',  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
+                  ]
+               ),
+            'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
+               array(     
+                  'EqCategory'=>'security',       
+                  'commands'=> [
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 
+                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>'Présence',  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence',
+                        'variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                  ]
+               ),
+            'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
+               array(     
+                  'EqCategory'=>'other',
+                  'commands'=> [
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>'Batterie', 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 
+                        'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>'Humidité',  'type'=>'info|numeric', 'generic'=>'HUMIDITY',
+                        'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' )
+                  ]
                )
-            );
+         );
       }
-      return self::$_test;
+      return self::$CmdByVeraType;
    }
 
    /*     * *************************Attributs****************************** */
@@ -256,6 +247,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la création de l'équipement 
    public function preInsert()
    {
+      getVeralinkConfig();
       //log::add(VERALINK, 'debug', __METHOD__);
    }
 
@@ -361,7 +353,7 @@ class veralink extends eqLogic
          //
          foreach( $array['devices']as $device ) {
             $device = (object)$device;
-            $config = CmdByVeraType[$device->device_type] ;
+            $config = self::$CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
             } 
@@ -390,7 +382,7 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
-         $category = CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $category = self::$CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
@@ -450,7 +442,7 @@ class veralink extends eqLogic
       $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
       // Create Mandatory commands
-      $array = CmdByVeraType[$configtype]['commands'];
+      $array = self::$CmdByVeraType[$configtype]['commands'];
       foreach( $array as $item) {
          $item = (object) $item;
          if (!isset($item->optional) || $root_eqLogic->shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
@@ -635,7 +627,7 @@ class veralink extends eqLogic
 
          // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
-            return in_array($d['device_type'], array_keys(CmdByVeraType));
+            return in_array($d['device_type'], array_keys(self::$CmdByVeraType));
          }));
 
          $devicestosave = array_map(function ($d) {
@@ -746,7 +738,7 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
-               $map=CmdByVeraType[$device->device_type];
+               $map=self::$CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
@@ -795,7 +787,7 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
-      log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::getVeralinkConfig() ));
+      log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::$CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
@@ -937,7 +929,7 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            $array = CmdByVeraType[$configtype]['commands'];
+            $array = self::$CmdByVeraType[$configtype]['commands'];
             //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
                if ($command['logicalid'] != $cmdid)
