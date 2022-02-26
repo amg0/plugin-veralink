@@ -61,7 +61,6 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       if (self::$CmdByVeraType == null) {
-         log::add(VERALINK, 'CONFIG INIT: ', __METHOD__);
          self::$CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
@@ -789,7 +788,7 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
-      self::getVeralinkConfig();
+      //self::getVeralinkConfig();
       log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::$CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
@@ -932,7 +931,9 @@ class veralinkCmd extends cmd
             log::add(VERALINK, 'info', 'execute ' . $cmdid .' on device '. $param);
 
             $configtype = $eqLogic->getConfiguration('type',null);
-            $veraconfig = veralink::getVeralinkConfig();
+            //$veraconfig = veralink::getVeralinkConfig();
+            log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( veralink::$CmdByVeraType ));
+            $veraconfig = veralink::$CmdByVeraType;
             $array = $veraconfig[$configtype]['commands'];
             //log::add(VERALINK, 'debug', 'array of commands '.json_encode($array));
             foreach($array as $command) {
