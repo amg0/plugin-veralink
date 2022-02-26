@@ -247,7 +247,7 @@ class veralink extends eqLogic
    // Fonction exécutée automatiquement avant la création de l'équipement 
    public function preInsert()
    {
-      getVeralinkConfig();
+      self::getVeralinkConfig();
       //log::add(VERALINK, 'debug', __METHOD__);
    }
 
@@ -787,7 +787,7 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial));
-      getVeralinkConfig();
+      self::getVeralinkConfig();
       log::add(VERALINK, 'debug', __METHOD__ . ' $_test:'.json_encode( self::$CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
