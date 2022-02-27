@@ -475,7 +475,7 @@ class veralink extends eqLogic
                      // $cmd->setConfiguration('updateCmdToValue', 1);
                   }
                }
-               $cmd->setIsVisible($item->optional ? 0 : 1);
+               $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
                $cmd->setdisplay('showIconAndNamemobile', 1);
