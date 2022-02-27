@@ -51,7 +51,7 @@ const MAX_REFRESH = 240;         // max sec for vera refresh
 
 class veralink extends eqLogic
 {  
-   private static $CmdByVeraType =null;
+   private static $_CmdByVeraType =null;  // prefix by underscore : https://community.jeedom.com/t/mysql-error-code-42s22-1054-unknown-column-utils-in-field-list/64274/6
    
    public function __construct() {
       self::getVeralinkConfig();
@@ -60,13 +60,14 @@ class veralink extends eqLogic
    public static function getVeralinkConfig()
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      if (self::$CmdByVeraType == null) {
-         self::$CmdByVeraType = array(
+      if (self::$_CmdByVeraType == null) {
+         self::$_CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
                   'EqCategory'=>'light',
                   'commands'=> [
-                     array( 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
+                     array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
+                     array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('KWH',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'KWH', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
                      array( 'logicalid'=>CMD_BLETAT,  'name'=>__('Etat',__FILE__), 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
@@ -118,7 +119,7 @@ class veralink extends eqLogic
                )
          );
       }
-      return self::$CmdByVeraType;
+      return self::$_CmdByVeraType;
    }
 
    /*     * *************************Attributs****************************** */
@@ -349,7 +350,7 @@ class veralink extends eqLogic
          //
          foreach( $array['devices']as $device ) {
             $device = (object)$device;
-            $config = self::$CmdByVeraType[$device->device_type] ;
+            $config = self::$_CmdByVeraType[$device->device_type] ;
             if (isset($config)) {
                $this->createChildEqLogic($device,$device->device_type);
             } 
@@ -378,7 +379,7 @@ class veralink extends eqLogic
          $eqLogic->setConfiguration('rootid', $this->getId());
          $eqLogic->setIsEnable(0);
          $eqLogic->setIsVisible(0);
-         $category = self::$CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
+         $category = self::$_CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
@@ -438,7 +439,7 @@ class veralink extends eqLogic
       $veradevid = substr( $this->getLogicalId(), strlen(PREFIX_VERADEVICE) );
 
       // Create Mandatory commands
-      $array = self::$CmdByVeraType[$configtype]['commands'];
+      $array = self::$_CmdByVeraType[$configtype]['commands'];
       foreach( $array as $item) {
          $item = (object) $item;
          if (!isset($item->optional) || $root_eqLogic->shouldCreateCommand( $item->service, $item->variable, $veradevid )) {
@@ -474,7 +475,7 @@ class veralink extends eqLogic
                      // $cmd->setConfiguration('updateCmdToValue', 1);
                   }
                }
-               $cmd->setIsVisible($item->optional ? 0 : 1);
+               $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
                $cmd->setdisplay('showIconAndNamemobile', 1);
@@ -623,7 +624,7 @@ class veralink extends eqLogic
 
          // not the use of array_values as array_filter presevers the keys in the result which is not what we want
          $filtereddevices = array_values( array_filter($user_data['devices'],function($d){
-            return in_array($d['device_type'], array_keys(self::$CmdByVeraType));
+            return in_array($d['device_type'], array_keys(self::$_CmdByVeraType));
          }));
 
          $devicestosave = array_map(function ($d) {
@@ -734,7 +735,7 @@ class veralink extends eqLogic
             if ($eqLogic->getIsEnable() == 1) {
 
                // iterate through possible commands for this device type
-               $map=self::$CmdByVeraType[$device->device_type];
+               $map=self::$_CmdByVeraType[$device->device_type];
                foreach( $map['commands'] as $command) {
                   $type = substr( $command['type'], 0, 4 );
                   if ($type!='info')
@@ -783,7 +784,7 @@ class veralink extends eqLogic
    public function refreshData( $initial=null )
    {
       self::getVeralinkConfig();
-      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial). ' Config:'.json_encode( self::$CmdByVeraType ));
+      log::add(VERALINK, 'debug', __METHOD__ . ' Initial:'.json_encode($initial). ' Config:'.json_encode( self::$_CmdByVeraType ));
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
