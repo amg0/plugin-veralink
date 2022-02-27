@@ -3,6 +3,7 @@
 Ce plugin permet de detecter les pieces et les scenes d'un controlleur **Vera** et de rendre accessible depuis **Jeedom**. il permet de lancer l'execution des scenes a distance sur la vera.
 
 ## Utilisation
+
 Le plugin permet de declarer une vera par son addresse IP ce qui creer un equipement de type 'racine'.
 - Les pieces de la vera seront detectees et proposees comme un autre equipement dans jeedom. l'utilisateur pourra choisir quels equipements ( les pieces ) il active et rend visibles dans jeedom.
 
@@ -22,7 +23,11 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - MotionSensor
   - Humidity Sensor
 
+## Commandes
+
 - les types generiques correspondants sont configures sur les commandes
+- les commandes de type Watts / KWH sont affichees par default ( changeable apres coup par l'utilisateur )
+- les commandes de type Batterie ne sont pas affichees par default mais bien présentes ( changeable apres coup par l'utilisateur )
 
 ## Change Log
 

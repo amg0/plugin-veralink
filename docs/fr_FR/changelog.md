@@ -7,6 +7,7 @@
 # 26/02/2022
 
 - Humidity Sensor support
+- Display Watts & KWH if variable exists in Vera
 
 # 22/02/2022
 
