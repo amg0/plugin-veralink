@@ -44,6 +44,11 @@ const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
 const CMD_HUMIDITYSENSOR = 'HUMIDITY';     // prefix for motion sensors
 const CMD_BATTERY = 'BATTERY';         // prefix for battery commands
+const CMD_FLAPSTATE = 'FLAPSTATE'; 
+const CMD_FLAPUP = 'FLAPUP'; 
+const CMD_FLAPDOWN = 'FLAPDOWN'; 
+const CMD_FLAPSTOP = 'FLAPSTOP'; 
+
 const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
 
 const MIN_REFRESH = 5;           // min sec for vera refresh
@@ -116,7 +121,17 @@ class veralink extends eqLogic
                      array( 
                         'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>__('Humidité',__FILE__),  'type'=>'info|numeric', 'generic'=>'HUMIDITY','variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' )
                   ]
-               )
+               ),
+            'urn:schemas-micasaverde-com:device:WindowCovering:1'=>
+               array(     
+                  'EqCategory'=>'opening',
+                  'commands'=> [
+                     array('logicalid'=>CMD_FLAPSTATE,   'name'=>__('Volet Etat', __FILE__),  'type'=>'info|numeric', 'generic'=>'FLAP_STATE','variable'=>'LoadLevelStatus','service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_FLAPUP,     'name'=>__('Ouvert',__FILE__), 'type'=>'action|other', 'generic'=>'FLAP_UP', 'function'=>'switchFlap', 'value'=>1),
+                     array( 'logicalid'=>CMD_FLAPSTOP,   'name'=>__('Stop',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_STOP', 'function'=>'switchFlap', 'value'=>-1),
+                     array( 'logicalid'=>CMD_FLAPDOWN,   'name'=>__('Fermer',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_DOWN', 'function'=>'switchFlap', 'value'=>0),
+                  ]
+               )               
          );
       }
       return self::$_CmdByVeraType;
@@ -820,15 +835,18 @@ class veralink extends eqLogic
       return $scenes;
    }
 
-   private function callVeraAction($id, $service, $action, $param, $value) {
+   private function callVeraAction($id, $service, $action, $param=null, $value='') {
       $ipaddr = $this->getConfiguration('ipaddr', null);
       if (is_null($ipaddr)) {
          log::add(VERALINK, 'warning', 'null IP addr, no action taken');
          return null;
       }
-      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json%s&serviceId=%s&action=%s&%s=%s',
-         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action, $param, $value
+      $url = sprintf('http://%s/port_3480/data_request?id=action&output_format=json%s&serviceId=%s&action=%s',
+         $ipaddr, ($id) ? '&DeviceNum='.$id : '', $service, $action
       );
+      if (isset($param)) {
+         $url = $url . '&' . $param . '=' . $value;
+      }
       log::add(VERALINK, 'debug', 'calling '.$url);
       $xml = file_get_contents($url);
       log::add(VERALINK, 'debug', 'action '.$action.' / '.$service.' returned ' . $xml);
@@ -847,6 +865,29 @@ class veralink extends eqLogic
       //http://192.168.0.17/port_3480/data_request?id=action&output_format=json&DeviceNum=101&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=28
 
       return $this->callVeraAction($id, $service, $action, $param, $level);
+   }
+
+   public function switchFlap($id,int $mode=-1)
+   {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
+      if (($mode!=1) && ($mode!=0) && ($mode!=-1)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+
+      $service='urn:upnp-org:serviceId:WindowCovering1';
+      switch ($mode) {
+         case 0:
+            $action="Down";
+            break;
+         case 1:
+            $action="Up";
+            break;
+         case -1:
+         default:
+            $action="Stop";
+            break;
+      }
+      return $this->callVeraAction($id, $service, $action);
    }
 
    public function switchLight($id,int $mode=0)
