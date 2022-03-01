@@ -128,8 +128,8 @@ class veralink extends eqLogic
                   'commands'=> [
                      array('logicalid'=>CMD_FLAPSTATE,   'name'=>__('Volet Etat', __FILE__),  'type'=>'info|numeric', 'generic'=>'FLAP_STATE','variable'=>'LoadLevelStatus','service'=>'urn:upnp-org:serviceId:Dimming1'),
                      array( 'logicalid'=>CMD_FLAPUP,     'name'=>__('Ouvert',__FILE__), 'type'=>'action|other', 'generic'=>'FLAP_UP', 'function'=>'switchFlap', 'value'=>1),
-                     array( 'logicalid'=>CMD_FLAPDOWN,   'name'=>__('Fermer',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_DOWN', 'function'=>'switchFlap', 'value'=>0),
                      array( 'logicalid'=>CMD_FLAPSTOP,   'name'=>__('Stop',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_STOP', 'function'=>'switchFlap', 'value'=>-1),
+                     array( 'logicalid'=>CMD_FLAPDOWN,   'name'=>__('Fermer',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_DOWN', 'function'=>'switchFlap', 'value'=>0),
                   ]
                )               
          );
