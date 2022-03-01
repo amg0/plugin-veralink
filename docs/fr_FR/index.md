@@ -22,6 +22,7 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - LightSensor
   - MotionSensor
   - Humidity Sensor
+  - Window Cover
 
 ## Commandes
 
