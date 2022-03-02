@@ -6,7 +6,7 @@
 
 # 01/03/2022
 
-- Window Cover support
+- Window Cover support ( up down stop and slider )
 
 # 26/02/2022
 
