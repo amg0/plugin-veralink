@@ -48,6 +48,7 @@ const CMD_FLAPSTATE = 'FLAPSTATE';
 const CMD_FLAPUP = 'FLAPUP'; 
 const CMD_FLAPDOWN = 'FLAPDOWN'; 
 const CMD_FLAPSTOP = 'FLAPSTOP'; 
+const CMD_FLAPSET = 'FLAPSET'; 
 
 const CMD_SCENE = 'SC';                // prefix for scenes commands - DO NOT include '-'
 
@@ -126,7 +127,8 @@ class veralink extends eqLogic
                array(     
                   'EqCategory'=>'opening',
                   'commands'=> [
-                     array('logicalid'=>CMD_FLAPSTATE,   'name'=>__('Volet Etat', __FILE__),  'type'=>'info|numeric', 'generic'=>'FLAP_STATE','variable'=>'LoadLevelStatus','service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_FLAPSTATE,  'name'=>__('Volet Etat', __FILE__),  'type'=>'info|numeric', 'generic'=>'FLAP_STATE','variable'=>'LoadLevelStatus','service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_FLAPSET,   'updatecmdid'=>CMD_FLAPSTATE, 'name'=>__('Level',__FILE__),  'type'=>'action|slider', 'generic'=>'FLAP_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
                      array( 'logicalid'=>CMD_FLAPUP,     'name'=>__('Ouvert',__FILE__), 'type'=>'action|other', 'generic'=>'FLAP_UP', 'function'=>'switchFlap', 'value'=>1),
                      array( 'logicalid'=>CMD_FLAPSTOP,   'name'=>__('Stop',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_STOP', 'function'=>'switchFlap', 'value'=>-1),
                      array( 'logicalid'=>CMD_FLAPDOWN,   'name'=>__('Fermer',__FILE__),  'type'=>'action|other', 'generic'=>'FLAP_DOWN', 'function'=>'switchFlap', 'value'=>0),
