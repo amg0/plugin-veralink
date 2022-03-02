@@ -1,6 +1,8 @@
-# Plugin Jeedom pour controler une Vera ( Ezlo, anciennement Micasaverde )
+# Plugin Jeedom pour controler une Vera Edge Plus Secure ( Micasaverde )
 
-Ce plugin permet de detecter les pieces et les scenes d'un controlleur **Vera** et de rendre accessible depuis **Jeedom**. il permet de lancer l'execution des scenes a distance sur la vera.
+Ce plugin permet de detecter les pieces et les scenes d'un controlleur **Vera** et de rendre accessible depuis **Jeedom**. il permet de controler certains peripheriques et lancer l'execution des scenes a distance sur la vera. Les commandes respectent les types generiques de jeedom.
+
+Outre les proprietes et les actions de base des périphériques, les mesures d'energies, les consommations, les niveaux de batterie sont remontés dans Vera.
 
 ## Utilisation
 
@@ -16,7 +18,7 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
 
 
 - les equipementes de la vera sont crées comme des equipements sous Jeedom avec les commandes correspondantes pour les actions et les variables de status principales. Les types de device VERA supportés sont:
-  - binaryLight
+  - binaryLight 
   - dimmableLight
   - TemperatureSensor
   - LightSensor
@@ -24,11 +26,15 @@ Les equipements de type pieces, suivront toujours l'equipement racine ( la vera 
   - Humidity Sensor
   - Window Cover
 
+Par defaut, seul l'equipement racine (la vera) est cree en mode actif et visibles, tous les autres equipements detectes doivent etre mis actifs et visibles pour etre visible dans le dashboard Jeedom.  Il est recommandé de passer par le menu Analyse / Resumé domotique.
+
 ## Commandes
+
+le plugin fait des configurations par default mais elle peuvent etre changees par l'utilisateur une fois que l'equipement et les commandes ont ete crees. 
 
 - les types generiques correspondants sont configures sur les commandes
 - les commandes de type Watts / KWH sont affichees par default ( changeable apres coup par l'utilisateur )
-- les commandes de type Batterie ne sont pas affichees par default mais bien présentes ( changeable apres coup par l'utilisateur )
+- les commandes de type Batterie ne sont pas affichees par default mais bien présentes et visible dans la page Jeedom (Analyze / Equipement). L'utilisateur peut choisir de rendre la commande 'batterie' dans le dashboard s'il le souhaite
 
 ## Change Log
 
