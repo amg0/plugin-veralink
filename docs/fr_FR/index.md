@@ -9,14 +9,14 @@ Outre les proprietes et les actions de base des périphériques, les mesures d'e
 Le plugin permet de declarer une vera par son addresse IP ce qui creer un equipement de type 'racine'.
 - Les pieces de la vera seront detectees et proposees comme un autre equipement dans jeedom. l'utilisateur pourra choisir quels equipements ( les pieces ) il active et rend visibles dans jeedom.
 
-- les equipements de la vera sont crées comme des equipements sous Jeedom avec les commandes correspondantes pour les actions et les variables de status principales. 
+- Les equipements de la vera sont crées comme des equipements sous Jeedom avec les commandes correspondantes pour les actions et les variables de status principales. 
 
 - Si la piece de la vera comporte une scene,  une action est cree sur l'equipement piece. cette action permet de declencher la scene sur la vera.
 
 Les equipements de type pieces et les peripheriques associés suivront toujours l'equipement racine ( la vera ). 
 * Si l'equipement vera est detruit, les pieces associées et les peripheriques associés seronts detruites.
-* si l'equipement vera est deplacé dans un autre objet parent jeedom, les pieces et les peripheriques associés seront deplacees dans le meme objet parent.
-* la liste des equipements peut etre resynchronisé avec la liste des equipements sur la vera grace a la commande 'reset' sur l'equipement racine vera.
+* Si l'equipement vera est deplacé dans un autre objet parent jeedom, les pieces et les peripheriques associés seront deplacees dans le meme objet parent.
+* La liste des equipements peut etre resynchronisé avec la liste des equipements sur la vera grace a la commande 'reset' sur l'equipement racine vera.
 
 Les 'device type' de peripherique VERA supportés sont:
   - binaryLight 
