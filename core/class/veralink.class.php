@@ -876,20 +876,19 @@ class veralink extends eqLogic
          throw new Exception(__('Parametre invalide pour l action', __FILE__));
       }
 
-      $service='urn:upnp-org:serviceId:WindowCovering1';
       switch ($mode) {
          case 0:
-            $action="Down";
+            $this->setLoadLevelTarget($id,0);
             break;
          case 1:
-            $action="Up";
+            $this->setLoadLevelTarget($id,100);
             break;
          case -1:
          default:
-            $action="Stop";
+            $this->callVeraAction($id, 'urn:upnp-org:serviceId:WindowCovering1', 'Stop');
             break;
       }
-      return $this->callVeraAction($id, $service, $action);
+      return;
    }
 
    public function switchLight($id,int $mode=0)
