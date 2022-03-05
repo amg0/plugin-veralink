@@ -63,6 +63,18 @@ class veralink extends eqLogic
       self::getVeralinkConfig();
    }
 
+   public static function event() 
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      /*
+		if ($type == 'event' && class_exists($plugin) && method_exists($plugin, 'event')) {
+			log::add('api', 'info', __('Appels de', __FILE__) . ' ' . secureXSS($plugin) . '::event()');
+			$plugin::event();
+			die();
+		}
+      */
+   }
+   
    public static function getVeralinkConfig()
    {
       log::add(VERALINK, 'debug', __METHOD__);
