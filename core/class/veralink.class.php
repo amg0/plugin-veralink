@@ -67,19 +67,7 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__);
       /*
-		if (!jeedom::apiAccess(init('apikey', init('api')), $plugin)) {
-			user::failedLogin();
-			sleep(5);
-			throw new Exception(__('Vous n\'êtes pas autorisé à effectuer cette action, IP :', __FILE__) . ' ' . getClientIp());
-		}
-		$type = init('type');
-		log::add('api', 'debug', __('Demande sur l\'api http venant de :', __FILE__) . ' ' . getClientIp() . ' => ' . json_encode($_GET));
-
-		if ($type == 'event' && class_exists($plugin) && method_exists($plugin, 'event')) {
-			log::add('api', 'info', __('Appels de', __FILE__) . ' ' . secureXSS($plugin) . '::event()');
-			$plugin::event();
-			die();
-		}
+      http://<ip>/core/api/jeeApi.php?apikey=<apikeyplugin>&type=event&plugin=veralink&id=<eqlogicid>
       */
    }
    
