@@ -116,7 +116,7 @@ class veralink extends eqLogic
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
                array(     
-                  'EqCategory'=>'other',
+                  'EqCategory'=>'default',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
