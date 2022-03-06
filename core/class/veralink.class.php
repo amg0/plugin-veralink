@@ -67,8 +67,8 @@ class veralink extends eqLogic
    {
       log::add(VERALINK, 'debug', __METHOD__ .' param toto:'.init('toto'));
       log::add(VERALINK, 'debug', __METHOD__ .' $_GET:'.json_encode($_GET));
-      log::add(VERALINK, 'debug', __METHOD__ .' $_GET:'.json_encode($_POST));
-      log::add(VERALINK, 'debug', __METHOD__ .' $_GET:'.json_encode($_REQUEST));
+      log::add(VERALINK, 'debug', __METHOD__ .' $_POST:'.json_encode($_POST));
+      log::add(VERALINK, 'debug', __METHOD__ .' $_REQUEST:'.json_encode($_REQUEST));
       
       /*
 http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&id=2597&toto=titi
