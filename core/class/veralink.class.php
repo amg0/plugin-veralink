@@ -87,9 +87,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('Consommation',__FILE__),'type'=>'info|numeric', 'generic'=>'CONSUMPTION', 'template'=>'badge', 'unite'=>'kWh', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
-                     array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
-                     array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
-                     array( 'logicalid'=>CMD_BLETAT,  'name'=>__('Etat',__FILE__), 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1')
+                     array( 'logicalid'=>CMD_BLETAT,  'name'=>__('Etat',__FILE__), 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1'),
+                     array( 'logicalid'=>CMD_BLOFF,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'updatecmdid'=>CMD_DLETAT, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>1),
                   ]
                ),
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
@@ -486,29 +486,34 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $cmd->setType( $split[0] );
                $cmd->setSubType( $split[1] );
    
-               if (isset($item->template)) {
-                  $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
-                  $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
-               }
-   
                if (isset($item->generic))
                   $cmd->setGeneric_type($item->generic);
    
                if (isset($item->unite))
                   $cmd->setUnite($item->unite);
                
+               // linked command
                if (isset($item->updatecmdid)) {
                   $targetcmd = $this->getCmd(null, $item->updatecmdid.'-'.$veradevid );  // search target cmd, must have been saved before
                   if (isset($targetcmd)) {
                      $cmd->setValue( (int) $targetcmd->getId() );
-                     // $cmd->setConfiguration('updateCmdId', (int) $targetcmd->getId());
-                     // $cmd->setConfiguration('updateCmdToValue', 1);
                   }
                }
+
+               //Battery support
                $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
+               
+               // display options
+               if (isset($item->template)) {
+                  $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
+                  $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+               }
                //$cmd->setdisplay('icon', '<i class="' . 'jeedomapp-playerplay' . '"></i>');
                $cmd->setdisplay('showIconAndNamedashboard', 1);
                $cmd->setdisplay('showIconAndNamemobile', 1);
+               if ($item->logicalid == CMD_BLOFF ) {
+                  $cmd->setdisplay('parameters', array('color'=>'rgb(0,153,0)') );
+               }
                $cmd->save();   
             }
          }
