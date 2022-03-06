@@ -26,6 +26,11 @@ $("#table_cmd").sortable({
   forcePlaceholderSize: true
 });
 
+/* Fonction permettant l'affichage de l'équipement */
+function printEqLogic(data) {
+  console.log(data);
+}
+
 /* Fonction permettant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {

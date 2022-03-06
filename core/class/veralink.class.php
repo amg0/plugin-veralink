@@ -395,16 +395,6 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          }
       }
    }
-	public function getImage() {
-		return "toto";
-	}
-
-/*    public function getImgFilePath() {
-		if (file_exists(dirname(__FILE__) . '/../../core/config/devices/' . $this->getConfiguration('device') . '.png')) {
-			return $this->getConfiguration('device') . '.png';
-		}
-		return false;
-	} */
 
    public function getRoot()
    {
