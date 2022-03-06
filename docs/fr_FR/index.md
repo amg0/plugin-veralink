@@ -64,3 +64,7 @@ Une fois que tout est fait, le dashboard de la vera ressemblera, par defaut a ce
 
 Les equipements a pile sont reportés dans jeedom Analyse/Equipements.
 ![dashboard](../images/batterylevels.png)
+
+Les commandes on / off des equipements binaryswitch sont proposées avec le widget binarySwitch de jeedom.
+![dashboard](../images/binaryswitch.png)
+
