@@ -88,8 +88,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('Consommation',__FILE__),'type'=>'info|numeric', 'generic'=>'CONSUMPTION', 'template'=>'badge', 'unite'=>'kWh', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'logicalid'=>CMD_BLETAT,  'name'=>__('Etat',__FILE__), 'type'=>'info|binary', 'generic'=>'ENERGY_STATE', 'template'=>'prise', 'variable'=>'Status', 'service'=>'urn:upnp-org:serviceId:SwitchPower1'),
-                     array( 'logicalid'=>CMD_BLOFF,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>0),
-                     array( 'logicalid'=>CMD_BLON,    'updatecmdid'=>CMD_DLETAT, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_BLOFF,   'updatecmdid'=>CMD_BLETAT, 'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'updatecmdid'=>CMD_BLETAT, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'template'=>'binarySwitch', 'function'=>'switchLight', 'value'=>1),
                   ]
                ),
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
