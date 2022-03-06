@@ -523,6 +523,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $val = ($item->template == 'binarySwitch') ? 0 : 1;
                $cmd->setdisplay('showIconAndNamedashboard', $val);
                $cmd->setdisplay('showIconAndNamemobile', $val);
+               $cmd->setdisplay('showNameOndashboard', $val);
+               $cmd->setdisplay('showNameOnmobile', $val);
                
                $cmd->save();   
             }
