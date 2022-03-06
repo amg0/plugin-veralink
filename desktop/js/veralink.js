@@ -28,7 +28,7 @@ $("#table_cmd").sortable({
 
 /* Fonction permettant l'affichage de l'équipement */
 function printEqLogic(data) {
-  console.log("i am here");
+  console.log(data);
 }
 
 /* Fonction permettant l'affichage des commandes dans l'équipement */
