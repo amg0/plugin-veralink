@@ -65,9 +65,10 @@ class veralink extends eqLogic
 
    public function event() 
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      log::add(VERALINK, 'debug', __METHOD__ .' param toto:'.init('toto'));
       /*
-      http://<ip>/core/api/jeeApi.php?apikey=<apikeyplugin>&type=event&plugin=veralink&id=<eqlogicid>
+http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&id=2597&toto=titi
+
       */
    }
    
