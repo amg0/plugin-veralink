@@ -78,13 +78,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
    
    public static function getVeralinkConfig()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
       if (self::$_CmdByVeraType == null) {
          self::$_CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
                   'EqCategory'=>'light',
-                  //'EqIcon'=>'',
+                  'EqIcon'=>'veralink_binlight.png',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('Consommation',__FILE__),'type'=>'info|numeric', 'generic'=>'CONSUMPTION', 'template'=>'badge', 'unite'=>'kWh', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
@@ -641,14 +641,14 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
    
    public function getImage() 
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
       $icon = null;
       $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
          $veraconfig = veralink::getVeralinkConfig();
          $icon = $veraconfig[$configtype]['EqIcon'];
       }
-      return isset($icon) ? $icon : parent::getImage();
+      return isset($icon) ? 'plugins/veralink/desktop/img/'.$icon : parent::getImage();
    }
    public function getUserData($ipaddr,$initial=null)
    {
