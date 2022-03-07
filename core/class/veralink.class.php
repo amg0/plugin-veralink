@@ -638,6 +638,11 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       return $resvalue;
    }
    
+   public function getImage() 
+   {
+      log::add(VERALINK, 'debug', __METHOD__);
+      return "";
+   }
    public function getUserData($ipaddr,$initial=null)
    {
       log::add(VERALINK, 'debug', __METHOD__);
