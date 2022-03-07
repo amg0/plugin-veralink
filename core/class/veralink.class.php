@@ -102,6 +102,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
                array(
                   'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_binlight.png',
                   'commands'=> [
                      array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
@@ -112,6 +113,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
                array(
                   'EqCategory'=>'heating',
+                  'EqIcon'=>'veralink_temp.png',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>__('Température',__FILE__),  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
