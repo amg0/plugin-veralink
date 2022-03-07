@@ -646,7 +646,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       $configtype = $this->getConfiguration('type',null);
       if (isset($configtype)) {
          $veraconfig = veralink::getVeralinkConfig();
-         $icon = $veraconfig[$configtype]['EqIcon'];
+         $icon = ($configtype == CONFIGTYPE_ROOM) ? 'veralink_room.png' : $veraconfig[$configtype]['EqIcon'];
       }
       return isset($icon) ? 'plugins/veralink/desktop/img/'.$icon : parent::getImage();
    }
