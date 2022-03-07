@@ -78,12 +78,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
    
    public static function getVeralinkConfig()
    {
-      log::add(VERALINK, 'debug', __METHOD__);
+      //log::add(VERALINK, 'debug', __METHOD__);
       if (self::$_CmdByVeraType == null) {
          self::$_CmdByVeraType = array(
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
                   'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_binlight.png',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('Consommation',__FILE__),'type'=>'info|numeric', 'generic'=>'CONSUMPTION', 'template'=>'badge', 'unite'=>'kWh', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
@@ -101,6 +102,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
                array(
                   'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_binlight.png',
                   'commands'=> [
                      array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
@@ -111,6 +113,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
                array(
                   'EqCategory'=>'heating',
+                  'EqIcon'=>'veralink_temp.png',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_TEMPSENSOR, 'name'=>__('Température',__FILE__),  'type'=>'info|numeric', 'generic'=>'TEMPERATURE', 'variable'=>'CurrentTemperature','service'=>'urn:upnp-org:serviceId:TemperatureSensor1' )
@@ -638,6 +641,17 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       return $resvalue;
    }
    
+   public function getImage() 
+   {
+      //log::add(VERALINK, 'debug', __METHOD__);
+      $icon = null;
+      $configtype = $this->getConfiguration('type',null);
+      if (isset($configtype)) {
+         $veraconfig = veralink::getVeralinkConfig();
+         $icon = ($configtype == CONFIGTYPE_ROOM) ? 'veralink_room.png' : $veraconfig[$configtype]['EqIcon'];
+      }
+      return isset($icon) ? 'plugins/veralink/desktop/img/'.$icon : parent::getImage();
+   }
    public function getUserData($ipaddr,$initial=null)
    {
       log::add(VERALINK, 'debug', __METHOD__);
