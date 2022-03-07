@@ -84,6 +84,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-upnp-org:device:BinaryLight:1'=>
                array(
                   'EqCategory'=>'light',
+                  //'EqIcon'=>'',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BLWATTS, 'name'=>__('Watts',__FILE__),'type'=>'info|numeric', 'generic'=>'POWER', 'unite'=>'W', 'variable'=>'Watts', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
                      array( 'optional'=>true, 'logicalid'=>CMD_BLKWH, 'name'=>__('Consommation',__FILE__),'type'=>'info|numeric', 'generic'=>'CONSUMPTION', 'template'=>'badge', 'unite'=>'kWh', 'variable'=>'KWH', 'service'=>'urn:micasaverde-com:serviceId:EnergyMetering1'),
@@ -641,7 +642,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
    public function getImage() 
    {
       log::add(VERALINK, 'debug', __METHOD__);
-      return "";
+      $icon = null;
+      $configtype = $eqLogic->getConfiguration('type',null);
+      if (isset($configtype)) {
+         $veraconfig = veralink::getVeralinkConfig();
+         $icon = $veraconfig[$configtype]['EqIcon'];
+      }
+      return isset($icon) ? $icon : parent::getImage();
    }
    public function getUserData($ipaddr,$initial=null)
    {
