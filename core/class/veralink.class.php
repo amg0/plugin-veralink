@@ -130,7 +130,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                ),
             'urn:schemas-micasaverde-com:device:MotionSensor:1'=>
                array(     
-                  'EqCategory'=>'security',       
+                  'EqCategory'=>'security',   
+                  'EqIcon'=>'veralink_motionsensor.png',    
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
@@ -140,6 +141,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
                array(     
                   'EqCategory'=>'default',
+                  'EqIcon'=>'veralink_humiditysensor.png',   
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
@@ -149,6 +151,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:WindowCovering:1'=>
                array(     
                   'EqCategory'=>'opening',
+                  'EqIcon'=>'veralink_cover.png',   
                   'commands'=> [
                      array( 'logicalid'=>CMD_FLAPSTATE,  'name'=>__('Volet Etat', __FILE__),  'type'=>'info|numeric', 'generic'=>'FLAP_STATE',
                         'variable'=>'LoadLevelStatus','service'=>'urn:upnp-org:serviceId:Dimming1'),
