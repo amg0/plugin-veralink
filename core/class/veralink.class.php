@@ -122,6 +122,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:LightSensor:1'=>
                array(
                   'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_lightsensor.png',
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_LIGHTSENSOR,   'name'=>__('Luminosité',__FILE__),  'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS', 'variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:LightSensor1' )
