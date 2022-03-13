@@ -1,0 +1,92 @@
+{
+    "plugins\/veralink\/core\/ajax\/veralink.ajax.php": {
+        "401 - Accès non autorisé": "401 - Accès non autorisé",
+        "Aucune méthode correspondante à : ": "Aucune méthode correspondante à : "
+    },
+    "plugins\/veralink\/core\/class\/veralink.class.php": {
+        "Batterie": "Batterie",
+        "Consommation": "Consommation",
+        "Etat": "Etat",
+        "Etat Luminosité": "Etat Luminosité",
+        "Fermer": "Fermer",
+        "Firmware": "Firmware",
+        "Humidité": "Humidité",
+        "Level": "Level",
+        "Luminosité": "Luminosité",
+        "Off": "Off",
+        "On": "On",
+        "Ouvert": "Ouvert",
+        "Parametre invalide pour l action": "Parametre invalide pour l action",
+        "Pièce": "Pièce",
+        "Présence": "Présence",
+        "Rafraichir": "Rafraichir",
+        "Reset": "Reset",
+        "Sans Piece": "Sans Piece",
+        "Scène": "Scène",
+        "Stop": "Stop",
+        "Température": "Température",
+        "Tâche cron introuvable": "Tâche cron introuvable",
+        "Vera ne répond pas": "Vera ne répond pas",
+        "Veuillez vérifier la configuration": "Veuillez vérifier la configuration",
+        "Volet Etat": "Volet Etat",
+        "Watts": "Watts"
+    },
+    "plugins\/veralink\/desktop\/js\/veralink.js": {
+        "Afficher": "Afficher",
+        "Aucune": "Aucune",
+        "Commande information liée": "Commande information liée",
+        "Historiser": "Historiser",
+        "Icône": "Icône",
+        "Inverser": "Inverser",
+        "Max.": "Max.",
+        "Min.": "Min.",
+        "Nom de la commande": "Nom de la commande",
+        "Unité": "Unité"
+    },
+    "plugins\/veralink\/desktop\/modal\/modal.veralink.php": {
+        "401 - Accès non autorisé": "401 - Accès non autorisé"
+    },
+    "plugins\/veralink\/desktop\/php\/veralink.php": {
+        "401 - Accès non autorisé": "401 - Accès non autorisé",
+        "Action": "Action",
+        "Activer": "Activer",
+        "Adresse IP": "Adresse IP",
+        "Adresse IP de la vera": "Adresse IP de la vera",
+        "Ajouter": "Ajouter",
+        "Ajouter une commande": "Ajouter une commande",
+        "Aucun": "Aucun",
+        "Aucun équipement Template n\\'est paramétré, cliquer sur \"Ajouter\" pour commencer": "Aucun équipement Template n\\'est paramétré, cliquer sur \"Ajouter\" pour commencer",
+        "Catégorie": "Catégorie",
+        "Commandes": "Commandes",
+        "Configuration": "Configuration",
+        "Configuration avancée": "Configuration avancée",
+        "Dupliquer": "Dupliquer",
+        "Equipement": "Equipement",
+        "Gestion": "Gestion",
+        "Id": "Id",
+        "Informations": "Informations",
+        "Mes équipements": "Mes équipements",
+        "Nom": "Nom",
+        "Nom de l'équipement": "Nom de l'équipement",
+        "Objet parent": "Objet parent",
+        "Options": "Options",
+        "Paramètres": "Paramètres",
+        "Paramètres généraux": "Paramètres généraux",
+        "Paramètres spécifiques": "Paramètres spécifiques",
+        "Rechercher": "Rechercher",
+        "Sauvegarder": "Sauvegarder",
+        "Supprimer": "Supprimer",
+        "Type": "Type",
+        "Visible": "Visible"
+    },
+    "plugins\/veralink\/plugin_info\/configuration.js": {
+        "Merci de rentrer un nombre pour ce parametre": "Merci de rentrer un nombre pour ce parametre"
+    },
+    "plugins\/veralink\/plugin_info\/configuration.php": {
+        "Fréquence de refresh en secondes": "Fréquence de refresh en secondes",
+        "entre 5 et 240 secondes": "entre 5 et 240 secondes"
+    },
+    "plugins\/veralink\/plugin_info\/install.php": {
+        "Tâche cron introuvable": "Tâche cron introuvable"
+    }
+}
