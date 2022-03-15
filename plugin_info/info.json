@@ -2,7 +2,7 @@
 	"id" : "veralink",
 	"name" : "VeraLink",
 	"description" : {
-		"fr_FR": "Plugin pour interfacer Jeedom avec Vera"
+		"fr_FR": "Plugin pour interfacer Jeedom avec Vera. il permet d'avoir un equipement pour chaque piece de la vera avec l'acces aux scenes de la piece. Il permet aussi d'utiliser des equipements pour les principaux peripheriques vera sur jeedom"
 	},
 	"licence" : "AGPL",
 	"author" : "amg0",

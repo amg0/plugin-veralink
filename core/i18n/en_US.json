@@ -5,7 +5,7 @@
     },
     "plugins\/veralink\/core\/class\/veralink.class.php": {
         "Batterie": "Battery",
-        "Consommation": "Consommation",
+        "Consommation": "Consumption",
         "Etat": "State",
         "Etat Luminosité": "State Luminosity",
         "Fermer": "Close",
