@@ -136,7 +136,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
@@ -146,7 +146,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                        'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
@@ -430,6 +430,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', $configtype);
+         $eqLogic->setConfiguration('json', $device->device_json);
          $eqLogic->setLogicalId(PREFIX_VERADEVICE . $device->id);
          //$eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
@@ -531,8 +532,14 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                
                // display options
                if (isset($item->template)) {
-                  $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
-                  $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+                  $json =  $this->getConfiguration('json', null);
+                  if ($json=='D_QubinoFlushPilotWire1.json') {
+                     $cmd->setTemplate('dashboard','timeHeatPiloteWireQubino' );    //special case for this device
+                     $cmd->setTemplate('mobile','timeHeatPiloteWireQubino' );    
+                  } else {
+                     $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
+                     $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
+                  }
                }
                if (isset($item->template_parameters)) {
                   $cmd->setdisplay('parameters', $item->template_parameters);
