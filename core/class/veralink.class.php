@@ -142,7 +142,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
                array(
                   'EqCategory'=>'security',   
-                  'EqIcon'=>'veralink_motionsensor.png',    
+                  'EqIcon'=>'veralink_door.png',    
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
