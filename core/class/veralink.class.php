@@ -531,15 +531,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
                
                // display options
-               if (isset($item->template)) {
-                  $json =  $this->getConfiguration('json', null);
-                  if ($json=='D_QubinoFlushPilotWire1.json') {
-                     $cmd->setTemplate('dashboard','timeHeatPiloteWireQubino' );    //special case for this device
-                     $cmd->setTemplate('mobile','timeHeatPiloteWireQubino' );    
-                  } else {
-                     $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
-                     $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
-                  }
+               $json =  $this->getConfiguration('json', null);
+               if (($item->logicalid==CMD_DLETAT) && ($json=='D_QubinoFlushPilotWire1.json')) {
+                  $cmd->setTemplate('dashboard','timeHeatPiloteWireQubino' );    //special case for this device
+                  $cmd->setTemplate('mobile','timeHeatPiloteWireQubino' );    
+               } elseif (isset($item->template)) {
+                  $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
+                  $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
                }
                if (isset($item->template_parameters)) {
                   $cmd->setdisplay('parameters', $item->template_parameters);
