@@ -26,6 +26,7 @@ Les 'device type' de peripherique VERA supportés sont:
   - MotionSensor
   - Humidity Sensor
   - Window Cover
+  - Door Sensor
 
 Par defaut, seul l'equipement racine (la vera) est cree en mode actif et visible, tous les autres equipements detectes doivent etre mis actifs et visibles pour etre mis a jour et visible dans le dashboard Jeedom.  Il est recommandé de passer par le menu Analyse / Resumé domotique.
 
