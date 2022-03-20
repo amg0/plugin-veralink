@@ -7,6 +7,7 @@
 # 20/03/2022
 
 - Door Sensor support
+- Qubino pilot wire support
 
 # 01/03/2022
 

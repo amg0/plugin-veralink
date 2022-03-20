@@ -136,7 +136,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
@@ -146,7 +146,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                        'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
@@ -430,6 +430,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          $eqLogic = new veralink();
          $eqLogic->setEqType_name(VERALINK);
          $eqLogic->setConfiguration('type', $configtype);
+         $eqLogic->setConfiguration('json', $device->device_json);
          $eqLogic->setLogicalId(PREFIX_VERADEVICE . $device->id);
          //$eqLogic->setConfiguration('ipaddr', $this->getConfiguration('ipaddr'));
          $eqLogic->setConfiguration('rootid', $this->getId());
@@ -530,7 +531,11 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
                
                // display options
-               if (isset($item->template)) {
+               $json =  $this->getConfiguration('json', null);
+               if (($item->logicalid==CMD_DLETAT) && ($json=='D_QubinoFlushPilotWire1.json')) {
+                  $cmd->setTemplate('dashboard','heatPiloteWireQubino' );    //special case for this device
+                  $cmd->setTemplate('mobile','heatPiloteWireQubino' );    
+               } elseif (isset($item->template)) {
                   $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
                   $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
                }
@@ -834,10 +839,12 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                            if ($cmd->execCmd()==$state->value)
                               continue;
 
-                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s => set value:%s',
+                           log::add(VERALINK, 'info', sprintf('device %s eq:%s (%s) cmd:%s (%s) => set value:%s',
                               $device->id,
                               PREFIX_VERADEVICE . $device->id,
+                              $eqLogic->getName(),
                               $cmdid,
+                              $cmd->getName(),
                               $state->value
                            ));
                            $eqLogic->checkAndUpdateCmd($cmd,$state->value);

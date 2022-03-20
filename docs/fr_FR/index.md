@@ -20,7 +20,7 @@ Les equipements de type pieces et les peripheriques associés suivront toujours 
 
 Les 'device type' de peripherique VERA supportés sont:
   - binaryLight 
-  - dimmableLight
+  - dimmableLight with special case for Qubino Pilot Wire
   - TemperatureSensor
   - LightSensor
   - MotionSensor
