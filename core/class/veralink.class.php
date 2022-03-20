@@ -42,6 +42,7 @@ const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
+const CMD_DOORSENSOR =  'DOOR';        // prefix for door sensors
 const CMD_HUMIDITYSENSOR = 'HUMIDITY';     // prefix for motion sensors
 const CMD_BATTERY = 'BATTERY';         // prefix for battery commands
 const CMD_FLAPSTATE = 'FLAPSTATE'; 
@@ -136,6 +137,16 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
                         'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                  ]
+               ),
+            'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
+               array(
+                  'EqCategory'=>'security',   
+                  'EqIcon'=>'veralink_motionsensor.png',    
+                  'commands'=> [
+                     array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
+                     array( 
+                        'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'presence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
