@@ -834,10 +834,11 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                            if ($cmd->execCmd()==$state->value)
                               continue;
 
-                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s => set value:%s',
+                           log::add(VERALINK, 'info', sprintf('device %s eq:%s cmd:%s %s => set value:%s',
                               $device->id,
                               PREFIX_VERADEVICE . $device->id,
                               $cmdid,
+                              $cmd->getName(),
                               $state->value
                            ));
                            $eqLogic->checkAndUpdateCmd($cmd,$state->value);
