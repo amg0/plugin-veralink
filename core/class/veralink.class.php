@@ -533,8 +533,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                // display options
                $json =  $this->getConfiguration('json', null);
                if (($item->logicalid==CMD_DLETAT) && ($json=='D_QubinoFlushPilotWire1.json')) {
-                  $cmd->setTemplate('dashboard','timeHeatPiloteWireQubino' );    //special case for this device
-                  $cmd->setTemplate('mobile','timeHeatPiloteWireQubino' );    
+                  $cmd->setTemplate('dashboard','heatPiloteWireQubino' );    //special case for this device
+                  $cmd->setTemplate('mobile','heatPiloteWireQubino' );    
                } elseif (isset($item->template)) {
                   $cmd->setTemplate('dashboard',$item->template );    //template pour le dashboard
                   $cmd->setTemplate('mobile',$item->template );    //template pour le dashboard
