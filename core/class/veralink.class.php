@@ -39,7 +39,8 @@ const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
 const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
 const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
-const CMD_COLETAT =     'COLETAT';      // prefix for Dim Light RGB color Status
+const CMD_COLETAT =     'COLETAT';     // prefix for Dim Light RGB color Status
+const CMD_COLSET =      'COLSET';      // prefix for RGB color set
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -122,6 +123,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
                      array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
                      array( 'logicalid'=>CMD_COLETAT,  'name'=>__('Etat Couleur',__FILE__), 'type'=>'info|string', 'generic'=>'LIGHT_COLOR',  'variable'=>'CurrentColor', 'service'=>'urn:micasaverde-com:serviceId:Color1', 'function'=>'fromVeraColor'),
+                     array( 'logicalid'=>CMD_COLSET,   'updatecmdid'=>CMD_COLETAT, 'name'=>__('Couleur',__FILE__),  'type'=>'action|color', 'generic'=>'LIGHT_SET_COLOR', 'function'=>'setColor', 'cmd_option'=>'color')
                   ]
                ),
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -960,6 +962,14 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       //http://192.168.0.17/port_3480/data_request?id=action&output_format=json&DeviceNum=101&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=28
 
       return $this->callVeraAction($id, $service, $action, $param, $level);
+   }
+
+   public function setColor($id, $color) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s color:%s',$id,$color));
+      $service='urn:micasaverde-com:serviceId:Color1';
+      $action='SetColor';
+      $param='newColorTarget';
+      return 0;
    }
 
    public function switchFlap($id,int $mode=-1)
