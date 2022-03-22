@@ -39,6 +39,7 @@ const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
 const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
 const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
+const CMD_COLETAT =     'COLETAT';      // prefix for Dim Light RGB color Status
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -119,7 +120,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
                      array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
-                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
+                     array( 'logicalid'=>CMD_COLETAT,  'name'=>__('Etat Couleur',__FILE__), 'type'=>'info|string', 'generic'=>'LIGHT_COLOR',  'variable'=>'CurrentColor', 'service'=>'urn:micasaverde-com:serviceId:Color1', 'function'=>'fromVeraColor'),
                   ]
                ),
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -846,8 +848,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                            if ($command['variable']=='BatteryLevel')
                               $eqLogic->batteryStatus($state->value);
 
-                              // if no change, skip
-                           if ($cmd->execCmd()==$state->value)
+                           // if no change, skip
+                           $translatefunc = $command['function'];
+                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($state->value) : $state->value;
+                           if ($cmd->execCmd()==$jeedomvalue)
                               continue;
 
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s (%s) cmd:%s (%s) => set value:%s',
@@ -856,9 +860,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                               $eqLogic->getName(),
                               $cmdid,
                               $cmd->getName(),
-                              $state->value
+                              $jeedomvalue
                            ));
-                           $eqLogic->checkAndUpdateCmd($cmd,$state->value);
+                           $eqLogic->checkAndUpdateCmd($cmd,$jeedomvalue);
                            break;
                         }
                      }
@@ -930,6 +934,11 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       $xml = file_get_contents($url);
       log::add(VERALINK, 'debug', 'action '.$action.' / '.$service.' returned ' . $xml);
       return $xml;
+   }
+
+   public function fromVeraColor($str) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' str:%s',$str));
+      return $str;
    }
 
    public function setLoadLevelTarget($id,int $level=0) {
