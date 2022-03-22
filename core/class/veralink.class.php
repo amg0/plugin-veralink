@@ -939,7 +939,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
    // str is 0=0,1=0,2=255,3=39,4=0 , jeedom expects #ff2f02
    public function fromVeraColor($id,$str) {
       log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s str:%s',$id,$str));
-      $parts = explore(",",$str);
+      $parts = explode(",",$str);
       $col = array();
       for ($i=2;$i<5;$i++) {
          $col[] = substr($parts[$i],2);
