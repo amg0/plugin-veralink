@@ -111,6 +111,17 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
                   ]
                ),
+            'urn:schemas-upnp-org:device:DimmableRGBLight:1'=>
+               array(
+                  'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_binlight.png',
+                  'commands'=> [
+                     array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+                  ]
+               ),
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
                array(
                   'EqCategory'=>'heating',
