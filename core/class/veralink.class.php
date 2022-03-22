@@ -850,7 +850,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
 
                            // if no change, skip
                            $translatefunc = $command['function'];
-                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($state->value) : $state->value;
+                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($device->id,$state->value) : $state->value;
                            if ($cmd->execCmd()==$jeedomvalue)
                               continue;
 
@@ -936,9 +936,16 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       return $xml;
    }
 
-   public function fromVeraColor($str) {
-      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' str:%s',$str));
-      return $str;
+   // str is 0=0,1=0,2=255,3=39,4=0 , jeedom expects #ff2f02
+   public function fromVeraColor($id,$str) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s str:%s',$id,$str));
+      $parts = explore(",",$str);
+      $col = array();
+      for ($i=2;$i<5;$i++) {
+         $col[] = substr($parts[$i],2);
+      }
+      $color = sprintf("#%02x%02x%02x", $col[0], $col[1], $col[2]); // #0d00ff
+      return $color;
    }
 
    public function setLoadLevelTarget($id,int $level=0) {
