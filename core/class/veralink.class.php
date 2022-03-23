@@ -62,7 +62,7 @@ class veralink extends eqLogic
 {  
    private static $_CmdByVeraType =null;  // prefix by underscore : https://community.jeedom.com/t/mysql-error-code-42s22-1054-unknown-column-utils-in-field-list/64274/6
 
-   private static function hex2RGB($hexStr, $returnAsString = false, $seperator = ',') {
+   private static function hex2RGB($hexStr, $returnAsString = false, $separator = ',') {
       $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
       $rgbArray = array();
       if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
@@ -77,7 +77,7 @@ class veralink extends eqLogic
       } else {
          return false; //Invalid hex color code
       }
-      return $returnAsString ? implode($seperator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
+      return $returnAsString ? implode($separator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
    }
 
    public function __construct() {
@@ -993,7 +993,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       $service='urn:micasaverde-com:serviceId:Color1';
       $action='SetColorRGB';
       $param='newColorTarget';
-      return $this->callVeraAction($id, $service, $action, $param, hex2RGB($color, true, ','));
+      return $this->callVeraAction($id, $service, $action, $param, veralink::hex2RGB($color, true, ','));
    }
 
    public function switchFlap($id,int $mode=-1)
