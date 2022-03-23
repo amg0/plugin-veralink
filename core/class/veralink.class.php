@@ -39,6 +39,8 @@ const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
 const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
 const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
 const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
+const CMD_COLETAT =     'COLETAT';     // prefix for Dim Light RGB color Status
+const CMD_COLSET =      'COLSET';      // prefix for RGB color set
 const CMD_TEMPSENSOR =  'TEMPS';       // prefix for Temp sensors
 const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
@@ -59,7 +61,25 @@ const MAX_REFRESH = 240;         // max sec for vera refresh
 class veralink extends eqLogic
 {  
    private static $_CmdByVeraType =null;  // prefix by underscore : https://community.jeedom.com/t/mysql-error-code-42s22-1054-unknown-column-utils-in-field-list/64274/6
-   
+
+   private static function hex2RGB($hexStr, $returnAsString = false, $separator = ',') {
+      $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
+      $rgbArray = array();
+      if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
+         $colorVal = hexdec($hexStr);
+         $rgbArray['red'] = 0xFF & ($colorVal >> 0x10);
+         $rgbArray['green'] = 0xFF & ($colorVal >> 0x8);
+         $rgbArray['blue'] = 0xFF & $colorVal;
+      } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
+         $rgbArray['red'] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
+         $rgbArray['green'] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
+         $rgbArray['blue'] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
+      } else {
+         return false; //Invalid hex color code
+      }
+      return $returnAsString ? implode($separator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
+   }
+
    public function __construct() {
       self::getVeralinkConfig();
    }
@@ -109,6 +129,19 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
                      array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
                      array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider')
+                  ]
+               ),
+            'urn:schemas-upnp-org:device:DimmableRGBLight:1'=>
+               array(
+                  'EqCategory'=>'light',
+                  'EqIcon'=>'veralink_binlight.png',
+                  'commands'=> [
+                     array( 'logicalid'=>CMD_BLOFF,   'name'=>__('Off',__FILE__), 'type'=>'action|other', 'generic'=>'ENERGY_OFF', 'function'=>'switchLight', 'value'=>0),
+                     array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
+                     array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
+                     array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
+                     array( 'logicalid'=>CMD_COLETAT,  'name'=>__('Etat Couleur',__FILE__), 'type'=>'info|string', 'generic'=>'LIGHT_COLOR',  'visible'=>false, 'variable'=>'CurrentColor', 'service'=>'urn:micasaverde-com:serviceId:Color1', 'function'=>'fromVeraColor'),
+                     array( 'logicalid'=>CMD_COLSET,   'updatecmdid'=>CMD_COLETAT, 'name'=>__('Couleur',__FILE__),  'type'=>'action|color', 'generic'=>'LIGHT_SET_COLOR', 'function'=>'setColor', 'cmd_option'=>'color')
                   ]
                ),
             'urn:schemas-micasaverde-com:device:TemperatureSensor:1'=>         
@@ -528,7 +561,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                }
 
                //Battery support
-               $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
+               $cmd->setIsVisible( ($item->logicalid == CMD_BATTERY) || ($item->visible===false) ? 0 : 1);
                
                // display options
                $json =  $this->getConfiguration('json', null);
@@ -835,8 +868,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                            if ($command['variable']=='BatteryLevel')
                               $eqLogic->batteryStatus($state->value);
 
-                              // if no change, skip
-                           if ($cmd->execCmd()==$state->value)
+                           // if no change, skip
+                           $translatefunc = $command['function'];
+                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($device->id,$state->value) : $state->value;
+                           if ($cmd->execCmd()==$jeedomvalue)
                               continue;
 
                            log::add(VERALINK, 'info', sprintf('device %s eq:%s (%s) cmd:%s (%s) => set value:%s',
@@ -845,9 +880,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                               $eqLogic->getName(),
                               $cmdid,
                               $cmd->getName(),
-                              $state->value
+                              $jeedomvalue
                            ));
-                           $eqLogic->checkAndUpdateCmd($cmd,$state->value);
+                           $eqLogic->checkAndUpdateCmd($cmd,$jeedomvalue);
                            break;
                         }
                      }
@@ -921,6 +956,18 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       return $xml;
    }
 
+   // str is 0=0,1=0,2=255,3=39,4=0 , jeedom expects #ff2f02
+   public function fromVeraColor($id,$str) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s str:%s',$id,$str));
+      $parts = explode(",",$str);
+      $col = array();
+      for ($i=2;$i<5;$i++) {
+         $col[] = substr($parts[$i],2);
+      }
+      $color = sprintf("#%02x%02x%02x", $col[0], $col[1], $col[2]); // #0d00ff
+      return $color;
+   }
+
    public function setLoadLevelTarget($id,int $level=0) {
       log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s level:%s',$id,$level));
       if (($level<0) || ($level>100)) {
@@ -933,6 +980,20 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       //http://192.168.0.17/port_3480/data_request?id=action&output_format=json&DeviceNum=101&serviceId=urn:upnp-org:serviceId:Dimming1&action=SetLoadLevelTarget&newLoadlevelTarget=28
 
       return $this->callVeraAction($id, $service, $action, $param, $level);
+   }
+
+   /*
+      SetColorRGB: just send R,G,B as param - so 255,0,0 as red, etc. R255,G0,B0 is also supported.
+      SetColorTemp: it’s accepting the temperature, but expressed as 0-255 - see below.
+      SetColor: accepting W,D,R,G,B as parameter, in the format 0=W,1=D,2=R,3=G,4=B - ie 0=0,1=0,2=255,3=0,4=0 for red. newColorTarget: R0,G19,B255
+   */
+
+   public function setColor($id, $color) {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s color:%s',$id,$color));
+      $service='urn:micasaverde-com:serviceId:Color1';
+      $action='SetColorRGB';
+      $param='newColorRGBTarget';
+      return $this->callVeraAction($id, $service, $action, $param, veralink::hex2RGB($color, true, ','));
    }
 
    public function switchFlap($id,int $mode=-1)
