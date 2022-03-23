@@ -140,7 +140,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_BLON,    'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ENERGY_ON', 'function'=>'switchLight', 'value'=>1),
                      array( 'logicalid'=>CMD_DLETAT,  'name'=>__('Etat Luminosité',__FILE__), 'type'=>'info|numeric', 'generic'=>'LIGHT_BRIGHTNESS',  'variable'=>'LoadLevelStatus', 'service'=>'urn:upnp-org:serviceId:Dimming1'),
                      array( 'logicalid'=>CMD_DLSET,   'updatecmdid'=>CMD_DLETAT, 'name'=>__('Luminosité',__FILE__),  'type'=>'action|slider', 'generic'=>'LIGHT_SLIDER', 'function'=>'setLoadLevelTarget', 'cmd_option'=>'slider'),
-                     array( 'logicalid'=>CMD_COLETAT,  'name'=>__('Etat Couleur',__FILE__), 'type'=>'info|string', 'generic'=>'LIGHT_COLOR',  'variable'=>'CurrentColor', 'service'=>'urn:micasaverde-com:serviceId:Color1', 'function'=>'fromVeraColor'),
+                     array( 'logicalid'=>CMD_COLETAT,  'name'=>__('Etat Couleur',__FILE__), 'type'=>'info|string', 'generic'=>'LIGHT_COLOR',  'visible'=>false, 'variable'=>'CurrentColor', 'service'=>'urn:micasaverde-com:serviceId:Color1', 'function'=>'fromVeraColor'),
                      array( 'logicalid'=>CMD_COLSET,   'updatecmdid'=>CMD_COLETAT, 'name'=>__('Couleur',__FILE__),  'type'=>'action|color', 'generic'=>'LIGHT_SET_COLOR', 'function'=>'setColor', 'cmd_option'=>'color')
                   ]
                ),
@@ -561,7 +561,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                }
 
                //Battery support
-               $cmd->setIsVisible($item->logicalid == CMD_BATTERY ? 0 : 1);
+               $cmd->setIsVisible( ($item->logicalid == CMD_BATTERY) || ($item->visible==false) ? 0 : 1);
                
                // display options
                $json =  $this->getConfiguration('json', null);
