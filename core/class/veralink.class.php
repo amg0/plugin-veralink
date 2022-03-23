@@ -61,7 +61,25 @@ const MAX_REFRESH = 240;         // max sec for vera refresh
 class veralink extends eqLogic
 {  
    private static $_CmdByVeraType =null;  // prefix by underscore : https://community.jeedom.com/t/mysql-error-code-42s22-1054-unknown-column-utils-in-field-list/64274/6
-   
+
+   private static function hex2RGB($hexStr, $returnAsString = false, $seperator = ',') {
+      $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
+      $rgbArray = array();
+      if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
+         $colorVal = hexdec($hexStr);
+         $rgbArray['red'] = 0xFF & ($colorVal >> 0x10);
+         $rgbArray['green'] = 0xFF & ($colorVal >> 0x8);
+         $rgbArray['blue'] = 0xFF & $colorVal;
+      } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
+         $rgbArray['red'] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
+         $rgbArray['green'] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
+         $rgbArray['blue'] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
+      } else {
+         return false; //Invalid hex color code
+      }
+      return $returnAsString ? implode($seperator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
+   }
+
    public function __construct() {
       self::getVeralinkConfig();
    }
@@ -964,12 +982,18 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       return $this->callVeraAction($id, $service, $action, $param, $level);
    }
 
+   /*
+      SetColorRGB: just send R,G,B as param - so 255,0,0 as red, etc. R255,G0,B0 is also supported.
+      SetColorTemp: it’s accepting the temperature, but expressed as 0-255 - see below.
+      SetColor: accepting W,D,R,G,B as parameter, in the format 0=W,1=D,2=R,3=G,4=B - ie 0=0,1=0,2=255,3=0,4=0 for red. newColorTarget: R0,G19,B255
+   */
+
    public function setColor($id, $color) {
       log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s color:%s',$id,$color));
       $service='urn:micasaverde-com:serviceId:Color1';
-      $action='SetColor';
+      $action='SetColorRGB';
       $param='newColorTarget';
-      return 0;
+      return $this->callVeraAction($id, $service, $action, $param, hex2RGB($color, true, ','));
    }
 
    public function switchFlap($id,int $mode=-1)
