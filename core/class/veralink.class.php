@@ -561,7 +561,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                }
 
                //Battery support
-               $cmd->setIsVisible( ($item->logicalid == CMD_BATTERY) || ($item->visible==false) ? 0 : 1);
+               $cmd->setIsVisible( ($item->logicalid == CMD_BATTERY) || ($item->visible===false) ? 0 : 1);
                
                // display options
                $json =  $this->getConfiguration('json', null);
