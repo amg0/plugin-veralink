@@ -992,7 +992,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s color:%s',$id,$color));
       $service='urn:micasaverde-com:serviceId:Color1';
       $action='SetColorRGB';
-      $param='newColorTarget';
+      $param='newColorRGBTarget';
       return $this->callVeraAction($id, $service, $action, $param, veralink::hex2RGB($color, true, ','));
    }
 
