@@ -6,7 +6,8 @@
 
 # 30/08/2022
 
-- Add Info Command Armed to security sensors ( motion, door, humidity ) to report the 'Armed' variable state from vera devices
+- Add Jeedom Info Command "Alarme mode" to security sensors ( motion, door, humidity ) to report the 'Armed' variable state from vera devices
+- Add Jeedom Action Command ("Alarme Armée" / "Alarme Libérée") to set / unset the Armed variable state of the vera device
 
 # 22/03/2022
 
