@@ -481,12 +481,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          $eqLogic->setIsVisible(0);
          $category = self::$_CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
+         $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
       }
-      
-      // todo : if object is not new, try not to change its parent ID
-      // but verify that the old parent id is still a valid object
-
-      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      else {
+         // todo : if object is not new, try not to change its parent ID
+         // but should we verify that the old parent id is still a valid object ???
+         //$eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      }
       $eqLogic->setName($device->name);
       $eqLogic->save();      
    }
