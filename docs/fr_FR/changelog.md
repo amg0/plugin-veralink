@@ -4,6 +4,10 @@
 >
 >Pour rappel s'il n'y a pas d'information sur la mise à jour, c'est que celle-ci concerne uniquement de la mise à jour de documentation, de traduction ou de texte.
 
+# 30/08/2022
+
+- Add Info Command Armed to security sensors ( motion, door, humidity ) to report the 'Armed' variable state from vera devices
+
 # 22/03/2022
 
 - Dimmable RGB light
