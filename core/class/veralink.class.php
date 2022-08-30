@@ -46,6 +46,8 @@ const CMD_LIGHTSENSOR = 'LIGHTS';      // prefix for Temp sensors
 const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
 const CMD_DOORSENSOR =  'DOOR';        // prefix for door sensors
 const CMD_HUMIDITYSENSOR = 'HUMIDITY';     // prefix for motion sensors
+const CMD_ARMED = 'ARMED';             // prefix for Armed status
+
 const CMD_BATTERY = 'BATTERY';         // prefix for battery commands
 const CMD_FLAPSTATE = 'FLAPSTATE'; 
 const CMD_FLAPUP = 'FLAPUP'; 
@@ -169,8 +171,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 
-                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
-                  ]
+                        'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
+                     array( 
+                        'logicalid'=>CMD_ARMED,   'name'=>__('Alarme armée', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_ARMED','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                     ]
                ),
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
                array(
@@ -472,6 +476,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          $category = self::$_CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
       }
+      
+      // todo : if object is not new, try not to change its parent ID
+      // but verify that the old parent id is still a valid object
+
       $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
       $eqLogic->setName($device->name);
       $eqLogic->save();      
