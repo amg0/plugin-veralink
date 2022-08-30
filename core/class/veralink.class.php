@@ -47,6 +47,8 @@ const CMD_MOTIONSENSOR = 'MOTION';     // prefix for motion sensors
 const CMD_DOORSENSOR =  'DOOR';        // prefix for door sensors
 const CMD_HUMIDITYSENSOR = 'HUMIDITY';     // prefix for motion sensors
 const CMD_ARMED = 'ARMED';             // prefix for Armed status
+const CMD_ARMEDON = 'ARMEDON';         // prefix for Set Armed action
+const CMD_ARMEDOFF = 'ARMEDOFF';       // prefix for Unset Armed action
 
 const CMD_BATTERY = 'BATTERY';         // prefix for battery commands
 const CMD_FLAPSTATE = 'FLAPSTATE'; 
@@ -171,7 +173,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
-                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme armée', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
+                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
                      ]
                ),
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
@@ -181,7 +185,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
-                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme armée', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
+                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
@@ -191,7 +197,9 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                   'commands'=> [
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>__('Humidité',__FILE__),  'type'=>'info|numeric', 'generic'=>'HUMIDITY','variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' ),
-                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme armée', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' )
+                     array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
+                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
                   ]
                ),
             'urn:schemas-micasaverde-com:device:WindowCovering:1'=>
@@ -473,12 +481,13 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          $eqLogic->setIsVisible(0);
          $category = self::$_CmdByVeraType[$configtype]['EqCategory'] ?? 'default';
          $eqLogic->setCategory($category,'1');
+         $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
       }
-      
-      // todo : if object is not new, try not to change its parent ID
-      // but verify that the old parent id is still a valid object
-
-      $eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      else {
+         // todo : if object is not new, try not to change its parent ID
+         // but should we verify that the old parent id is still a valid object ???
+         //$eqLogic->setObject_id($this->getObject_id());  // same parent as root parent
+      }
       $eqLogic->setName($device->name);
       $eqLogic->save();      
    }
@@ -1022,6 +1031,19 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             break;
       }
       return;
+   }
+
+   public function setArmed($id,int $mode=0)
+   {
+      log::add(VERALINK, 'debug', __METHOD__ . sprintf(' dev:%s mode:%s',$id,$mode));
+      if (($mode!=1) && ($mode!=0)) {
+         throw new Exception(__('Parametre invalide pour l action', __FILE__));
+      }
+
+      $service='urn:micasaverde-com:serviceId:SecuritySensor1';
+      $action='SetArmed';
+      $param='newArmedValue';
+      return $this->callVeraAction($id, $service, $action, $param, $mode);
    }
 
    public function switchLight($id,int $mode=0)
