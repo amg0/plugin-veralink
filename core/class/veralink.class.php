@@ -124,6 +124,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                         'function'=>'switchLight', 'value'=>1),
                   ]
                ),
+            // todo
+            // 'urn:schemas-micasaverde-com:device:G550Siren:1'=>
+            //    array(
+            //    ),
             'urn:schemas-upnp-org:device:DimmableLight:1'=>
                array(
                   'EqCategory'=>'light',
@@ -174,8 +178,12 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
                      array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
-                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
-                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'updatecmdid'=>CMD_ARMED, 'name'=>__('Off',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 
+                        'template'=>'binarySwitch', 'template_parameters'=>array('color'=>'rgb(0,153,0)'), 
+                        'function'=>'setArmed', 'value'=>0),
+                     array( 'logicalid'=>CMD_ARMEDON, 'updatecmdid'=>CMD_ARMED, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 
+                        'template'=>'binarySwitch', 
+                        'function'=>'setArmed', 'value'=>1)
                      ]
                ),
             'urn:schemas-micasaverde-com:device:DoorSensor:1' =>
@@ -186,8 +194,12 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_DOORSENSOR,   'name'=>__('Etat',__FILE__),  'type'=>'info|binary', 'generic'=>'OPENING', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
                      array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
-                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
-                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'updatecmdid'=>CMD_ARMED, 'name'=>__('Off',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 
+                        'template'=>'binarySwitch', 'template_parameters'=>array('color'=>'rgb(0,153,0)'), 
+                        'function'=>'setArmed', 'value'=>0),
+                     array( 'logicalid'=>CMD_ARMEDON, 'updatecmdid'=>CMD_ARMED, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 
+                        'template'=>'binarySwitch', 
+                        'function'=>'setArmed', 'value'=>1)
                   ]
                ),
             'urn:schemas-micasaverde-com:device:HumiditySensor:1'=>
@@ -198,8 +210,12 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'optional'=>true, 'logicalid'=>CMD_BATTERY,  'name'=>__('Batterie',__FILE__), 'type'=>'info|numeric', 'generic'=>'BATTERY',  'variable'=>'BatteryLevel', 'service'=>'urn:micasaverde-com:serviceId:HaDevice1'),
                      array( 'logicalid'=>CMD_HUMIDITYSENSOR,   'name'=>__('Humidité',__FILE__),  'type'=>'info|numeric', 'generic'=>'HUMIDITY','variable'=>'CurrentLevel','service'=>'urn:micasaverde-com:serviceId:HumiditySensor1' ),
                      array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
-                     array( 'logicalid'=>CMD_ARMEDON, 'name'=>__('Alarme armée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 'function'=>'setArmed', 'value'=>1),
-                     array( 'logicalid'=>CMD_ARMEDOFF, 'name'=>__('Alarme libérée',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 'function'=>'setArmed', 'value'=>0)
+                     array( 'logicalid'=>CMD_ARMEDOFF, 'updatecmdid'=>CMD_ARMED, 'name'=>__('Off',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 
+                        'template'=>'binarySwitch', 'template_parameters'=>array('color'=>'rgb(0,153,0)'), 
+                        'function'=>'setArmed', 'value'=>0),
+                     array( 'logicalid'=>CMD_ARMEDON, 'updatecmdid'=>CMD_ARMED, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 
+                        'template'=>'binarySwitch', 
+                        'function'=>'setArmed', 'value'=>1)
                   ]
                ),
             'urn:schemas-micasaverde-com:device:WindowCovering:1'=>
