@@ -179,10 +179,10 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                      array( 'logicalid'=>CMD_MOTIONSENSOR,   'name'=>__('Présence',__FILE__),  'type'=>'info|binary', 'generic'=>'PRESENCE', 'template'=>'timePresence','variable'=>'Tripped','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
                      array( 'logicalid'=>CMD_ARMED,   'name'=>__('Alarme mode', __FILE__),  'type'=>'info|binary', 'generic'=>'ALARM_MODE','variable'=>'Armed','service'=>'urn:micasaverde-com:serviceId:SecuritySensor1' ),
                      array( 'logicalid'=>CMD_ARMEDOFF, 'updatecmdid'=>CMD_ARMED, 'name'=>__('Off',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_RELEASED', 
-                        'template'=>'binarySwitch', 
+                        'template'=>'binarySwitch', 'template_parameters'=>array('color'=>'rgb(0,153,0)'), 
                         'function'=>'setArmed', 'value'=>0),
                      array( 'logicalid'=>CMD_ARMEDON, 'updatecmdid'=>CMD_ARMED, 'name'=>__('On',__FILE__),  'type'=>'action|other', 'generic'=>'ALARM_ARMED', 
-                        'template'=>'binarySwitch', 'template_parameters'=>array('color'=>'rgb(0,153,0)'), 
+                        'template'=>'binarySwitch', 
                         'function'=>'setArmed', 'value'=>1)
                      ]
                ),
