@@ -146,7 +146,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							</div>
 							<div class="form-group">
 								<div class="text-center">
-									<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;"/>
+									<img id="icon_visu" name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;"/>
 								</div>
 							</div>
 						</div>
