@@ -959,7 +959,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $veradevid = substr( $eqLogic->getLogicalId(), strlen(PREFIX_VERADEVICE) );
                if ($map[ $veradevid ] != true) {
                   // prepare to delete that EQ
-                  log::add(VERALINK, 'debug', 'About to delete eqLogic: '.$eqLogic->getId());
+                  log::add(VERALINK, 'debug', sprintf('About to delete eqLogic: %s : #%s-%s',$eqLogic->getId(), $veradevid, $eqLogic->getName()));
                   $cart[] = $eqLogic;
                }
             }
