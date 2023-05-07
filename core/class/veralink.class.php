@@ -470,6 +470,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                $this->createChildEqLogic($device,$device->device_type);
             } 
          }
+
+         $this->cleanupEquipments();
       }
    }
 
@@ -926,6 +928,45 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          } else {
             log::add(VERALINK, 'warning', 'Cannot find EQ logic '.PREFIX_VERADEVICE . $device->id);
          }
+      }
+   }
+
+   public function cleanupEquipments() {
+      log::add(VERALINK, 'debug', __METHOD__);
+      $thistype = $this->getConfiguration('type',null);
+      if ( isset($thistype) )
+         return false;  // supposed to be called on root equipment
+
+      $rootid = $this->getId();
+
+      $cmd = $this->getConfiguration('veralink_devices',null);
+      $devices = json_decode( $cmd ?? [] , true );    // array
+      // create a map to quickly find devices to keep 
+      $map = array();
+      foreach($devices as $device) {
+         $map[$device['id']] = true;
+      }
+
+      $cart = array();
+      foreach (self::byType(VERALINK) as $eqLogic) {
+         $eqtype = $eqLogic->getConfiguration('type',null);
+         // this EQ is not a root nor a room
+         if ( isset($eqtype) && ($eqtype!=CONFIGTYPE_ROOM) ) {
+            // this EQ belongs to this root
+            $eqrootid = $eqLogic->getConfiguration('rootid',null);
+            if ($eqrootid == $rootid) {
+               // should we keep this EQ
+               $veradevid = substr( $eqLogics->getLogicalId(), strlen(PREFIX_VERADEVICE) );
+               if ($map[ $veradevid ] != true) {
+                  // prepare to delete that EQ
+                  log::add(VERALINK, 'debug', 'About to delete eqLogic: '.$eqLogic->getId());
+                  $cart[] = $eqLogic;
+               }
+            }
+         }
+      }
+      foreach($cart as $eqLogic) {
+         //eqLogic->Remove();
       }
    }
 
