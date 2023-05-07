@@ -684,11 +684,15 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
       if (!isset($configtype)) {
          self::deamon_stop();
          $cart = array();
+         $rootid = $this->getId();
          foreach (self::byType(VERALINK) as $eqLogic) {
             $eqtype = $eqLogic->getConfiguration('type',null);
             if (isset($eqtype)) {
-               log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
-               $cart[] = $eqLogic;
+               $eqidroot = $eqLogic->getConfiguration('rootid',null);
+               if ($eqidroot == $rootid) {
+                  log::add(VERALINK, 'debug', 'About to delete eqLogic Room '.$eqLogic->getId());
+                  $cart[] = $eqLogic;
+               }
             }
          }
          foreach($cart as $eqLogic) {
