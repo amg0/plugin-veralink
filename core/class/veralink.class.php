@@ -966,7 +966,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
          }
       }
       foreach($cart as $eqLogic) {
-         eqLogic->Remove();
+         $eqLogic->Remove();
       }
    }
 
