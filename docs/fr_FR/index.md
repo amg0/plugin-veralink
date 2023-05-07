@@ -58,7 +58,8 @@ dans la configuration du plugin, il faut configurer la frequence du refresh des 
 il faut creer un nouvelle equipement qui represente votre vera. pour cela on creer un equipement, on choisi un objet parent auquel le rattacher, puis on renseigne l'addresse IP de la vera
 ![ajouter plugin](../images/ipaddress.png)
 
-a la sauvegarde, il faut etre patient. le plugin communique avec la vera et va creer des equipements pour les pieces de la vera avec des commandes pour lancer les scenes qui sont dans ces pieces. le plugin va aussi creer des equipements pour les objets de type BinaryLight avec des commandes ETAT, ON et OFF. tout cela prend un petit de temps, mais si tout ce passe bien vous obtiendrer une liste d'equipement comme ceci. c'est alors votre choix de decider quel equipement rendre actif et visible pour qu'il soit fonctionel et visible sur le dashboard de jeedom
+a la sauvegarde, il faut etre patient. le plugin communique avec la vera et va creer des equipements pour les pieces de la vera avec des commandes pour lancer les scenes qui sont dans ces pieces. le plugin va aussi creer des equipements pour les objets de type BinaryLight avec des commandes ETAT, ON et OFF. tout cela prend un petit de temps, mais si tout ce passe bien vous obtiendrer une liste d'equipement comme ceci. c'est alors votre choix de decider quel equipement rendre actif et visible pour qu'il soit fonctionel et visible sur le dashboard de jeedom.
+le plugin va aussi detruire les equipements jeedom qui ne correspondent plus a des devices vera encore presents ( par exemple lorsqu'on efface un device de la vera ).
 ![ajouter plugin](../images/equipements.png)
 
 Une fois que tout est fait, le dashboard de la vera ressemblera, par defaut a ceci.
