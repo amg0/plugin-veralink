@@ -956,7 +956,7 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             $eqrootid = $eqLogic->getConfiguration('rootid',null);
             if ($eqrootid == $rootid) {
                // should we keep this EQ
-               $veradevid = substr( $eqLogics->getLogicalId(), strlen(PREFIX_VERADEVICE) );
+               $veradevid = substr( $eqLogic->getLogicalId(), strlen(PREFIX_VERADEVICE) );
                if ($map[ $veradevid ] != true) {
                   // prepare to delete that EQ
                   log::add(VERALINK, 'debug', 'About to delete eqLogic: '.$eqLogic->getId());
