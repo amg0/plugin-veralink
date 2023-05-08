@@ -906,8 +906,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                               $eqLogic->batteryStatus($state->value);
 
                            // if no change, skip
-                           $translatefunc = $command['function'];
-                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($device->id,$state->value) : $state->value;
+                           $translatefunc = array_key_exists("function",$command) ? $command['function'] : null;
+                           $jeedomvalue = (is_null($translatefunc)) ? $state->value : $eqLogic->$translatefunc($device->id,$state->value);
                            if ($cmd->execCmd()==$jeedomvalue)
                               continue;
 
