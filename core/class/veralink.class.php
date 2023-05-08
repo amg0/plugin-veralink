@@ -36,7 +36,8 @@ const CONFIGTYPE_TEMP =    'urn:schemas-micasaverde-com:device:TemperatureSensor
 const CMD_BLON =        'BLON';        // prefix for Bin Light ON commands - DO NOT include '-'
 const CMD_BLOFF =       'BLOFF';       // prefix for Bin Light OFF commands - DO NOT include '-'
 const CMD_BLETAT =      'BLETAT';      // prefix for Bin Light State info
-const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light State info
+const CMD_BLWATTS =     'BLWATTS';     // prefix for Bin Light Watts info
+const CMD_BLKWH =       'BLKWH';       // prefix for Bin Light KWH info
 const CMD_DLETAT =      'DLETAT';      // prefix for Dim Light Load Level Status
 const CMD_DLSET =       'DLSET';       // prefix for Dim Light Level State
 const CMD_COLETAT =     'COLETAT';     // prefix for Dim Light RGB color Status
@@ -840,18 +841,22 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             //$olddevices = json_decode( ( $cmd->execCmd()) , false );      // object
             $cmd = $this->getConfiguration('veralink_devices',null);
             $olddevices = json_decode( $cmd ?? [], false );      // object
-            foreach( $lu_data->devices as $dev ) {
-               foreach($olddevices as $olddev ) {
-                  if ($olddev->id == $dev->id) {
-                     foreach($dev->states as $state) {
-                        foreach($olddev->states as $oldstate) {
-                           if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
-                              if ($state->variable != 'LastPollSuccess') {
-                                 log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
-                                 $oldstate->value = $state->value;   
-                                 break;                           
+            if (isset($lu_data->devices)) {
+               foreach( $lu_data->devices as $dev ) {
+                  foreach($olddevices as $olddev ) {
+                     if ($olddev->id == $dev->id) {
+                        if (isset($dev->states)) {
+                           foreach($dev->states as $state) {
+                              foreach($olddev->states as $oldstate) {
+                                 if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
+                                    if ($state->variable != 'LastPollSuccess') {
+                                       log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
+                                       $oldstate->value = $state->value;   
+                                       break;                           
+                                    }
+                                 }
                               }
-                           }
+                           }   
                         }
                      }
                   }
@@ -906,8 +911,8 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
                               $eqLogic->batteryStatus($state->value);
 
                            // if no change, skip
-                           $translatefunc = $command['function'];
-                           $jeedomvalue = (isset($translatefunc)) ? $eqLogic->$translatefunc($device->id,$state->value) : $state->value;
+                           $translatefunc = array_key_exists("function",$command) ? $command['function'] : null;
+                           $jeedomvalue = (is_null($translatefunc)) ? $state->value : $eqLogic->$translatefunc($device->id,$state->value);
                            if ($cmd->execCmd()==$jeedomvalue)
                               continue;
 
