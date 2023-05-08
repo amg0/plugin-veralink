@@ -841,21 +841,23 @@ http://192.168.0.148/core/api/jeeApi.php?apikey=xxx&type=event&plugin=veralink&i
             //$olddevices = json_decode( ( $cmd->execCmd()) , false );      // object
             $cmd = $this->getConfiguration('veralink_devices',null);
             $olddevices = json_decode( $cmd ?? [], false );      // object
-            foreach( $lu_data->devices as $dev ) {
-               foreach($olddevices as $olddev ) {
-                  if ($olddev->id == $dev->id) {
-                     if (isset($dev->states)) {
-                        foreach($dev->states as $state) {
-                           foreach($olddev->states as $oldstate) {
-                              if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
-                                 if ($state->variable != 'LastPollSuccess') {
-                                    log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
-                                    $oldstate->value = $state->value;   
-                                    break;                           
+            if (isset($lu_data->devices)) {
+               foreach( $lu_data->devices as $dev ) {
+                  foreach($olddevices as $olddev ) {
+                     if ($olddev->id == $dev->id) {
+                        if (isset($dev->states)) {
+                           foreach($dev->states as $state) {
+                              foreach($olddev->states as $oldstate) {
+                                 if (($oldstate->service == $state->service) && ($oldstate->variable == $state->variable) && ($oldstate->value != $state->value)){
+                                    if ($state->variable != 'LastPollSuccess') {
+                                       log::add(VERALINK, 'debug', sprintf('dev:%s-%s %s %s=>%s (%s)',$dev->id,$olddev->name,$state->variable, $oldstate->value, $state->value, $state->service));
+                                       $oldstate->value = $state->value;   
+                                       break;                           
+                                    }
                                  }
                               }
-                           }
-                        }   
+                           }   
+                        }
                      }
                   }
                }
